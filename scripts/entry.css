@@ -97,3 +97,5 @@ ul li::marker {
     position: relative;
     width: 100%
 }
+
+#scripts{height:100dvh;overflow:auto;position:relative}

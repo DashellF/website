@@ -32125,7 +32125,7 @@ class dR {
         this.stats.showPanel(0),
         document.body.appendChild(this.stats.dom)),
         this.canvas = e,
-        this.scrollElement = document.querySelector("#__nuxt"),
+        this.scrollElement = document.querySelector("#__nuxt") || document.querySelector("#scripts") || document.documentElement || document.body,
         this.sizes = {
             width: innerWidth,
             height: innerHeight
@@ -32133,11 +32133,12 @@ class dR {
         const i = new Xe(657700);
         this.scene = new O1,
         this.scene.background = i,
-        this.scene.fog = new Mu(i,15,100),
+        this.scene.fog = new Mu(i,25,260),
         this.cameraGroup = new Gt,
         this.camera = new sn(Ld,this.sizes.width / this.sizes.height,.1,300),
+        this.camera.rotation.x = -.15,
         this.cameraGroup.add(this.camera),
-        this.cameraGroup.position.y = 8,
+        this.cameraGroup.position.y = 20,
         this.cameraGroup.position.z = this.cameraStartPos,
         this.isDemo && (this.gui.add(this.camera, "fov", 10, 150, 1).onChange( () => {
             this.camera.updateProjectionMatrix()
@@ -32159,7 +32160,7 @@ class dR {
         window.addEventListener("mousemove", s => this.updateMousePosition(s)),
         window.addEventListener("pointerdown", s => this.handlePointerDown(s)),
         window.addEventListener("deviceorientation", () => this.updateSizes(), !0),
-        this.scrollElement.addEventListener("scroll", () => this.updateScroll()),
+        this.scrollElement && this.scrollElement.addEventListener("scroll", () => this.updateScroll()),
         this.updateSizes(),
         this.updateScroll(),
         this.animate()
@@ -32174,8 +32175,8 @@ class dR {
         this.text && (this.text.position.z = this.sizes.width > 600 ? this.textZPosition : this.textZMobilePosition,
         this.text.position.y += (this.textDownPosition + (this.textUpPosition - this.textDownPosition) * Math.min(Math.max(this.currentPage - 0, 0), 1) - this.text.position.y) * as),
         this.sizes.width >= 900 ? (this.cameraGroup.position.x += (this.mousePos.x * 2 - this.cameraGroup.position.x) * .1,
-        this.cameraGroup.position.y += (this.mousePos.y * 2 + 8 - this.cameraGroup.position.y) * .1) : (this.cameraGroup.position.x = 0,
-        this.cameraGroup.position.y = 8);
+        this.cameraGroup.position.y += (this.mousePos.y * 2 + 20 - this.cameraGroup.position.y) * .1) : (this.cameraGroup.position.x = 0,
+        this.cameraGroup.position.y = 20);
         let t = 0;
         this.currentPage < ls ? t = this.cameraStartPos + (ui - this.cameraStartPos) * Math.pow(Math.max(this.currentPage - 0, 0) / ls, 2) : this.currentPage < Bo ? t = ui + (_r - ui) * (Math.max(this.currentPage - ls, 0) / (Bo - ls)) : this.currentPage < dr ? t = _r + (Gl - _r) * (Math.max(this.currentPage - Bo, 0) / (dr - Bo)) : (t = Gl + (this.cameraEndPos - Gl) * (Math.max(this.currentPage - dr, 0) / (this.maxPages - dr)),
         this.logoSphere.position.z = Vl + (lR - Vl) * (Math.max(this.currentPage - dr, 0) / (this.maxPages - dr))),
@@ -32199,9 +32200,9 @@ class dR {
         t.length && t[0].distance < 40 && document.querySelector("#los-link").click()
     }
     updateScroll() {
-        this.currentPage = this.scrollElement.scrollTop / this.sizes.height,
-        this.maxPages = (this.scrollElement.scrollHeight - innerHeight) / this.sizes.height,
-    }
+	        this.currentPage = (this.scrollElement ? this.scrollElement.scrollTop : (window.scrollY || 0)) / this.sizes.height;
+	        this.maxPages = ((this.scrollElement ? this.scrollElement.scrollHeight : document.body.scrollHeight) - innerHeight) / this.sizes.height;
+	    }
     updateSizes() {
         this.sizes.width = innerWidth,
         this.sizes.height = innerHeight,
@@ -32247,34 +32248,18 @@ class dR {
         a.renderOrder = 1,
         a.position.set(0, 0, Vl),
         this.scene.add(a);
-        const l = {
-            value: 6.4
-        }
-          , c = 50
-          , u = new Fa(1,2,c,c)
-          , h = new Zn({
-            uniforms: wc.merge([Me.fog, {
-                scale: l,
-                uShift: {
-                    value: 0
-                }
-            }]),
-            vertexShader: tR,
-            fragmentShader: nR,
-            fog: !0
-        });
-        if (this.isDemo) {
-            const p = this.gui.addFolder("plane");
-            p.add(h.uniforms.scale, "value", 5, 30, .1).name("scale"),
-            p.add(h.uniforms.uShift, "value", 3, 8, .01).name("shift")
-        }
-        const f = new Vt(u,h);
-        f.scale.set(100, 100, 100),
-        f.rotation.x = -Math.PI / 2,
-        f.position.set(0, -10, 0),
-        this.scene.add(f),
-        this.plane = f,
-        this.addHill()
+        // Low-poly ground + pine forest
+        const l = new Td({
+            color: 2841910
+        })
+          , c = new Fa(1200,1200,1,1)
+          , u = new Vt(c,l);
+        u.rotation.x = -Math.PI / 2,
+        u.position.set(0, -10, 0),
+        this.scene.add(u),
+        this.ground = u,
+        this.addDirtPath(),
+        this.addForest()
     }
 
     addScrollHint() {
@@ -32309,7 +32294,235 @@ class dR {
         this.scene.add(r),
         this.hill = r
     }
-    addBird() {
+    
+
+addDirtPath() {
+        // Random each page reload.
+        const rand = Math.random;
+
+    // Path spans the camera travel range.
+    const zStart = this.cameraStartPos + 10;   // slightly in front of camera start
+    const zEnd = this.cameraEndPos - 20;       // slightly past camera end
+    const segments = 90;
+
+    // Base path params (low poly, wide enough to read from above).
+    const baseWidth = 2;
+    const bermWidth = 2.4;     // extra width on each side
+    const bermHeight = 0.65;   // berm raise amount
+
+    let x = 0;
+    const maxX = 6;
+
+    // Keep above the ground plane to avoid z-fighting.
+    const yBase = -9.88;
+
+    // Store centerline so we can scatter rocks deterministically along the same path.
+    const centers = [];
+    const widths = [];
+
+    const positions = [];
+    const uvs = [];
+    const indices = [];
+
+    for (let i = 0; i <= segments; i++) {
+        const t = i / segments;
+        const z = zStart + (zEnd - zStart) * t;
+
+        // Smoothed random walk (non-periodic and gentle). Static per reload (seeded).
+        x += (rand() - 0.5) * 1.6;
+        x *= 0.88;
+        x = Math.max(-maxX, Math.min(maxX, x));
+
+        const w = baseWidth + (rand() - 0.5) * 1.5;
+
+        centers.push(x);
+        widths.push(w);
+
+        const leftInner = x - w * 0.5;
+        const rightInner = x + w * 0.5;
+        const leftOuter = leftInner - bermWidth;
+        const rightOuter = rightInner + bermWidth;
+
+        // Add tiny height variation so it's not perfectly flat.
+        const yCenter = yBase + (rand() - 0.5) * 0.04;
+        const yBerm = yBase + bermHeight + (rand() - 0.5) * 0.15;
+
+        // 4 verts per segment: left berm, left edge, right edge, right berm
+        positions.push(
+            leftOuter, yBerm, z,
+            leftInner, yCenter, z,
+            rightInner, yCenter, z,
+            rightOuter, yBerm, z
+        );
+
+        // Simple UVs (not really used, but harmless)
+        uvs.push(0, t, 0.25, t, 0.75, t, 1, t);
+
+        if (i < segments) {
+            const a = 4 * i;
+            const b = a + 4;
+
+            // left slope quad (a0-a1-b1-b0)
+            indices.push(a, a + 1, b + 1, a, b + 1, b);
+
+            // center quad (a1-a2-b2-b1)
+            indices.push(a + 1, a + 2, b + 2, a + 1, b + 2, b + 1);
+
+            // right slope quad (a2-a3-b3-b2)
+            indices.push(a + 2, a + 3, b + 3, a + 2, b + 3, b + 2);
+        }
+    }
+
+    const geo = new Zt;
+    geo.setIndex(indices);
+    geo.setAttribute("position", new Tt(positions,3));
+    geo.setAttribute("uv", new Tt(uvs,2));
+    geo.computeVertexNormals();
+
+    const mat = new Td({
+        color: 6968368
+    });
+
+    const mesh = new Vt(geo, mat);
+    mesh.name = "dirtPath";
+    mesh.renderOrder = 0;
+
+    this.scene.add(mesh);
+    this.dirtPath = mesh;
+
+    // --- Rocks: deterministic scatter along and near the berms (low poly) ---
+        const randRock = Math.random;
+    const rocks = new Gt;
+    rocks.name = "rocks";
+
+    const rockGeo = new Tu(0.22, 5, 4); // low-poly "boulder"
+    const rockMat = new Td({ color: 5987163 }); // muted gray-brown
+
+    const rockCount = 750;
+
+    for (let k = 0; k < rockCount; k++) {
+        const t = randRock();
+        const z = zStart + (zEnd - zStart) * t;
+
+        // interpolate center + width
+        let p = t * segments;
+        let idx = Math.floor(p);
+        if (idx >= segments) idx = segments - 1;
+        const a = p - idx;
+
+        const cx = centers[idx] * (1 - a) + centers[idx + 1] * a;
+        const w = widths[idx] * (1 - a) + widths[idx + 1] * a;
+
+        // Bias rocks toward the berm edges.
+        const edgeBias = randRock() < 0.75;
+        let rx;
+        if (edgeBias) {
+            const side = randRock() < 0.5 ? -1 : 1;
+            rx = cx + side * (w * 0.5 + 1.2 + randRock() * 3.5) + (randRock() - 0.5) * 0.6;
+        } else {
+            rx = cx + (randRock() - 0.5) * (w * 0.7);
+        }
+
+        // Height: mostly on/near ground; slightly higher near berms
+        const ry = edgeBias ? (-9.82 + randRock() * 0.18) : (-9.92 + randRock() * 0.12);
+
+        const rMesh = new Vt(rockGeo, rockMat);
+        rMesh.position.set(rx, ry, z + (randRock() - 0.5) * 1.2);
+        rMesh.rotation.set(
+            randRock() * Math.PI,
+            randRock() * Math.PI,
+            randRock() * Math.PI
+        );
+
+        // Non-uniform scale for irregular low-poly rocks
+        const s = 0.18 + randRock() * 0.34;
+        rMesh.scale.set(
+            s * (0.7 + randRock() * 0.7),
+            s * (0.6 + randRock() * 0.9),
+            s * (0.7 + randRock() * 0.7)
+        );
+
+        rocks.add(rMesh);
+    }
+
+    this.scene.add(rocks);
+    this.rocksGroup = rocks;
+}
+    addForest() {
+        const e = new Gt;
+        e.name = "forest";
+
+        // ---- Tree color tuning (percentages; will be normalized automatically) ----
+        // Tweak these to control how many trees of each type appear.
+        const PCT_GREEN  = 0.65;
+        const PCT_ORANGE = 0.20;
+        const PCT_RED    = 0.05;
+        const PCT_BROWN  = 0.10;
+
+        // Leaf colors (low-poly, slightly muted).
+        const COLOR_GREEN  = 0x1b5e20; 
+        const COLOR_ORANGE = 0x8a4917;
+        const COLOR_RED    = 0x6e1b17;
+        const COLOR_BROWN  = 0x4a2b13;
+        // Random each page reload.
+        const rand = Math.random;
+
+        const t = new Td({ color: 7031339 }); // trunk (brown)
+        const leafMatGreen  = new Td({ color: COLOR_GREEN  });
+        const leafMatOrange = new Td({ color: COLOR_ORANGE });
+        const leafMatRed    = new Td({ color: COLOR_RED    });
+        const leafMatBrown  = new Td({ color: COLOR_BROWN  });
+
+        const totalPct = PCT_GREEN + PCT_ORANGE + PCT_RED + PCT_BROWN;
+        const pickLeafMat = () => {
+            const r0 = rand() * totalPct;
+            if (r0 < PCT_GREEN) return leafMatGreen;
+            if (r0 < PCT_GREEN + PCT_ORANGE) return leafMatOrange;
+            if (r0 < PCT_GREEN + PCT_ORANGE + PCT_RED) return leafMatRed;
+            return leafMatBrown;
+        };
+
+        // Tree shape (scaled up).
+        const trunkH = 7
+          , leavesH = 16
+          , trunkGeo = new bu([new xe(.65,0), new xe(.45,trunkH)],6)
+          , leavesGeo = new bu([new xe(3.8,0), new xe(0,leavesH)],7);
+
+        // ---- Forest extents ----
+        // Widen the forest left/right while keeping the SAME density as before.
+        const u = 300;                // half-length (Z)
+        const c = 420;                // half-width  (X)  (was 120)
+        const BASE_DENSITY = 900 / (240 * 600); // original: 900 trees over (2*120) x (2*300)
+        const l = Math.floor(BASE_DENSITY * (2 * c) * (2 * u));
+
+        for (let h = 0; h < l; h++) {
+            const f = new Gt
+              , p = new Vt(trunkGeo, t)
+              , g = new Vt(leavesGeo, pickLeafMat());
+
+            g.position.y = trunkH;
+            f.add(p, g);
+
+            let x = (rand() - .5) * 2 * c
+              , m = (rand() - .5) * 2 * u;
+
+            // Keep a clear corridor for the path.
+            Math.abs(x) < 12 && (x += x < 0 ? -12 : 12);
+
+            f.position.set(x, -10, m);
+            f.rotation.y = rand() * Math.PI * 2;
+
+            const d = 1 + rand() * .9;
+            f.scale.set(d, d, d);
+
+            e.add(f);
+        }
+
+        this.scene.add(e);
+        this.forest = e;
+    }
+
+addBird() {
         const e = new Gt;
         e.name = "bird";
         const t = new Bl().load(fr + "images/textures/18.png")
@@ -33015,7 +33228,7 @@ const CR = mg(wR, [["render", RR]])
           , s = t.statusMessage ?? (r ? "Page Not Found" : "Internal Server Error")
           , o = t.message || t.toString()
           , a = void 0
-          , u = r ? $u( () => lc( () => import("./error-404.405f1636.js"), ["./error-404.405f1636.js", "./vue.js", "./error-404.7fc72018.css"], import.meta.url).then(h => h.default || h)) : $u( () => lc( () => import("./error-500.fed32bb8.js"), ["./error-500.fed32bb8.js", "./vue.js", "./error-500.c5df6088.css"], import.meta.url).then(h => h.default || h));
+          , u = r ? $u( () => lc( () => import("./error_404.js"), ["./error_404.js", "./vue.js", "./error_404.css"], import.meta.url).then(h => h.default || h)) : $u( () => lc( () => import("./error_500.js"), ["./error_500.js", "./vue.js", "./error_500.css"], import.meta.url).then(h => h.default || h));
         return (h, f) => (Wn(),
         pr(st(u), Ng(Op({
             statusCode: st(i),
@@ -33091,7 +33304,7 @@ let Nd;
         try {
             await r.hooks.callHook("app:created", i),
             await r.hooks.callHook("app:beforeMount", i),
-            i.mount(fy),
+            i.mount(document.querySelector("#__nuxt") ? "#__nuxt" : (document.querySelector("#scripts") ? "#scripts" : "body")),
             await r.hooks.callHook("app:mounted", i),
             await jr()
         } catch (a) {
