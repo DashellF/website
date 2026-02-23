@@ -32055,6 +32055,95 @@ void main() {
 }
 `;
 let fr = "";
+
+const iL = `
+#include <fog_pars_vertex>
+uniform float uSize;
+uniform float uTime;
+uniform float uLowBound;
+uniform float uHighBound;
+uniform float uLeftBound;
+uniform float uRightBound;
+uniform float uShiftX;
+
+attribute float aScale;
+attribute float aSpeed;
+attribute float aRotSpeed;
+attribute float aRotOffset;
+attribute float aPhase;
+
+varying float vAngle;
+varying vec3 vColor;
+
+void main() {
+  float range = abs(uLowBound - uHighBound);
+  float leftRightRange = abs(uRightBound - uLeftBound);
+  vec3 startPosition = position;
+
+  startPosition.y -= aSpeed * uTime;
+
+  float distToTop = uHighBound - startPosition.y;
+  float isBelow = step(range, distToTop);
+
+  startPosition.y = isBelow * (-mod(distToTop, range) + uHighBound) +
+                    (1.0 - isBelow) * startPosition.y;
+
+  startPosition.x += uShiftX + sin(uTime * 0.6 + aPhase) * 0.35;
+  startPosition.z += cos(uTime * 0.45 + aPhase) * 0.22;
+
+  float distToRight = abs(uRightBound - startPosition.x);
+  float distToLeft = abs(uLeftBound - startPosition.x);
+  float isTooFarLeft = 1.0 - step(uLeftBound, startPosition.x);
+  float isTooFarRight = step(uRightBound, startPosition.x);
+
+  startPosition.x = isTooFarLeft * (-mod(distToRight, leftRightRange) + uRightBound) +
+                    isTooFarRight * (mod(distToLeft, leftRightRange) + uLeftBound) +
+                    (1.0 - (isTooFarRight + isTooFarLeft)) * startPosition.x;
+
+  vec4 modelPosition = modelMatrix * vec4(startPosition, 1.0);
+  vec4 viewPosition = viewMatrix * modelPosition;
+  vec4 mvPosition = viewPosition;
+  vec4 projPosition = projectionMatrix * viewPosition;
+
+  #include <fog_vertex>
+
+  gl_Position = projPosition;
+  gl_PointSize = uSize * aScale;
+  gl_PointSize *= (1.0 / -viewPosition.z);
+
+  vAngle = aRotOffset + aRotSpeed * uTime;
+  vColor = color;
+}
+`;
+const rL = `
+#include <fog_pars_fragment>
+varying float vAngle;
+varying vec3 vColor;
+
+void main() {
+  vec2 uv = gl_PointCoord - vec2(0.5);
+
+  float s = sin(vAngle);
+  float c = cos(vAngle);
+  vec2 p = vec2(c * uv.x - s * uv.y, s * uv.x + c * uv.y);
+
+  float body = length(p / vec2(0.28, 0.42)) - 1.0;
+  float tip  = length((p - vec2(0.0, 0.16)) / vec2(0.18, 0.30)) - 1.0;
+  float d = min(body, tip);
+
+  float notch = length((p + vec2(0.0, 0.42)) / vec2(0.18, 0.12)) - 1.0;
+  d = max(d, -notch);
+
+  float alpha = smoothstep(0.03, -0.03, d);
+
+  float vein = smoothstep(0.03, 0.0, abs(p.x) * 3.0) * smoothstep(-0.40, -0.05, p.y);
+  vec3 col = vColor + vein * 0.06;
+
+  gl_FragColor = vec4(col, alpha);
+  #include <fog_fragment>
+}
+`;
+
 new H(0,0,1);
 const Ld = 90
   , sR = 80
@@ -32153,7 +32242,7 @@ class dR {
         this.renderer.setPixelRatio(window.devicePixelRatio),
         e.appendChild(this.renderer.domElement),
         this.addScrollHint(),
-        this.addText(),
+        0,
         this.addStuff(),
         this.addBird(),
         window.addEventListener("resize", () => this.updateSizes()),
@@ -32172,6 +32261,8 @@ class dR {
         );
         const e = this.clock.getElapsedTime();
         this.clock.getDelta(),
+        this.leafFall && (this.leafFall.material.uniforms.uTime.value = e,
+        this.leafFall.material.uniforms.uShiftX.value -= this.mousePos.x * .02),
         this.text && (this.text.position.z = this.sizes.width > 600 ? this.textZPosition : this.textZMobilePosition,
         this.text.position.y += (this.textDownPosition + (this.textUpPosition - this.textDownPosition) * Math.min(Math.max(this.currentPage - 0, 0), 1) - this.text.position.y) * as),
         this.sizes.width >= 900 ? (this.cameraGroup.position.x += (this.mousePos.x * 2 - this.cameraGroup.position.x) * .1,
@@ -32259,7 +32350,8 @@ class dR {
         this.scene.add(u),
         this.ground = u,
         this.addDirtPath(),
-        this.addForest()
+        this.addForest(),
+        this.leafFall = this.addLeafFall()
     }
 
     addScrollHint() {
@@ -32460,10 +32552,11 @@ addDirtPath() {
         const PCT_BROWN  = 0.10;
 
         // Leaf colors (low-poly, slightly muted).
-        const COLOR_GREEN  = 0x1b5e20; 
+        const COLOR_GREEN  = 0x1b5e20; // dark evergreen
         const COLOR_ORANGE = 0x8a4917;
         const COLOR_RED    = 0x6e1b17;
         const COLOR_BROWN  = 0x4a2b13;
+        this.treeColorTuning = { PCT_GREEN, PCT_ORANGE, PCT_RED, PCT_BROWN, COLOR_GREEN, COLOR_ORANGE, COLOR_RED, COLOR_BROWN };
         // Random each page reload.
         const rand = Math.random;
 
@@ -32521,6 +32614,103 @@ addDirtPath() {
         this.scene.add(e);
         this.forest = e;
     }
+
+
+    addLeafFall() {
+        const tune = this.treeColorTuning || {
+            PCT_GREEN: 0.65,
+            PCT_ORANGE: 0.20,
+            PCT_RED: 0.05,
+            PCT_BROWN: 0.10,
+            COLOR_GREEN: 0x1b5e20,
+            COLOR_ORANGE: 0x8a4917,
+            COLOR_RED: 0x6e1b17,
+            COLOR_BROWN: 0x4a2b13
+        };
+
+        const PCT_GREEN  = tune.PCT_GREEN;
+        const PCT_ORANGE = tune.PCT_ORANGE;
+        const PCT_RED    = tune.PCT_RED;
+        const PCT_BROWN  = tune.PCT_BROWN;
+
+        const COLOR_GREEN  = tune.COLOR_GREEN;
+        const COLOR_ORANGE = tune.COLOR_ORANGE;
+        const COLOR_RED    = tune.COLOR_RED;
+        const COLOR_BROWN  = tune.COLOR_BROWN;
+
+        const totalPct = PCT_GREEN + PCT_ORANGE + PCT_RED + PCT_BROWN;
+        const pickLeafHex = () => {
+            const r0 = Math.random() * totalPct;
+            if (r0 < PCT_GREEN) return COLOR_GREEN;
+            if (r0 < PCT_GREEN + PCT_ORANGE) return COLOR_ORANGE;
+            if (r0 < PCT_GREEN + PCT_ORANGE + PCT_RED) return COLOR_RED;
+            return COLOR_BROWN;
+        };
+
+        const geo = new Zt;
+        const count = 5000;
+        const pos = new Float32Array(count * 3);
+        const aScale = new Float32Array(count);
+        const aSpeed = new Float32Array(count);
+        const aRotSpeed = new Float32Array(count);
+        const aRotOffset = new Float32Array(count);
+        const aPhase = new Float32Array(count);
+        const colors = new Float32Array(count * 3);
+
+        const bounds = { x: 80, y: 55, z: 160 };
+
+        for (let i = 0; i < count; i++) {
+            const c = i * 3;
+            pos[c]     = (Math.random() - .5) * 2 * bounds.x;
+            pos[c + 1] = -10 + Math.random() * bounds.y;
+            pos[c + 2] = (Math.random() - .5) * 2 * bounds.z;
+
+            aScale[i] = 0.7 + Math.random() * 1.1;
+            aSpeed[i] = 0.9 + Math.random() * 2.2;
+
+            aRotSpeed[i] = (Math.random() - 0.5) * 4.5;
+            aRotOffset[i] = Math.random() * Math.PI * 2;
+            aPhase[i] = Math.random() * Math.PI * 2;
+
+            const hex = pickLeafHex();
+            colors[c]     = ((hex >> 16) & 255) / 255;
+            colors[c + 1] = ((hex >> 8) & 255) / 255;
+            colors[c + 2] = (hex & 255) / 255;
+        }
+
+        geo.setAttribute("position", new Tt(pos,3));
+        geo.setAttribute("aScale", new Tt(aScale,1));
+        geo.setAttribute("aSpeed", new Tt(aSpeed,1));
+        geo.setAttribute("aRotSpeed", new Tt(aRotSpeed,1));
+        geo.setAttribute("aRotOffset", new Tt(aRotOffset,1));
+        geo.setAttribute("aPhase", new Tt(aPhase,1));
+        geo.setAttribute("color", new Tt(colors,3));
+
+        const mat = new Zn({
+            depthWrite: !1,
+            transparent: !0,
+            vertexColors: !0,
+            vertexShader: iL,
+            fragmentShader: rL,
+            fog: !0,
+            uniforms: wc.merge([Me.fog, {
+                uSize: { value: 180 * this.renderer.getPixelRatio() },
+                uTime: { value: 0 },
+                uLowBound: { value: -10 },
+                uHighBound: { value: -10 + bounds.y },
+                uLeftBound: { value: -bounds.x },
+                uRightBound: { value: bounds.x },
+                uShiftX: { value: 0 }
+            }])
+        });
+
+        const pts = new H1(geo, mat);
+        pts.name = "leafFall";
+        pts.renderOrder = 2;
+        this.scene.add(pts);
+        return pts;
+    }
+
 
 addBird() {
         const e = new Gt;
