@@ -32169,7 +32169,7 @@ const Gl = _r - 20
   , ls = 3.5
   , Bo = 5.1
   , dr = 8;
-class dR {
+class ThreeScene {
     constructor(e, t) {
         Ye(this, "canvas");
         Ye(this, "scrollElement");
@@ -33195,7 +33195,7 @@ const pR = {
             if (!e.value)
                 return new Error("Canvas not found");
             const t = !1;
-            new dR(e.value,t)
+            new ThreeScene(e.value,t)
         }
         ),
         (t, i) => (Wn(),
@@ -33212,8 +33212,7 @@ const mg = (n, e) => {
         t[i] = r;
     return t
 }
-  , gR = mg(mR, [["__scopeId", "data-v-cb6754e6"]])
-  , _R = $i({
+  , gR = mR , _R = $i({
     name: "ClientOnly",
     inheritAttrs: !1,
     props: ["fallback", "placeholder", "placeholderTag", "fallbackTag"],

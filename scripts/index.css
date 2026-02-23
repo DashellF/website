@@ -1,51 +1,54 @@
-@font-face {
-  font-family: "Poppins";
-  font-style: italic;
-  font-weight: 100;
-  font-display: swap;
-  src: local("Poppins"), url("/fonts/Poppins/Poppins-Thin.ttf") format("truetype");
-}
+@charset "UTF-8";
 
-@font-face {
-  font-family: "Poppins";
-  font-style: normal;
-  font-weight: 300;
-  font-display: swap;
-  src: local("Poppins"), url("/fonts/Poppins/Poppins-Light.ttf") format("truetype");
-}
-
-@font-face {
-  font-family: "Poppins";
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: local("Poppins"), url("/fonts/Poppins/Poppins-Bold.ttf") format("truetype");
-}
-
+/* =========================================================
+   Global theme + typography
+   ========================================================= */
 :root {
   --bg: #0a0924;
   --accent: #ff8a00;
-  --card-bg: rgba(10, 9, 36, 0.66);
-  --card-shadow: 0 0 10px 0 rgba(255, 138, 0, 0.18);
+  --panel-bg: rgba(10, 9, 36, 0.66);
+  --panel-shadow: 0 0 10px rgba(255, 138, 0, 0.18);
+  --radius: 1rem;
+  --max-width: 800px;
+}
+
+@font-face {
+  font-display: auto;
+  font-family: Poppins;
+  font-style: italic;
+  font-weight: 100;
+  src: local("Poppins"), url(/fonts/Poppins/Poppins-Thin.ttf) format("truetype");
+}
+@font-face {
+  font-display: auto;
+  font-family: Poppins;
+  font-style: normal;
+  font-weight: 300;
+  src: local("Poppins"), url(/fonts/Poppins/Poppins-Light.ttf) format("truetype");
+}
+@font-face {
+  font-display: auto;
+  font-family: Poppins;
+  font-style: normal;
+  font-weight: 600;
+  src: local("Poppins"), url(/fonts/Poppins/Poppins-Bold.ttf) format("truetype");
 }
 
 body {
-  background: var(--bg);
-  color: var(--accent);
+  background-color: var(--bg);
   font-family: Poppins, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   margin: 0;
   min-height: 100dvh;
-  text-rendering: geometricPrecision;
   width: 100dvw;
+  text-rendering: geometricPrecision;
 }
 
-/* Scroll container (Nuxt mount) */
 #__nuxt {
   height: 100dvh;
   overflow: auto;
   position: relative;
 
-  /* hides the “white vertical line” scrollbar */
+  /* hide scrollbar */
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* old Edge/IE */
 }
@@ -54,7 +57,6 @@ body {
   height: 0;
 }
 
-/* List markers */
 ol li::marker,
 ul li::marker {
   color: var(--accent);
@@ -65,12 +67,14 @@ ul li::marker {
   content: "ø ";
 }
 
-/* ThreeJS background container (created by your other scripts) */
+/* =========================================================
+   Three.js background
+   ========================================================= */
 #threejs-container {
   position: fixed;
 }
-#threejs,
-#threejs-container {
+#threejs-container,
+#threejs {
   height: 100dvh;
   inset: 0;
   width: 100dvw;
@@ -79,7 +83,21 @@ ul li::marker {
   position: relative;
 }
 
-/* Page layout */
+/* =========================================================
+   Layout blocks
+   ========================================================= */
+.hero-block {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100dvh;
+  width: 100%;
+  position: relative;
+  z-index: 1000;
+  padding: 0 1rem;
+  box-sizing: border-box;
+}
+
 .page-container {
   background: transparent;
   display: flex;
@@ -89,83 +107,39 @@ ul li::marker {
   justify-content: center;
   line-height: 2.3rem;
   margin: auto;
-  max-width: 800px;
+  max-width: var(--max-width);
   position: relative;
   text-align: center;
   width: 77%;
   z-index: 1000;
 }
 
+.main-block {
+  align-items: center;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  min-height: 100dvh;
+  padding-block: 5rem;
+}
+
+/* Spacer sections used as scroll pages */
 .three-animation {
   display: block;
   height: 100dvh;
   position: relative;
 }
 
-/* Hero layout */
-.hero-block {
-  align-items: center;
-  box-sizing: border-box;
-  display: flex;
-  height: 100dvh;
-  justify-content: center;
-  padding: 0 1rem;
-  position: relative;
-  width: 100%;
-  z-index: 1000;
-}
-
-/* Scroll hint (arrow only) */
-#scroll-text {
-  align-items: center;
-  bottom: 0;
-  color: var(--accent);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  left: 0;
-  opacity: 1;
-  padding-bottom: 1rem;
-  position: fixed;
-  transition: opacity 1s ease-out, transform 1s ease-out;
-  width: 100%;
-  will-change: opacity;
-}
-#scroll-text.hidden {
-  opacity: 0;
-}
-#scroll-arrow {
-  animation: shake 0.55s ease-out infinite alternate;
-  clip-rule: evenodd;
-  fill: none;
-  fill-rule: evenodd;
-  height: 25px;
-  position: relative;
-  stroke: var(--accent);
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-miterlimit: 1.5;
-  stroke-width: 1px;
-  width: 25px;
-}
-
-@keyframes shake {
-  0% {
-    transform: translateY(0);
-  }
-  100% {
-    transform: translateY(-20%);
-  }
-}
-
-/* Shared “card/box” look */
+/* =========================================================
+   Panels / typography
+   ========================================================= */
 .text-block,
-.section-header,
+.section-heading,
 .card-container {
-  background: var(--card-bg);
+  background: var(--panel-bg);
   border: 1px solid var(--accent);
-  border-radius: 1rem;
-  box-shadow: var(--card-shadow);
+  border-radius: var(--radius);
+  box-shadow: var(--panel-shadow);
   color: var(--accent);
 }
 
@@ -198,22 +172,12 @@ ul li::marker {
   width: 85%;
 }
 
-.main-block {
-  align-items: center;
-  box-sizing: border-box;
-  display: flex;
-  justify-content: center;
-  min-height: 100dvh;
-  padding-block: 5rem;
-}
-
-/* “Prizes” header box (was `our-sponsors`) */
-.section-header {
+.section-heading {
   margin: auto;
   padding: 3rem 2rem;
   width: fit-content;
 }
-.section-header h2 {
+.section-heading h2 {
   font-size: 3rem;
   font-style: italic;
   line-height: 3rem;
@@ -221,32 +185,9 @@ ul li::marker {
   text-align: center;
 }
 
-/* Footer + links */
-footer {
-  line-height: 1.3rem;
-}
-.author {
-  color: var(--accent);
-  font-size: 1rem;
-  width: 100%;
-}
-.link {
-  color: inherit;
-  font-weight: 900;
-  position: relative;
-  text-decoration: none; /* custom underline */
-}
-.link::after {
-  background: currentColor;
-  content: "";
-  height: 1px;
-  left: 0;
-  position: absolute;
-  top: 90%;
-  width: 100%;
-}
-
-/* Prizes */
+/* =========================================================
+   Prize cards
+   ========================================================= */
 .prize-container {
   align-items: stretch;
   box-sizing: border-box;
@@ -268,57 +209,86 @@ footer {
   font-weight: 700;
   margin: 0;
 }
+.card-container p {
+  font-size: 1rem;
+  line-height: 1.4rem;
+}
+.card-container a {
+  color: inherit;
+  text-decoration: none;
+}
 .card-container ul {
   text-align: left;
 }
 
-/* Small screens */
-@media (max-width: 400px), ((max-height: 400px) and (max-width: 900px)) {
-  .author {
-    font-size: 0.8rem;
-    line-height: 1rem;
-  }
-
-  .page-container {
-    font-size: 1rem;
-  }
-
-  .text-block {
-    padding: 1rem;
-  }
-
-  .text-block p {
-    line-height: 1.6rem;
-  }
-
-  .text-block h2 {
-    font-size: 1.7rem;
-    margin: 0;
-  }
-
-  .text-block h3 {
-    font-size: 1rem;
-    margin: 1rem 0 0;
-  }
-
-  .text-block ol,
-  .text-block ul {
-    width: fit-content;
-  }
-
-  .section-header {
-    padding-block: 1rem;
-  }
-
-  .section-header h2 {
-    font-size: 2rem;
-    margin: 0;
-  }
+/* =========================================================
+   Scroll hint
+   ========================================================= */
+#scroll-text {
+  align-items: center;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  left: 0;
+  opacity: 1;
+  padding-bottom: 1rem;
+  position: fixed;
+  transition: opacity 1s ease-out, transform 1s ease-out;
+  width: 100%;
+  will-change: opacity;
+  color: var(--accent);
+}
+#scroll-text.hidden {
+  opacity: 0;
 }
 
-@media (max-width: 900px) and (min-width: 401px) {
-  .text-block h2,
-  .section-header h2 {
-    font-size: 2.3rem;
-  }
+#scroll-arrow {
+  fill: none;
+  stroke: var(--accent);
+  fill-rule: evenodd;
+  clip-rule: evenodd;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-miterlimit: 1.5;
+  stroke-width: 1px;
+  animation: shake-arrow 0.55s ease-out infinite alternate;
+  height: 25px;
+  position: relative;
+  width: 25px;
+}
+
+@keyframes shake-arrow {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-20%); }
+}
+
+/* =========================================================
+   Footer links
+   ========================================================= */
+.author {
+  color: var(--accent);
+  font-size: 1rem;
+  width: 100%;
+  position: relative;
+}
+
+.link {
+  color: inherit;
+  font-weight: 900;
+  text-decoration: none;
+  position: relative;
+}
+.link::after {
+  background: var(--accent);
+  content: "";
+  height: 1px;
+  left: 0;
+  position: absolute;
+  top: 90%;
+  width: 100%;
+}
+
+footer {
+  line-height: 1.3rem;
 }

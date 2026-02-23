@@ -1,25 +1,25 @@
 import {
-  _ as exportHelper,
-  m as openBlock,
-  q as createElementBlock,
-  s as createElementVNode,
-  d as defineComponent,
-  r as ref,
-  F as Fragment,
-  B as renderList,
-  C as unref,
-  t as toDisplayString,
-  K as normalizeClass,
-  L as createStaticVNode,
-  o as onMounted,
-  v as createVNode,
+  _ as $,
+  m,
+  q as g,
+  s as l,
+  d as k,
+  r as S,
+  F as W,
+  B as A,
+  C as T,
+  t as I,
+  K as X,
+  L as P,
+  o as D,
+  v as x,
 } from "./entry.js";
 
 /**
- * Scroll arrow SVG component
+ * Scroll arrow SVG component (unchanged)
  */
-const ScrollArrow = {};
-const scrollArrowSvgAttrs = {
+const se = {};
+const ae = {
   width: "100%",
   height: "100%",
   viewBox: "0 0 10 10",
@@ -29,22 +29,33 @@ const scrollArrowSvgAttrs = {
   "xml:space": "preserve",
   "xmlns:serif": "http://www.serif.com/",
 };
-const scrollArrowPath = createElementVNode("path", { d: "M2,5 L5,8 L 8,5" }, null, -1);
-
-function renderScrollArrow() {
-  return openBlock(), createElementBlock("svg", scrollArrowSvgAttrs, [scrollArrowPath]);
+const re = l(
+  "path",
+  {
+    d: "M2,5 L5,8 L 8,5",
+  },
+  null,
+  -1
+);
+const ne = [re];
+function oe(e, t) {
+  return m(), g("svg", ae, ne);
 }
-
-const ArrowIcon = exportHelper(ScrollArrow, [["render", renderScrollArrow]]);
+const de = $(se, [["render", oe]]);
 
 /**
- * Academic prizes cards
+ * Academic prizes cards component (kept, but text randomized)
  */
-const AcademicPrizes = defineComponent({
+const ce = { class: "prize-container" };
+const le = { class: "card" };
+const ue = { class: "side front" };
+const he = { class: "info" };
+
+const fe = k({
   __name: "AcademicPrizes",
   setup() {
-    const suffix = (n) => {
-      switch (n) {
+    function t(i) {
+      switch (i) {
         case 1:
           return "1st";
         case 2:
@@ -52,41 +63,63 @@ const AcademicPrizes = defineComponent({
         case 3:
           return "3rd";
         default:
-          return `${n}th`;
+          return `${i}th`;
       }
-    };
+    }
 
-    // Placeholder text (edit these whenever you want)
-    const prizes = ref([
+    // Random/placeholder text as requested
+    const s = S([
       ["Placeholder prize item A", "Placeholder prize item B", "Placeholder prize item C"],
       ["Placeholder prize item A", "Placeholder prize item B"],
       ["Placeholder prize item A"],
     ]);
 
-    return () => (
-      openBlock(),
-      createElementBlock("div", { class: "prize-container" }, [
-        (openBlock(true),
-        createElementBlock(
-          Fragment,
+    return (i, a) => (
+      m(),
+      g("div", ce, [
+        (m(!0),
+        g(
+          W,
           null,
-          renderList(unref(prizes), (items, idx) => (
-            openBlock(),
-            createElementBlock("div", { key: idx, class: "card-container" }, [
-              createElementVNode("h2", null, toDisplayString(`${suffix(idx + 1)} place`), 1),
-              createElementVNode("ul", null, [
-                (openBlock(true),
-                createElementBlock(
-                  Fragment,
-                  null,
-                  renderList(items, (txt) => (
-                    openBlock(),
-                    createElementBlock("li", { key: txt }, toDisplayString(txt), 1)
-                  )),
-                  128
-                )),
-              ]),
-            ])
+          A(T(s), (r, n) => (
+            m(),
+            g(
+              "div",
+              {
+                key: n,
+                class: "card-container",
+              },
+              [
+                l("span", le, [
+                  l("div", ue, [
+                    l("div", he, [
+                      l("h2", null, I(t(n + 1)) + " place", 1),
+                      l("p", null, [
+                        l("ul", null, [
+                          (m(!0),
+                          g(
+                            W,
+                            null,
+                            A(r, (o) => (
+                              m(),
+                              g(
+                                "li",
+                                {
+                                  key: o,
+                                },
+                                I(o),
+                                1
+                              )
+                            )),
+                            128
+                          )),
+                        ]),
+                      ]),
+                    ]),
+                  ]),
+                ]),
+              ]
+            )
           )),
           128
         )),
@@ -95,143 +128,154 @@ const AcademicPrizes = defineComponent({
   },
 });
 
+const ve = fe;
 /**
- * Static page sections
+ * Page constants / static sections
  */
-const HeroSection = createStaticVNode(
-  `
-  <div class="hero-block">
-    <div class="text-block">
-      <h2>Dashell Finn</h2>
-      <p>Hi, my name is Dashell Finn and I am an aspiring a career in cybersecurity/software engineering!</p>
-    </div>
-  </div>
-  `,
+const Ue = { class: "page-container" };
+const Ve = { class: "three-animation" };
+
+// Hero block on first screen
+const Hero = P(
+  '<div class="hero-block">' +
+    '<div class="text-block">' +
+      '<h2>Dashell Finn</h2>' +
+      '<p>Hi, my name is Dashell Finn and I am an aspiring a career in cybersecurity/software engineering!</p>' +
+    "</div>" +
+  "</div>",
   1
 );
 
-const MainSections = createStaticVNode(
-  `
-  <div class="three-animation"></div>
+// Your new “blank text box” sections + Academic division header
+const Sections = P(
+  '<div class="three-animation"></div>' +
 
-  <div class="main-block">
-    <div class="text-block">
-      <h2>About</h2>
-      <p>Placeholder bio text. Replace with your real introduction.</p>
-      <p>Second paragraph placeholder for extra details (what you're learning, goals, interests).</p>
-    </div>
-  </div>
+  '<div class="main-block"><div class="text-block">' +
+    '<h2>About</h2>' +
+    '<p>Placeholder bio text. Replace with your real introduction.</p>' +
+    '<p>Second paragraph placeholder for extra details (what you\'re learning, goals, interests).</p>' +
+  '</div></div>' +
 
-  <div class="main-block">
-    <div class="text-block">
-      <h2>Projects</h2>
-      <p>Placeholder projects text. Add a few projects, writeups, or labs you've done.</p>
-    </div>
-  </div>
+  '<div class="main-block"><div class="text-block">' +
+    '<h2>Projects</h2>' +
+    '<p>Placeholder projects text. Add a few projects, writeups, or labs you\'ve done.</p>' +
+  '</div></div>' +
 
-  <div class="main-block">
-    <div class="text-block">
-      <h2>Skills</h2>
-      <p>Placeholder skills text. Add languages, tools, and security areas you're focusing on.</p>
-    </div>
-  </div>
+  '<div class="main-block"><div class="text-block">' +
+    '<h2>Skills</h2>' +
+    '<p>Placeholder skills text. Add languages, tools, and security areas you\'re focusing on.</p>' +
+  '</div></div>' +
 
-  <div class="main-block">
-    <div class="text-block">
-      <h2>Experience</h2>
-      <p>Placeholder experience text. Add clubs, internships, competitions, certifications, etc.</p>
-    </div>
-  </div>
+  '<div class="main-block"><div class="text-block">' +
+    '<h2>Experience</h2>' +
+    '<p>Placeholder experience text. Add clubs, internships, competitions, certifications, etc.</p>' +
+  '</div></div>' +
 
-  <div class="main-block">
-    <div class="text-block">
-      <h2>Contact</h2>
-      <p>Placeholder contact text. Add your email, GitHub, LinkedIn, etc.</p>
-    </div>
-  </div>
+  '<div class="main-block"><div class="text-block">' +
+    '<h2>Contact</h2>' +
+    '<p>Placeholder contact text. Add your email, GitHub, LinkedIn, etc.</p>' +
+  '</div></div>' +
 
-  <div class="three-animation"></div>
-  <div class="three-animation"></div>
+  '<div class="three-animation"></div>' +
+  '<div class="three-animation"></div>' +
 
-  <div class="section-header">
-    <h2>Prizes: Academic division</h2>
-  </div>
-  `,
+  '<div class="section-heading">' +
+    '<h2>Prizes: Academic division</h2>' +
+  '</div>',
   9
 );
 
-const NotesSection = createStaticVNode(
-  `
-  <div class="main-block">
-    <div class="text-block">
-      <h2>Notes: Academic division</h2>
-      <p>Placeholder notes text. Replace with whatever details you want to show here.</p>
-    </div>
-  </div>
-  `,
+// Notes block (random text)
+const Notes = P(
+  '<div class="main-block"><div class="text-block">' +
+    '<h2>Notes: Academic division</h2>' +
+    '<p>Placeholder notes text. Replace with whatever details you want to show here.</p>' +
+  "</div></div>",
   1
 );
 
-const FooterSection = createStaticVNode(
-  `
-  <div class="three-animation"></div>
-  <div class="three-animation"></div>
+// Spacer blocks + footer credit (kept)
+const Tail = P(
+  '<div class="three-animation"></div>' +
+  '<div class="three-animation"></div>' +
+  '<footer>' +
+    '<a id="los-link" href="https://losfuzzys.net/" target="_blank" rel="noopener noreferrer"></a>' +
 
-  <footer>
-    <p class="author">
-      This website was made by
-      <a class="link" href="https://github.com/dashellf/website" target="_blank" rel="noopener noreferrer">me!</a>
-      <br />
-      Inspiration from
-      <a class="link" href="https://glacierctf.com" target="_blank" rel="noopener noreferrer">glacierctf.com</a>
-    </p>
-  </footer>
-  `,
+    '<p class="author">' +
+      'This website was made by ' +
+      '<a class="link" href="https://github.com/dashellf/website" target="_blank" rel="noopener noreferrer">me!</a>' +
+      '<br>' +
+      'Inspiration from ' +
+      '<a class="link" href="https://glacierctf.com" target="_blank" rel="noopener noreferrer">glacierctf.com</a>' +
+    '</p>' +
+
+  '</footer>',
   3
 );
 
-const SCROLL_ARROW_HIDE_AT_PX = 30;
+const Qe = 30;
 
 /**
  * Main page component
+ * - Removes the "scroll" word (keeps arrow)
+ * - Replaces GlacierCTF text with your sections
+ * - Keeps Academic division prize cards (random text)
+ * - Removes sponsors (not rendered at all)
+ * - Keeps footer credit
  */
-const IndexPage = defineComponent({
+const Xe = k({
   __name: "index",
   setup() {
-    const isScrollArrowHidden = ref(false);
-    const scrollContainer = ref(null);
+    const t = S(!1);
+    const s = S();
 
-    const updateScrollArrowVisibility = () => {
-      const el = scrollContainer.value;
-      isScrollArrowHidden.value = el ? el.scrollTop > SCROLL_ARROW_HIDE_AT_PX : false;
+    const i = () => {
+      t.value = s.value ? s.value.scrollTop > Qe : !1;
     };
 
-    onMounted(() => {
-      scrollContainer.value = document.querySelector("#__nuxt");
-      updateScrollArrowVisibility();
-      scrollContainer.value?.addEventListener("scroll", updateScrollArrowVisibility);
+    D(() => {
+      s.value = document.querySelector("#__nuxt");
+      i();
+      s.value.addEventListener("scroll", () => i());
     });
 
-    return () => (
-      openBlock(),
-      createElementBlock("div", { class: "page-container" }, [
-        createElementVNode("div", { class: "three-animation" }, [
-          HeroSection,
-          createElementVNode(
-            "div",
-            { id: "scroll-text", class: normalizeClass({ hidden: unref(isScrollArrowHidden) }) },
-            [createVNode(ArrowIcon, { id: "scroll-arrow" })],
-            2
-          ),
-        ]),
+    return (a, r) => {
+      const Arrow = de;
+      const Academic = ve;
 
-        MainSections,
-        createVNode(AcademicPrizes),
-        NotesSection,
-        FooterSection,
-      ])
-    );
+      return (
+        m(),
+        g("div", Ue, [
+          // First screen: hero + arrow indicator
+          l("div", Ve, [
+            Hero,
+            l(
+              "div",
+              {
+                id: "scroll-text",
+                class: X([{ hidden: T(t) }]),
+              },
+              [x(Arrow, { id: "scroll-arrow" })],
+              2
+            ),
+          ]),
+
+          // Your new sections + academic header
+          Sections,
+
+          // Academic prize cards
+          x(Academic),
+
+          // Notes
+          Notes,
+
+          // Footer + spacers
+          Tail,
+        ])
+      );
+    };
   },
 });
 
-export default exportHelper(IndexPage, [["__file", "pages/index.vue"]]);
+const it = Xe;
+export { it as default };

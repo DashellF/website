@@ -1,18 +1,18 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Dashell Finn</title>
     <link rel="icon" href="/images/favicon.png" />
 
-    <!-- Fonts -->
-    <link rel="preload" as="font" href="/fonts/Poppins/Poppins-Thin.ttf" type="font/ttf" crossorigin />
-    <link rel="preload" as="font" href="/fonts/Poppins/Poppins-Light.ttf" type="font/ttf" crossorigin />
-    <link rel="preload" as="font" href="/fonts/Poppins/Poppins-Bold.ttf" type="font/ttf" crossorigin />
+    <!-- Preload fonts (optional, but helps avoid flashes) -->
+    <link as="font" href="/fonts/Poppins/Poppins-Thin.ttf" type="font/ttf" crossorigin="anonymous" />
+    <link as="font" href="/fonts/Poppins/Poppins-Light.ttf" type="font/ttf" crossorigin="anonymous" />
+    <link as="font" href="/fonts/Poppins/Poppins-Bold.ttf" type="font/ttf" crossorigin="anonymous" />
 
-    <!-- Site styles -->
-    <link rel="stylesheet" href="/index.css" />
+    <!-- Site CSS -->
+    <link rel="stylesheet" href="/scripts/index.css" />
 
     <!-- Nuxt assets -->
     <link rel="modulepreload" as="script" crossorigin href="/scripts/entry.js" />
@@ -28,6 +28,7 @@
   </head>
 
   <body>
+    <!-- Empty mount point. All visible content comes from /scripts/index.js -->
     <div id="__nuxt"></div>
 
     <script type="application/json" id="__NUXT_DATA__" data-ssr="true">
