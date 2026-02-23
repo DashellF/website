@@ -139,8 +139,8 @@ const Ve = { class: "three-animation" };
 const Hero = P(
   '<div class="hero-block">' +
     '<div class="text-block">' +
-      '<h2>Dashell Finn</h2>' +
-      '<p>Hi, my name is Dashell Finn and I am an aspiring a career in cybersecurity/software engineering!</p>' +
+      '<h2>Hi!</h2>' +
+      '<p>Hi, my name is Dashell Finn and I am aspiring for a career in cybersecurity/software engineering!</p>' +
     "</div>" +
   "</div>",
   1
@@ -151,9 +151,11 @@ const Sections = P(
   '<div class="three-animation"></div>' +
 
   '<div class="main-block"><div class="text-block">' +
-    '<h2>About</h2>' +
-    '<p>Placeholder bio text. Replace with your real introduction.</p>' +
-    '<p>Second paragraph placeholder for extra details (what you\'re learning, goals, interests).</p>' +
+    '<h2>About Me</h2>' +
+    '<p>I\'m currently a freshman in college studying computer science.</p>' +
+    '<p>I do a lot of cybersecurity competitions including ccdc, cptc, and lots of ctfs.</p>' +
+    '<p>I also like being active, running, and coding in general.</p>' +
+    '<p>If you are interested in some of my ctf writups, click to the right.</p>' +
   '</div></div>' +
 
   '<div class="main-block"><div class="text-block">' +
@@ -173,10 +175,9 @@ const Sections = P(
 
   '<div class="main-block"><div class="text-block">' +
     '<h2>Contact</h2>' +
-    '<p>Placeholder contact text. Add your email, GitHub, LinkedIn, etc.</p>' +
+    '<p>If you want to contact me, email me at djf1517@gmail.com or shoot me a dm on discord (dashel1)</p>' +
   '</div></div>' +
 
-  '<div class="three-animation"></div>' +
   '<div class="three-animation"></div>' +
 
   '<div class="section-heading">' +
@@ -199,8 +200,6 @@ const Tail = P(
   '<div class="three-animation"></div>' +
   '<div class="three-animation"></div>' +
   '<footer>' +
-    '<a id="los-link" href="https://losfuzzys.net/" target="_blank" rel="noopener noreferrer"></a>' +
-
     '<p class="author">' +
       'This website was made by ' +
       '<a class="link" href="https://github.com/dashellf/website" target="_blank" rel="noopener noreferrer">me!</a>' +

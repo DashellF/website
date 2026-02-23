@@ -32183,17 +32183,11 @@ class ThreeScene {
         Ye(this, "controls");
         Ye(this, "renderer");
         Ye(this, "clock", new CA);
-        Ye(this, "snow");
-        Ye(this, "text");
         Ye(this, "plane");
-        Ye(this, "logoSphere");
-        Ye(this, "font");
-        Ye(this, "gradientMap");
         Ye(this, "mousePos", {
             x: 0,
             y: 0
         });
-        Ye(this, "slideUpText", !0);
         Ye(this, "textDownPosition", 3);
         Ye(this, "textUpPosition", 8);
         Ye(this, "textZPosition", As - 5);
@@ -32202,10 +32196,6 @@ class ThreeScene {
         Ye(this, "maxPages", 0);
         Ye(this, "cameraStartPos", As);
         Ye(this, "cameraEndPos", Uc);
-        Ye(this, "parachutes1", []);
-        Ye(this, "parachutes2", []);
-        Ye(this, "showingPointer", !1);
-        Ye(this, "raycaster", new PA);
         this.isDemo = t,
         fr = Aa().app.baseURL,
         this.isDemo && (this.gui = new eR,
@@ -32244,11 +32234,9 @@ class ThreeScene {
         e.appendChild(this.renderer.domElement),
         this.addScrollHint(),
         0,
-        this.addStuff(),
-        this.addBird(),
+        this.addObjects(),
         window.addEventListener("resize", () => this.updateSizes()),
         window.addEventListener("mousemove", s => this.updateMousePosition(s)),
-        window.addEventListener("pointerdown", s => this.handlePointerDown(s)),
         window.addEventListener("deviceorientation", () => this.updateSizes(), !0),
         this.scrollElement && this.scrollElement.addEventListener("scroll", () => this.updateScroll()),
         this.updateSizes(),
@@ -32256,41 +32244,50 @@ class ThreeScene {
         this.animate()
     }
     animate() {
-        requestAnimationFrame( () => {
-            this.animate()
-        }
-        );
+        requestAnimationFrame(() => this.animate());
+
         const e = this.clock.getElapsedTime();
-        this.clock.getDelta(),
-        this.leafFall && (this.leafFall.material.uniforms.uTime.value = e,
-        this.leafFall.material.uniforms.uShiftX.value -= this.mousePos.x * .04),
-        this.text && (this.text.position.z = this.sizes.width > 600 ? this.textZPosition : this.textZMobilePosition,
-        this.text.position.y += (this.textDownPosition + (this.textUpPosition - this.textDownPosition) * Math.min(Math.max(this.currentPage - 0, 0), 1) - this.text.position.y) * as),
-        this.sizes.width >= 900 ? (this.cameraGroup.position.x += (this.mousePos.x * 2 - this.cameraGroup.position.x) * .1,
-        //camera height
-        this.cameraGroup.position.y += (this.mousePos.y * 2 + 13 - this.cameraGroup.position.y) * .1) : (this.cameraGroup.position.x = 0,
-        this.cameraGroup.position.y = 13);
+        this.clock.getDelta();
+
+        if (this.leafFall) {
+            this.leafFall.material.uniforms.uTime.value = e;
+            this.leafFall.material.uniforms.uShiftX.value -= this.mousePos.x * 0.04;
+        }
+
+
+        if (this.sizes.width >= 900) {
+            this.cameraGroup.position.x +=
+            (this.mousePos.x * 2 - this.cameraGroup.position.x) * 0.1;
+
+            this.cameraGroup.position.y +=
+            (this.mousePos.y * 2 + 13 - this.cameraGroup.position.y) * 0.1;
+        } else {
+            this.cameraGroup.position.x = 0;
+            this.cameraGroup.position.y = 13;
+        }
+
         let t = 0;
-        this.currentPage < ls ? t = this.cameraStartPos + (ui - this.cameraStartPos) * Math.pow(Math.max(this.currentPage - 0, 0) / ls, 2) : this.currentPage < Bo ? t = ui + (_r - ui) * (Math.max(this.currentPage - ls, 0) / (Bo - ls)) : this.currentPage < dr ? t = _r + (Gl - _r) * (Math.max(this.currentPage - Bo, 0) / (dr - Bo)) : (t = Gl + (this.cameraEndPos - Gl) * (Math.max(this.currentPage - dr, 0) / (this.maxPages - dr)),
-        this.logoSphere.position.z = Vl + (lR - Vl) * (Math.max(this.currentPage - dr, 0) / (this.maxPages - dr))),
-        this.cameraGroup.position.z += (t - this.cameraGroup.position.z) * as,
-        this.logoSphere.position.y = Math.sin(e * .9) * .3,
-        this.logoSphere.position.y = Math.sin(e * .9) * .3 + 2,
-        this.updateBird(e),
-        this.updateScrollHint(),
-        this.raycaster.setFromCamera(this.mousePos, this.camera);
-        const i = this.raycaster.intersectObjects([this.logoSphere]);
-        i.length && i[0].distance < 40 ? this.showingPointer || (document.body.style.cursor = "pointer",
-        this.showingPointer = !0) : this.showingPointer && (document.body.style.cursor = "",
-        this.showingPointer = !1),
-        this.renderer.render(this.scene, this.camera),
-        this.isDemo && this.stats.update()
-    }
-    handlePointerDown(e) {
-        this.updateMousePosition(e),
-        this.raycaster.setFromCamera(this.mousePos, this.camera);
-        const t = this.raycaster.intersectObjects([this.logoSphere]);
-        t.length && t[0].distance < 40 && document.querySelector("#los-link").click()
+        if (this.currentPage < ls) {
+            t =
+            this.cameraStartPos +
+            (ui - this.cameraStartPos) *
+                Math.pow(Math.max(this.currentPage, 0) / ls, 2);
+        } else if (this.currentPage < Bo) {
+            t = ui + (_r - ui) * (Math.max(this.currentPage - ls, 0) / (Bo - ls));
+        } else if (this.currentPage < dr) {
+            t = _r + (Gl - _r) * (Math.max(this.currentPage - Bo, 0) / (dr - Bo));
+        } else {
+            t =
+            Gl +
+            (this.cameraEndPos - Gl) *
+                (Math.max(this.currentPage - dr, 0) / (this.maxPages - dr));
+        }
+
+        this.cameraGroup.position.z += (t - this.cameraGroup.position.z) * as;
+
+        this.updateScrollHint();
+        this.renderer.render(this.scene, this.camera);
+        if (this.isDemo) this.stats.update();
     }
     updateScroll() {
 	        this.currentPage = (this.scrollElement ? this.scrollElement.scrollTop : (window.scrollY || 0)) / this.sizes.height;
@@ -32322,7 +32319,7 @@ class ThreeScene {
         this.mousePos.x = (e.clientX / this.sizes.width - .5) * 2,
         this.mousePos.y = (-e.clientY / this.sizes.height + .5) * 2
     }
-    addStuff() {
+    addObjects() {
         const e = new AA(16777215,20);
         e.position.set(1, 4, 5),
         this.scene.add(e),
@@ -32330,17 +32327,6 @@ class ThreeScene {
         e.target.position.set(0, 0, 0);
         const t = new RA(148);
         this.scene.add(t);
-        const r = new Bl().load(fr + "images/textures/18.png")
-          , s = new Tu(1,32,32)
-          , o = new xA({
-            fog: !0,
-            matcap: r
-        })
-          , a = new Vt(s,o);
-        this.logoSphere = a,
-        a.renderOrder = 1,
-        a.position.set(0, 0, Vl),
-        this.scene.add(a);
         // Low-poly ground + pine forest
         const l = new Td({
             color: 2841910
@@ -32353,23 +32339,76 @@ class ThreeScene {
         this.ground = u,
         this.addDirtPath(),
         this.addForest(),
+        this.addGrassPatches();  
         this.leafFall = this.addLeafFall()
     }
 
     addScrollHint() {
-        const e = document.createElement("div");
-        e.style.position = "fixed",
-        e.style.left = "50%",
-        e.style.bottom = "24px",
-        e.style.transform = "translateX(-50%)",
-        e.style.width = "2px",
-        e.style.height = "44px",
-        e.style.borderRadius = "2px",
-        e.style.background = "rgba(255,255,255,0.75)",
-        e.style.pointerEvents = "none",
-        e.style.zIndex = "9999",
-        document.body.appendChild(e),
-        this.scrollHint = e
+    // Remove any existing hint (prevents duplicates if the scene is recreated)
+    const existing = document.getElementById("ts-scrollhint");
+    if (existing) existing.remove();
+
+    const container = document.createElement("div");
+    container.id = "ts-scrollhint";
+    container.style.position = "fixed";
+    container.style.left = "50%";
+    container.style.bottom = "24px";
+    container.style.transform = "translateX(-50%)";
+    container.style.display = "flex";
+    container.style.flexDirection = "column";
+    container.style.alignItems = "center";
+    container.style.gap = "10px";
+    container.style.pointerEvents = "none";
+    container.style.zIndex = "9999";
+
+    // Inject font + keyframes once
+    if (!document.getElementById("ts-scrollhint-style")) {
+        const style = document.createElement("style");
+        style.id = "ts-scrollhint-style";
+        style.textContent = `
+        @font-face {
+            font-family: "PoppinsLight";
+            src: url("${fr}fonts/Poppins/Poppins-Light.ttf") format("truetype");
+            font-weight: 300;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        /* Bounce tuned to feel more like a "classic" scroll indicator */
+        @keyframes ts-scroll-bounce {
+            0%, 20%  { transform: translateY(0) rotate(45deg); opacity: 0.75; }
+            50%      { transform: translateY(12px) rotate(45deg); opacity: 1; }
+            70%      { transform: translateY(8px) rotate(45deg);  opacity: 0.95; }
+            100%     { transform: translateY(0) rotate(45deg);  opacity: 0.75; }
+        }
+        `;
+        document.head.appendChild(style);
+    }
+
+    // label (NOT bouncing)
+    const label = document.createElement("div");
+    label.textContent = "scroll";
+    label.style.fontFamily = `"PoppinsLight", "Poppins", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif`;
+    label.style.fontSize = "15px";           // a little bigger
+    label.style.letterSpacing = "0.10em";
+    label.style.textTransform = "lowercase";
+    label.style.lineHeight = "1";
+    label.style.color = "#ff7a00";
+
+    // orange chevron arrow (bouncing)
+    const arrow = document.createElement("div");
+    arrow.style.width = "12px";
+    arrow.style.height = "12px";
+    arrow.style.borderRight = "2px solid #ff7a00";
+    arrow.style.borderBottom = "2px solid #ff7a00";
+    arrow.style.transform = "rotate(45deg)";
+    arrow.style.animation = "ts-scroll-bounce 1.25s ease-in-out infinite";
+
+    container.appendChild(label);
+    container.appendChild(arrow);
+    document.body.appendChild(container);
+
+    this.scrollHint = container;
     }
     updateScrollHint() {
         this.scrollHint && (this.scrollHint.style.opacity = String(Math.max(0, 1 - this.currentPage * 1.3)))
@@ -32466,6 +32505,8 @@ addDirtPath() {
             indices.push(a + 2, a + 3, b + 3, a + 2, b + 3, b + 2);
         }
     }
+    //avoid area for grass + things
+    this.pathProfile = { zStart, zEnd, segments, centers, widths };
 
     const geo = new Zt;
     geo.setIndex(indices);
@@ -32624,6 +32665,113 @@ addDirtPath() {
         this.forest = e;
     }
 
+    addGrassPatches() {
+        // If re-creating the scene, remove old grass
+        if (this.grassPatches) {
+            this.scene.remove(this.grassPatches);
+            this.grassPatches.traverse(obj => {
+                if (obj.geometry) obj.geometry.dispose?.();
+                if (obj.material) obj.material.dispose?.();
+            });
+            this.grassPatches = null;
+        }
+
+        const group = new Gt();
+        group.name = "grassPatches";
+
+        // --- Tunables ---
+        const PATCH_COUNT = 650;          // “every so often”; increase if you want more
+        const X_HALF = 420;               // match your forest width (same as addForest c)
+        const Z_HALF = 300;               // match your forest length (same as addForest u)
+        const yGround = -10;              // your ground plane y
+        const pathMargin = 1.2;           // extra clearance from the dirt path edges
+
+        // --- Low-poly “tuft” geometry (lathe cone-ish, few segments) ---
+        // Uses the same Lathe approach as your trees (bu + xe)
+        const tuftH = 1.25;
+        const tuftR = 0.45;
+        const tuftGeo = new bu(
+            [
+                new xe(0.00, 0.00),
+                new xe(tuftR, 0.00),
+                new xe(tuftR * 0.25, tuftH * 0.65),
+                new xe(0.00, tuftH)
+            ],
+            4 // low segments = low-poly
+        );
+
+        // Grass material (flat shading helps the low-poly look if Td supports it)
+        const grassMat = new Td({
+            color: 0x2f7d32,
+            flatShading: !0
+        });
+
+        const rand = Math.random;
+
+        // Helper: test whether a point is inside the dirt path corridor at this z
+        const isOnPath = (x, z) => {
+            const prof = this.pathProfile;
+            if (!prof) return false;
+
+            const t = (z - prof.zStart) / (prof.zEnd - prof.zStart);
+            if (t < 0 || t > 1) return false;
+
+            const p = t * prof.segments;
+            const idx = Math.min(prof.segments - 1, Math.max(0, Math.floor(p)));
+            const a = p - idx;
+
+            const cx = prof.centers[idx] * (1 - a) + prof.centers[idx + 1] * a;
+            const w  = prof.widths[idx]  * (1 - a) + prof.widths[idx + 1]  * a;
+
+            return Math.abs(x - cx) < (w * 0.5 + pathMargin);
+        };
+
+        // Make “patches”: each patch is a small cluster of 3–6 tufts
+        for (let i = 0; i < PATCH_COUNT; i++) {
+            // pick a base location (retry a few times to avoid path)
+            let x = 0, z = 0, ok = false;
+            for (let tries = 0; tries < 10; tries++) {
+                x = (rand() - 0.5) * 2 * X_HALF;
+                z = (rand() - 0.5) * 2 * Z_HALF;
+
+                // Avoid the path corridor wherever it meanders
+                if (!isOnPath(x, z)) { ok = true; break; }
+            }
+            if (!ok) continue;
+
+            const patch = new Gt();
+
+            const tuftCount = 3 + Math.floor(rand() * 4); // 3..6
+            for (let k = 0; k < tuftCount; k++) {
+                const m = new Vt(tuftGeo, grassMat);
+
+                // Spread tufts inside patch radius
+                const r = 0.3 + rand() * 0.9;
+                const ang = rand() * Math.PI * 2;
+                m.position.set(Math.cos(ang) * r, 0, Math.sin(ang) * r);
+
+                // Random rotation + scale
+                m.rotation.y = rand() * Math.PI * 2;
+
+                const s = 0.6 + rand() * 0.9;
+                m.scale.set(
+                    s * (0.8 + rand() * 0.4),
+                    s * (0.8 + rand() * 0.6),
+                    s * (0.8 + rand() * 0.4)
+                );
+
+                patch.add(m);
+            }
+
+            patch.position.set(x, yGround, z);
+            patch.rotation.y = rand() * Math.PI * 2;
+
+            group.add(patch);
+        }
+
+        this.scene.add(group);
+        this.grassPatches = group;
+    }
 
     addLeafFall() {
         const tune = this.treeColorTuning || {
@@ -32718,470 +32866,6 @@ addDirtPath() {
         pts.renderOrder = 2;
         this.scene.add(pts);
         return pts;
-    }
-
-
-addBird() {
-        const e = new Gt;
-        e.name = "bird";
-        const t = new Bl().load(fr + "images/textures/18.png")
-          , i = new xA({
-            fog: !1,
-            matcap: t
-        })
-          , r = new Tu(.28,16,16)
-          , s = new Vt(r,i);
-        e.add(s);
-        const o = new Fa(.7,.25,1,1)
-          , a = new Vt(o,i)
-          , l = new Gt;
-        a.position.set(-.35,0,0),
-        l.position.set(-.1,0,0),
-        l.add(a),
-        e.add(l);
-        const c = new Vt(o,i);
-        c.position.set(.35,0,0),
-        c.scale.x = -1;
-        const u = new Gt;
-        u.position.set(.1,0,0),
-        u.add(c),
-        e.add(u);
-        const h = new Fa(2,.35,1,1)
-          , f = new Td({
-            color: 16777215
-        })
-          , p = new Vt(h,f);
-        p.position.set(1.35,-.25,0),
-        p.rotation.z = .05,
-        e.add(p),
-        e.position.set(0, 1.2, -7.5),
-        this.camera.add(e),
-        this.birdGroup = e,
-        this.birdWingL = l,
-        this.birdWingR = u,
-        this.banner = p,
-        this._birdPrevX = 0
-    }
-    updateBird(e) {
-        if (!this.birdGroup || !this.birdWingL || !this.birdWingR)
-            return;
-        const t = Math.sin(this.currentPage * 6 * Math.PI)
-          , i = t * .85;
-        this.birdWingL.rotation.z += (i - this.birdWingL.rotation.z) * .25,
-        this.birdWingR.rotation.z += (-i - this.birdWingR.rotation.z) * .25;
-        const r = Math.min(Math.max(this.currentPage / 1.15, 0), 1)
-          , s = 3.4
-          , o = (1 - r) * s + r * -s;
-        this.birdGroup.position.x += (o - this.birdGroup.position.x) * .08,
-        this.birdGroup.position.y += ((1.2 + Math.sin(e * 2) * .05) - this.birdGroup.position.y) * .08;
-        const a = o - (this._birdPrevX || 0);
-        this._birdPrevX = o,
-        this.banner && (this.banner.rotation.z += ((.05 - a * .1) - this.banner.rotation.z) * .15)
-    }
-    addSnow() {
-        const e = new Zt
-          , t = 5e3
-          , i = new Float32Array(t * 3)
-          , r = new Float32Array(t)
-          , s = {
-            x: 50,
-            y: 40,
-            z: 100
-        };
-        for (let l = 0; l < t; l++) {
-            const c = l * 3;
-            i[c] = (Math.random() - .5) * 2 * s.x,
-            i[c + 1] = -10 + Math.random() * s.y,
-            i[c + 2] = (Math.random() - .5) * 2 * s.z,
-            r[l] = 1 + Math.random()
-        }
-        e.setAttribute("position", new un(i,3)),
-        e.setAttribute("aScale", new un(r,1));
-        const o = new Zn({
-            depthWrite: !1,
-            transparent: !0,
-            vertexColors: !0,
-            vertexShader: iR,
-            fragmentShader: rR,
-            fog: !0,
-            uniforms: wc.merge([Me.fog, {
-                uSize: {
-                    value: 150 * this.renderer.getPixelRatio()
-                },
-                uTime: {
-                    value: 0
-                },
-                uLowBound: {
-                    value: -10
-                },
-                uHighBound: {
-                    value: -10 + s.y
-                },
-                uLeftBound: {
-                    value: -s.x
-                },
-                uRightBound: {
-                    value: s.x
-                },
-                uShiftX: {
-                    value: 0
-                }
-            }])
-        })
-          , a = new H1(e,o);
-        return this.scene.add(a),
-        a
-    }
-    createText(e, t, i) {
-        const r = new FA(e,i);
-        return new Vt(r,t)
-    }
-    addText() {
-        const t = new Bl().load(fr + "images/normal.jpeg");
-        t.wrapS = Os,
-        t.wrapT = Os;
-        const i = new DA
-          , r = .03
-          , s = .03
-          , o = new OA().load(fr + "images/blue_lagoon_night_1k.hdr", () => {
-            o.mapping = oa
-        }
-        )
-          , a = {
-            enableSwoopingCamera: !1,
-            enableRotation: !0,
-            transmission: 1,
-            thickness: 1.27,
-            roughness: .35,
-            envMapIntensity: 1,
-            clearcoat: 1,
-            clearcoatRoughness: .15,
-            normalScale: 1,
-            clearcoatNormalScale: .3,
-            normalRepeat: 1
-        }
-          , l = new vA({
-            transmission: a.transmission,
-            thickness: a.thickness,
-            roughness: a.roughness,
-            color: "#31e39f",
-            envMap: o,
-            envMapIntensity: a.envMapIntensity,
-            clearcoat: a.clearcoat,
-            clearcoatRoughness: a.clearcoatRoughness,
-            normalScale: new xe(a.normalScale),
-            normalMap: t,
-            clearcoatNormalMap: t,
-            clearcoatNormalScale: new xe(a.clearcoatNormalScale)
-        });
-        if (this.isDemo) {
-            const c = this.gui.addFolder("textMaterial");
-            c.addColor(l, "color").onChange(u => {
-                l.color = new Xe(u)
-            }
-            ),
-            c.add(l, "clearcoat", 0, 1, .01),
-            c.add(l, "clearcoatRoughness", 0, 1, .01),
-            c.add(l, "envMapIntensity", 0, 1, .01),
-            c.add(l, "roughness", 0, 1, .01),
-            c.add(l, "transmission", 0, 1, .01),
-            c.add(l, "thickness", 0, 10, .01)
-        }
-        i.load(fr + "fonts/helvetiker_regular.typeface.json", c => {
-            this.font = c;
-            const u = {
-                font: c,
-                size: 1,
-                height: .1,
-                curveSegments: 1,
-                bevelEnabled: !0,
-                bevelThickness: s,
-                bevelSize: r,
-                bevelOffset: 0,
-                bevelSegments: 1
-            };
-            this.text = new Gt;
-            const h = this.createText("GlacierCTF", l, u);
-            h.geometry.center(),
-            h.position.set(0, .5, 0),
-            this.text.add(h),
-            u.size = .4;
-            const f = [];
-            for (let he = 0; he < 10; he++) {
-                const y = this.createText(he.toString(), l, u);
-                f.push(y)
-            }
-            const p = {
-                days: 0,
-                hours: 0,
-                minutes: 0,
-                seconds: 0
-            }
-              , g = 17638344e5
-              , x = new Date(g);
-            function m(he) {
-                const y = Math.floor(he / 864e5)
-                  , R = he % (24 * 60 * 60 * 1e3)
-                  , D = Math.floor(R / (60 * 60 * 1e3))
-                  , O = he % (60 * 60 * 1e3)
-                  , N = Math.floor(O / (60 * 1e3))
-                  , j = he % (60 * 1e3)
-                  , Z = Math.floor(j / 1e3);
-                return [y, D, N, Z]
-            }
-            function d() {
-                const he = Date.now();
-                x > he && ([p.days,p.hours,p.minutes,p.seconds] = m(x - he))
-            }
-            d();
-            const v = new Gt
-              , _ = new Gt
-              , M = this.createText("d", l, u)
-              , b = Math.floor(p.days / 100) % 10
-              , A = Math.floor(p.days / 10) % 10
-              , C = p.days % 10
-              , P = f[b].clone()
-              , S = f[A].clone()
-              , T = f[C].clone();
-            P.position.set(u.size * -1, 0, 0),
-            S.position.set(u.size * 0, 0, 0),
-            T.position.set(u.size * 1, 0, 0),
-            M.position.set(u.size * 2, 0, 0),
-            _.add(P, S, T, M);
-            const F = new Gt
-              , k = this.createText("h", l, u)
-              , X = Math.floor(p.hours / 10)
-              , L = p.hours % 10
-              , G = f[X].clone()
-              , V = f[L].clone();
-            G.position.set(u.size * 0, 0, 0),
-            V.position.set(u.size * 1, 0, 0),
-            k.position.set(u.size * 2, 0, 0),
-            F.add(G, V, k);
-            const $ = new Gt
-              , re = this.createText("m", l, u)
-              , ee = Math.floor(p.minutes / 10)
-              , le = p.minutes % 10
-              , B = f[ee].clone()
-              , J = f[le].clone();
-            B.position.set(u.size * 0, 0, 0),
-            J.position.set(u.size * 1, 0, 0),
-            re.position.set(u.size * 2, 0, 0),
-            $.add(B, J, re);
-            const fe = new Gt
-              , _e = this.createText("s", l, u)
-              , Te = Math.floor(p.seconds / 10)
-              , Ae = p.seconds % 10
-              , W = f[Te].clone()
-              , se = f[Ae].clone();
-            W.position.set(u.size * 0, 0, 0),
-            se.position.set(u.size * 1, 0, 0),
-            _e.position.set(u.size * 2, 0, 0),
-            fe.add(W, se, _e),
-            v.add(_, F, $, fe);
-            const ce = {
-                value: .57
-            };
-            this.isDemo && this.gui.add(ce, "value", 0, 1, .01).onChange(he => {
-                _.position.x = -u.size * 3.5 * 3 * he,
-                F.position.x = -u.size * 3.5 * he,
-                $.position.x = u.size * 3.5 * he,
-                fe.position.x = u.size * 3.5 * 3 * he
-            }
-            ),
-            _.position.x = -u.size * 3.5 * 3 * ce.value,
-            F.position.x = -u.size * 3.5 * ce.value,
-            $.position.x = u.size * 3.5 * ce.value,
-            fe.position.x = u.size * 3.5 * 3 * ce.value;
-            var ge = new Yr().setFromObject(v);
-            v.translateX(-(Math.abs(ge.max.x) - Math.abs(ge.min.x)) / 2),
-            v.translateY(-.7),
-            this.text.add(v),
-            this.text.position.set(0, this.textDownPosition, this.textZPosition),
-            this.scene.add(this.text),
-            setInterval( () => {
-                d();
-                const he = [Math.floor(p.days / 100) % 10, Math.floor(p.days / 10) % 10, p.days % 10];
-                _.children[0].geometry = f[he[0]].geometry,
-                _.children[1].geometry = f[he[1]].geometry,
-                _.children[2].geometry = f[he[2]].geometry;
-                const y = [Math.floor(p.hours / 10), p.hours % 10];
-                F.children[0].geometry = f[y[0]].geometry,
-                F.children[1].geometry = f[y[1]].geometry;
-                const R = [Math.floor(p.minutes / 10), p.minutes % 10];
-                $.children[0].geometry = f[R[0]].geometry,
-                $.children[1].geometry = f[R[1]].geometry;
-                const D = [Math.floor(p.seconds / 10), p.seconds % 10];
-                fe.children[0].geometry = f[D[0]].geometry,
-                fe.children[1].geometry = f[D[1]].geometry
-            }
-            , 1e3)
-        }
-        )
-    }
-    moveText() {
-        this.slideUpText = !0
-    }
-    createParachute() {
-        const e = new Gt
-          , t = []
-          , i = 9;
-        for (let A = 0; A < i; A++)
-            t.push(new xe(Math.sin((i + .5 - A) / i * Math.PI / 2),(A / i) ** .8));
-        const r = 8
-          , s = new bu(t,r)
-          , a = new Bl().load(fr + "images/textures/gradients/5.jpg");
-        this.gradientMap = a,
-        a.magFilter = St;
-        const l = new Td({
-            side: An,
-            color: 3476749,
-            gradientMap: a
-        });
-        if (this.isDemo) {
-            const A = this.gui.addFolder("parachute");
-            A.addColor(l, "color").onChange(P => {
-                l.color = new Xe(P)
-            }
-            );
-            const C = {
-                value: 0
-            };
-            A.add(C, "value", 0, 1, .01).onChange(P => {
-                l.color.setHex(3476749),
-                l.color.offsetHSL(P, 0, 0)
-            }
-            )
-        }
-        const c = new Vt(s,l);
-        c.rotation.y = Math.PI / r,
-        e.add(c);
-        const u = .3
-          , h = .5
-          , f = new ws;
-        f.moveTo(0, 0),
-        f.lineTo(0, h),
-        f.lineTo(u, h),
-        f.lineTo(u, 0),
-        f.lineTo(0, 0);
-        const p = {
-            steps: 1,
-            depth: 1,
-            bevelEnabled: !0,
-            bevelThickness: .05,
-            bevelSize: .05,
-            bevelOffset: 0,
-            bevelSegments: 1
-        }
-          , g = new Ba(f,p)
-          , x = new Vt(g,l);
-        g.center(),
-        g.translate(0, -1.5, 0),
-        e.add(x),
-        g.computeBoundingBox();
-        const m = g.boundingBox;
-        if (!m)
-            throw new Error("bbox of parachute could not be generated");
-        const d = new Gt
-          , v = .95
-          , _ = l.clone();
-        _.side = Jn;
-        const M = {
-            h: 0,
-            s: 0,
-            l: 0
-        };
-        _.color.getHSL(M),
-        _.color.setHSL(.6, .5, .005);
-        for (let A = 0; A < r; A++) {
-            const C = A / r * Math.PI * 2 + Math.PI / r
-              , P = A < 4 ? m.max.x : m.min.x
-              , S = m.max.y
-              , T = A < 2 || A >= 6 ? (m == null ? void 0 : m.max.z) - p.bevelSize : (m == null ? void 0 : m.min.z) + p.bevelSize
-              , F = new rg(new H(v * Math.sin(C),.1,v * Math.cos(C)),new H(P,S,T))
-              , k = new wu(F,4,.01,8,!1)
-              , X = new Vt(k,_);
-            d.add(X)
-        }
-        e.add(d),
-        e.rotation.y = -Math.PI / 2;
-        const b = 1.2;
-        return e.scale.set(b, b, b),
-        e
-    }
-    addParachutes(e) {
-        const t = new Td({
-            color: 5263440,
-            gradientMap: this.gradientMap
-        });
-        this.isDemo && this.gui.addColor(t, "color").onChange(i => {
-            t.color = i
-        }
-        ),
-        this.addParachuteLine(e, t, Wo, 40, this.parachutes1, [`3x IDA Pro
-Expert-2 licenses
-and
-Hex-Rays Swag`, `1x IDA Pro
-Expert-2 licenses`, `1x IDA Pro
-Expert-2 licenses`])
-    }
-    addParachuteLine(e, t, i, r, s, o) {
-        if (!this.font)
-            return setTimeout( () => {
-                this.addParachuteLine(e, t, i, r, s, o)
-            }
-            , 100);
-        const a = Math.random()
-          , l = .005
-          , c = .005
-          , u = {
-            font: this.font,
-            size: .1,
-            height: .01,
-            curveSegments: 3,
-            bevelEnabled: !0,
-            bevelThickness: c,
-            bevelSize: l,
-            bevelOffset: 0,
-            bevelSegments: 1
-        };
-        for (let h = 0; h < 3; h++) {
-            u.size = .1;
-            const f = e.clone()
-              , p = f.children[0].material.clone();
-            f.children[0].material = p,
-            f.children[1].material = p,
-            f.position.y = r + h * 10,
-            f.position.z = i - h * Vo,
-            f.position.x = (h % 2 ? 1 : -1) * Id,
-            p.color.offsetHSL((a + .15 * h) % 1, 0, 0);
-            const g = o[h].split(`
-`)
-              , x = new Gt;
-            for (let d = 0; d < g.length; d++) {
-                const v = this.createText(g[d], t, u);
-                v.geometry.center(),
-                v.position.y = -d * .15,
-                x.add(v)
-            }
-            x.rotation.y = Math.PI / 2,
-            x.position.x = .3,
-            x.position.y = -1.5 + g.length * .05,
-            f.add(x),
-            u.size = .2;
-            const m = this.createText("#" + (h + 1).toString(), t, u);
-            m.geometry.center(),
-            m.rotation.y = Math.PI / 2,
-            f.add(m),
-            m.position.x = Math.sin((9 + .5 - 1) / 9 * Math.PI / 2),
-            m.position.y = (1 / 9) ** .8,
-            this.scene.add(f),
-            s.push({
-                startHeight: r + h * 10,
-                endHeight: 2.5,
-                mesh: f
-            })
-        }
     }
 }
 const pR = {
