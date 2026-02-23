@@ -1,101 +1,64 @@
-@charset "UTF-8";@font-face {
-    font-display: auto;
-    font-family: Poppins;
-    font-style: italic;
-    font-weight: 100;
-    src: local("Poppins"),url(../fonts/Poppins/Poppins-Thin.ttf) format("truetype")
-}
-
 @font-face {
-    font-display: auto;
-    font-family: Poppins;
-    font-style: normal;
-    font-weight: 300;
-    src: local("Poppins"),url(../fonts/Poppins/Poppins-Light.ttf) format("truetype")
+  font-display: swap;
+  font-family: Poppins;
+  font-style: italic;
+  font-weight: 100;
+  src: local("Poppins"), url("/fonts/Poppins/Poppins-Thin.ttf") format("truetype");
 }
-
 @font-face {
-    font-display: auto;
-    font-family: Poppins;
-    font-style: normal;
-    font-weight: 600;
-    src: local("Poppins"),url(../fonts/Poppins/Poppins-Bold.ttf) format("truetype")
+  font-display: swap;
+  font-family: Poppins;
+  font-style: normal;
+  font-weight: 300;
+  src: local("Poppins"), url("/fonts/Poppins/Poppins-Light.ttf") format("truetype");
 }
-
-#threejs-container[data-v-cb6754e6] {
-    position: fixed
-}
-
-#threejs[data-v-cb6754e6],#threejs-container[data-v-cb6754e6] {
-    height: 100dvh;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    width: 100dvw
-}
-
-#threejs[data-v-cb6754e6] {
-    position: relative
-}
-
 @font-face {
-    font-display: auto;
-    font-family: Poppins;
-    font-style: italic;
-    font-weight: 100;
-    src: local("Poppins"),url(../fonts/Poppins/Poppins-Thin.ttf) format("truetype")
+  font-display: swap;
+  font-family: Poppins;
+  font-style: normal;
+  font-weight: 600;
+  src: local("Poppins"), url("/fonts/Poppins/Poppins-Bold.ttf") format("truetype");
 }
 
-@font-face {
-    font-display: auto;
-    font-family: Poppins;
-    font-style: normal;
-    font-weight: 300;
-    src: local("Poppins"),url(../fonts/Poppins/Poppins-Light.ttf) format("truetype")
-}
-
-@font-face {
-    font-display: auto;
-    font-family: Poppins;
-    font-style: normal;
-    font-weight: 600;
-    src: local("Poppins"),url(../fonts/Poppins/Poppins-Bold.ttf) format("truetype")
+:root {
+  --bg: #0a0924;
+  --accent: #ff8a00;
 }
 
 body {
-    background-color: #0a0924;
-    font-family: Poppins;
-    margin: 0;
-    min-height: 100dvh;
-    text-rendering: geometricPrecision;
-    width: 100dvw
+  background-color: var(--bg);
+  font-family: Poppins, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  margin: 0;
+  min-height: 100dvh;
+  text-rendering: geometricPrecision;
+  width: 100dvw;
 }
 
 #__nuxt {
-    height: 100dvh;
-    overflow: auto;
-    position: relative
+  height: 100dvh;
+  overflow: auto;
+  position: relative;
 }
 
-ol li::marker {
-    color: red;
-    font-family: Poppins;
-    font-size: 1.3rem
+#threejs-container {
+  position: fixed;
+}
+#threejs,
+#threejs-container {
+  height: 100dvh;
+  inset: 0;
+  width: 100dvw;
+}
+#threejs {
+  position: relative;
 }
 
+ol li::marker,
 ul li::marker {
-    color: red;
-    content: "ø ";
-    font-family: Poppins;
-    font-size: 1.3rem
+  color: var(--accent);
+  font-family: Poppins;
+  font-size: 1.3rem;
 }
-
-#main-app {
-    height: -moz-fit-content;
-    height: fit-content;
-    position: relative;
-    width: 100%
+ul li::marker {
+  content: "ø ";
 }
-
-#scripts{height:100dvh;overflow:auto;position:relative}
