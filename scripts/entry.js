@@ -32227,7 +32227,8 @@ class dR {
         this.camera = new sn(Ld,this.sizes.width / this.sizes.height,.1,300),
         this.camera.rotation.x = -.15,
         this.cameraGroup.add(this.camera),
-        this.cameraGroup.position.y = 20,
+        //camera height
+        this.cameraGroup.position.y = 13,
         this.cameraGroup.position.z = this.cameraStartPos,
         this.isDemo && (this.gui.add(this.camera, "fov", 10, 150, 1).onChange( () => {
             this.camera.updateProjectionMatrix()
@@ -32262,12 +32263,13 @@ class dR {
         const e = this.clock.getElapsedTime();
         this.clock.getDelta(),
         this.leafFall && (this.leafFall.material.uniforms.uTime.value = e,
-        this.leafFall.material.uniforms.uShiftX.value -= this.mousePos.x * .02),
+        this.leafFall.material.uniforms.uShiftX.value -= this.mousePos.x * .04),
         this.text && (this.text.position.z = this.sizes.width > 600 ? this.textZPosition : this.textZMobilePosition,
         this.text.position.y += (this.textDownPosition + (this.textUpPosition - this.textDownPosition) * Math.min(Math.max(this.currentPage - 0, 0), 1) - this.text.position.y) * as),
         this.sizes.width >= 900 ? (this.cameraGroup.position.x += (this.mousePos.x * 2 - this.cameraGroup.position.x) * .1,
-        this.cameraGroup.position.y += (this.mousePos.y * 2 + 20 - this.cameraGroup.position.y) * .1) : (this.cameraGroup.position.x = 0,
-        this.cameraGroup.position.y = 20);
+        //camera height
+        this.cameraGroup.position.y += (this.mousePos.y * 2 + 13 - this.cameraGroup.position.y) * .1) : (this.cameraGroup.position.x = 0,
+        this.cameraGroup.position.y = 13);
         let t = 0;
         this.currentPage < ls ? t = this.cameraStartPos + (ui - this.cameraStartPos) * Math.pow(Math.max(this.currentPage - 0, 0) / ls, 2) : this.currentPage < Bo ? t = ui + (_r - ui) * (Math.max(this.currentPage - ls, 0) / (Bo - ls)) : this.currentPage < dr ? t = _r + (Gl - _r) * (Math.max(this.currentPage - Bo, 0) / (dr - Bo)) : (t = Gl + (this.cameraEndPos - Gl) * (Math.max(this.currentPage - dr, 0) / (this.maxPages - dr)),
         this.logoSphere.position.z = Vl + (lR - Vl) * (Math.max(this.currentPage - dr, 0) / (this.maxPages - dr))),
@@ -32398,7 +32400,7 @@ addDirtPath() {
     const segments = 90;
 
     // Base path params (low poly, wide enough to read from above).
-    const baseWidth = 2;
+    const baseWidth = 1.5;
     const bermWidth = 2.4;     // extra width on each side
     const bermHeight = 0.65;   // berm raise amount
 
@@ -32507,12 +32509,19 @@ addDirtPath() {
 
         // Bias rocks toward the berm edges.
         const edgeBias = randRock() < 0.75;
+
+        // no-rock zone = inside the path (plus a little safety margin)
+        const clear = (w * 0.5) + 0.45;   // tweak 0.35 to taste (bigger = wider clear lane)
+
         let rx;
+        const side = randRock() < 0.5 ? -1 : 1;
+
         if (edgeBias) {
-            const side = randRock() < 0.5 ? -1 : 1;
-            rx = cx + side * (w * 0.5 + 1.2 + randRock() * 3.5) + (randRock() - 0.5) * 0.6;
+        // Mostly on berms/outside
+        rx = cx + side * (clear + 0.9 + randRock() * 3.5) + (randRock() - 0.5) * 0.6;
         } else {
-            rx = cx + (randRock() - 0.5) * (w * 0.7);
+        // Still outside the path (just less “berm-biased”)
+        rx = cx + side * (clear + randRock() * 4.5);
         }
 
         // Height: mostly on/near ground; slightly higher near berms
@@ -32527,7 +32536,7 @@ addDirtPath() {
         );
 
         // Non-uniform scale for irregular low-poly rocks
-        const s = 0.18 + randRock() * 0.34;
+        const s = 0.18 + randRock() * 0.94;
         rMesh.scale.set(
             s * (0.7 + randRock() * 0.7),
             s * (0.6 + randRock() * 0.9),
@@ -32648,7 +32657,7 @@ addDirtPath() {
         };
 
         const geo = new Zt;
-        const count = 5000;
+        const count = 2000;
         const pos = new Float32Array(count * 3);
         const aScale = new Float32Array(count);
         const aSpeed = new Float32Array(count);

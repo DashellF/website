@@ -1,837 +1,416 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>GlacierCTF</title>
-        <link rel="icon" href="/images/favicon.png">
-        <link as="font" href="/fonts/Poppins/Poppins-Thin.ttf" type="font/ttf" crossorigin="anonymous">
-        <link as="font" href="/fonts/Poppins/Poppins-Light.ttf" type="font/ttf" crossorigin="anonymous">
-        <link as="font" href="/fonts/Poppins/Poppins-Bold.ttf" type="font/ttf" crossorigin="anonymous">
-        <style>
-            @font-face {
-                font-display: auto;
-                font-family: Poppins;
-                font-style: italic;
-                font-weight: 100;
-                src: local("Poppins"),url(/fonts/Poppins/Poppins-Thin.ttf) format("truetype")
-            }
-
-            @font-face {
-                font-display: auto;
-                font-family: Poppins;
-                font-style: normal;
-                font-weight: 300;
-                src: local("Poppins"),url(/fonts/Poppins/Poppins-Light.ttf) format("truetype")
-            }
-
-            @font-face {
-                font-display: auto;
-                font-family: Poppins;
-                font-style: normal;
-                font-weight: 600;
-                src: local("Poppins"),url(/fonts/Poppins/Poppins-Bold.ttf) format("truetype")
-            }
-
-            .prize-container[data-v-f7f5a91e] {
-                align-items: stretch;
-                box-sizing: border-box;
-                display: flex;
-                flex-wrap: wrap;
-                gap: 2rem;
-                justify-content: center;
-                padding-block:2.5rem;position: relative;
-                width: 100%
-            }
-
-            .card-container[data-v-f7f5a91e] {
-                background: rgba(10,9,36,.659);
-                border: 1px solid #a3e4f1;
-                border-radius: 1rem;
-                box-shadow: 0 0 6px 0 rgba(229,248,251,.122);
-                color: #a3e4f1;
-                padding: 1.2rem 1rem 1rem;
-                width: 300px
-            }
-
-            .card-container h2[data-v-f7f5a91e] {
-                font-size: 1.4rem;
-                font-weight: 700;
-                margin: 0
-            }
-
-            .card-container p[data-v-f7f5a91e] {
-                font-size: 1rem;
-                line-height: 1.4rem
-            }
-
-            .card-container a[data-v-f7f5a91e] {
-                color: inherit;
-                text-decoration: none
-            }
-
-            .card-container ul[data-v-f7f5a91e] {
-                text-align: left
-            }
-        </style>
-        <style>
-            @font-face {
-                font-display: auto;
-                font-family: Poppins;
-                font-style: italic;
-                font-weight: 100;
-                src: local("Poppins"),url(/fonts/Poppins/Poppins-Thin.ttf) format("truetype")
-            }
-
-            @font-face {
-                font-display: auto;
-                font-family: Poppins;
-                font-style: normal;
-                font-weight: 300;
-                src: local("Poppins"),url(/fonts/Poppins/Poppins-Light.ttf) format("truetype")
-            }
-
-            @font-face {
-                font-display: auto;
-                font-family: Poppins;
-                font-style: normal;
-                font-weight: 600;
-                src: local("Poppins"),url(/fonts/Poppins/Poppins-Bold.ttf) format("truetype")
-            }
-
-            .sponsor-container[data-v-a88121a0] {
-                box-sizing: border-box;
-                display: flex;
-                flex-wrap: wrap;
-                gap: 2rem;
-                justify-content: center;
-                padding-block:2.5rem;position: relative;
-                width: 100%
-            }
-
-            .card-container[data-v-a88121a0] {
-                width: 200px
-            }
-
-            .card-container[data-v-a88121a0]:hover {
-                z-index: 9999
-            }
-
-            .card-el[data-v-a88121a0] {
-                color: #a3e4f1;
-                position: relative
-            }
-
-            .card-el h2[data-v-a88121a0] {
-                font-size: 1.25rem;
-                font-style: italic
-            }
-
-            .card-el p[data-v-a88121a0] {
-                font-size: 1rem;
-                line-height: 1.2rem
-            }
-
-            .card-el a[data-v-a88121a0] {
-                color: inherit;
-                text-decoration: none
-            }
-
-            .side-front[data-v-a88121a0] {
-                background: rgba(10,9,36,.659);
-                border: 1px solid #a3e4f1;
-                border-radius: 1rem;
-                box-shadow: 0 0 6px 0 rgba(229,248,251,.122);
-                inset: 0;
-                padding: 1rem;
-                position: absolute;
-                transform: scale(1);
-                transition: all .3s ease-out 0s;
-                will-change: transform
-            }
-
-            .sponsor-image img[data-v-a88121a0] {
-                background: #fff;
-                border: 1px solid #a3e4f1;
-                border-radius: 100%;
-                box-shadow: 0 0 6px 0 rgba(229,248,251,.49)
-            }
-
-            .info[data-v-a88121a0] {
-                word-wrap: break-word;
-                overflow-y: hidden
-            }
-
-            @media (width >= 900px) {
-                .card-el[data-v-a88121a0] {
-                    padding: 2rem 1rem 100%
-                }
-
-                .sponsor-container[data-v-a88121a0] {
-                    align-items: center
-                }
-
-                .sponsor-image[data-v-a88121a0] {
-                    height: 100px;
-                    width: 100px
-                }
-
-                .sponsor-image img[data-v-a88121a0] {
-                    width: 100%
-                }
-
-                .side-front[data-v-a88121a0] {
-                    align-items: center;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 1rem;
-                    height: calc(100% - 2rem);
-                    justify-content: center;
-                    left: 50%;
-                    position: absolute;
-                    transform: translate(-50%);
-                    width: calc(200px - 2rem)
-                }
-
-                .side-front[data-v-a88121a0]:hover {
-                    background: #0a0924;
-                    height: 150%;
-                    padding-block:3rem;top: -1.5rem;
-                    transform: translate(-50%,-17%);
-                    transition: padding .3s ease-out 0s,background .3s ease-out 0s,width .4s ease-out .5s,top .4s ease-out .5s,transform .3s ease-out 0s,height .4s ease-out .5s;
-                    width: 150%
-                }
-
-                .info[data-v-a88121a0] {
-                    display: grid;
-                    grid-template-rows: auto 0fr
-                }
-
-                .info p[data-v-a88121a0] {
-                    overflow-y: hidden
-                }
-
-                .info h2[data-v-a88121a0],.info p[data-v-a88121a0] {
-                    margin: 0
-                }
-
-                .side-front:hover .info[data-v-a88121a0] {
-                    grid-template-rows: auto 1fr;
-                    transition: grid-template-rows .4s ease-out .5s
-                }
-            }
-
-            @media (width < 900px) {
-                .card-el[data-v-a88121a0] {
-                    height: 100%;
-                    padding: 0
-                }
-
-                .sponsor-container[data-v-a88121a0] {
-                    align-items: stretch
-                }
-
-                .side-front[data-v-a88121a0] {
-                    box-sizing: border-box;
-                    height: 100%;
-                    padding: 1rem;
-                    position: relative;
-                    transform: scale(1);
-                    width: 100%
-                }
-
-                .side-front[data-v-a88121a0]:hover {
-                    transform: scale(1.1)
-                }
-
-                .sponsor-image[data-v-a88121a0] {
-                    width: 100%
-                }
-
-                .sponsor-image img[data-v-a88121a0] {
-                    width: 60%
-                }
-            }
-        </style>
-        <style>
-            @font-face {
-                font-display: auto;
-                font-family: Poppins;
-                font-style: italic;
-                font-weight: 100;
-                src: local("Poppins"),url(/fonts/Poppins/Poppins-Thin.ttf) format("truetype")
-            }
-
-            @font-face {
-                font-display: auto;
-                font-family: Poppins;
-                font-style: normal;
-                font-weight: 300;
-                src: local("Poppins"),url(/fonts/Poppins/Poppins-Light.ttf) format("truetype")
-            }
-
-            @font-face {
-                font-display: auto;
-                font-family: Poppins;
-                font-style: normal;
-                font-weight: 600;
-                src: local("Poppins"),url(/fonts/Poppins/Poppins-Bold.ttf) format("truetype")
-            }
-
-            .page-container[data-v-dd43eb17] {
-                background: transparent;
-                display: flex;
-                flex-direction: column;
-                font-size: 1.2rem;
-                height: 100%;
-                justify-content: center;
-                line-height: 2.3rem;
-                margin: auto;
-                max-width: 800px;
-                position: relative;
-                text-align: center;
-                width: 77%;
-                z-index: 1000
-            }
-
-            .three-animation[data-v-dd43eb17] {
-                display: block;
-                height: 100dvh;
-                position: relative
-            }
-
-            #scroll-text[data-v-dd43eb17] {
-                align-items: center;
-                bottom: 0;
-                color: #35a37d;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                left: 0;
-                opacity: 1;
-                padding-bottom: 1rem;
-                position: fixed;
-                transition: 1s ease-out;
-                transition-property: opacity,transform;
-                width: 100%;
-                will-change: opacity
-            }
-
-            #scroll-text p[data-v-dd43eb17] {
-                margin: 0
-            }
-
-            #scroll-text.hidden[data-v-dd43eb17] {
-                opacity: 0
-            }
-
-            #scroll-arrow[data-v-dd43eb17] {
-                fill: none;
-                stroke: #35a37d;
-                fill-rule: evenodd;
-                clip-rule: evenodd;
-                stroke-linecap: round;
-                stroke-linejoin: round;
-                stroke-miterlimit: 1.5;
-                stroke-width: 1px;
-                animation-direction: alternate;
-                animation-duration: .55s;
-                animation-iteration-count: infinite;
-                animation-name: shake-dd43eb17;
-                animation-timing-function: ease-out;
-                height: 25px;
-                position: relative;
-                width: 25px
-            }
-
-            .container[data-v-dd43eb17] {
-                position: relative;
-                width: 100%
-            }
-
-            .text-block[data-v-dd43eb17] {
-                background: rgba(10,9,36,.659);
-                border: 1px solid #a3e4f1;
-                border-radius: 1rem;
-                box-shadow: 0 0 6px 0 rgba(229,248,251,.122);
-                color: #a3e4f1;
-                padding: 3rem 2rem
-            }
-
-            .text-block p[data-v-dd43eb17] {
-                line-height: 2rem;
-                margin: 0
-            }
-
-            .text-block h2[data-v-dd43eb17] {
-                font-size: 3rem;
-                font-style: italic;
-                line-height: 3rem;
-                margin-block:0 1rem;text-align: center
-            }
-
-            .text-block h3[data-v-dd43eb17] {
-                font-size: 1.6rem;
-                margin-block:2rem 0}
-
-            .text-block ol[data-v-dd43eb17],.text-block ul[data-v-dd43eb17] {
-                margin: auto;
-                padding-block:1rem;text-align: left;
-                width: 85%
-            }
-
-            .our-sponsors[data-v-dd43eb17] {
-                background: rgba(10,9,36,.659);
-                border: 1px solid #a3e4f1;
-                border-radius: 1rem;
-                box-shadow: 0 0 6px 0 rgba(229,248,251,.122);
-                color: #a3e4f1;
-                margin: auto;
-                padding: 3rem 2rem;
-                width: -moz-fit-content;
-                width: fit-content
-            }
-
-            .our-sponsors h2[data-v-dd43eb17] {
-                font-size: 3rem;
-                font-style: italic;
-                line-height: 3rem;
-                margin-block:0;text-align: center
-            }
-
-            .main-block[data-v-dd43eb17] {
-                align-items: center;
-                box-sizing: border-box;
-                display: flex;
-                justify-content: center;
-                min-height: 100dvh;
-                padding-block:5rem}
-
-            .author[data-v-dd43eb17] {
-                color: #a3e4f1;
-                font-size: 1rem;
-                width: 100%
-            }
-
-            .author[data-v-dd43eb17],.link[data-v-dd43eb17] {
-                position: relative
-            }
-
-            .link[data-v-dd43eb17] {
-                color: inherit;
-                font-weight: 900;
-                text-decoration: none
-            }
-
-            .link[data-v-dd43eb17]:focus-visible {
-                text-decoration: none
-            }
-
-            .link[data-v-dd43eb17]:after {
-                background: #a3a3a3;
-                content: "";
-                height: 1px;
-                left: 0;
-                position: absolute;
-                top: 90%;
-                width: 100%
-            }
-
-            footer[data-v-dd43eb17] {
-                line-height: 1.3rem
-            }
-
-            @keyframes shake-dd43eb17 {
-                0% {
-                    transform: translate(0)
-                }
-
-                to {
-                    transform: translateY(-20%)
-                }
-            }
-
-            @media (1000px < width <= 400px) {
-                .author[data-v-dd43eb17] {
-                    font-size: .85rem;
-                    line-height: 1rem
-                }
-
-                .page-container[data-v-dd43eb17] {
-                    font-size: 1rem
-                }
-
-                .text-block p[data-v-dd43eb17] {
-                    line-height: 1.7rem
-                }
-
-                .text-block h2[data-v-dd43eb17] {
-                    font-size: 2.3rem
-                }
-
-                .text-block h3[data-v-dd43eb17] {
-                    font-size: 1.4rem
-                }
-
-                .our-sponsors h2[data-v-dd43eb17] {
-                    font-size: 2.3rem;
-                    margin-block:0}
-            }
-
-            @media (height <= 400px) and (width <= 900px),(width <= 400px) {
-                .author[data-v-dd43eb17] {
-                    font-size: .8rem;
-                    line-height: 1rem
-                }
-
-                .page-container[data-v-dd43eb17] {
-                    font-size: 1rem
-                }
-
-                .text-block[data-v-dd43eb17] {
-                    padding-block:1rem;padding-inline:1rem}
-
-                .text-block p[data-v-dd43eb17] {
-                    line-height: 1.6rem
-                }
-
-                .text-block h2[data-v-dd43eb17] {
-                    font-size: 1.7rem;
-                    margin-block:0}
-
-                .text-block h3[data-v-dd43eb17] {
-                    font-size: 1rem;
-                    margin-block:1rem 0}
-
-                .text-block ol[data-v-dd43eb17],.text-block ul[data-v-dd43eb17] {
-                    width: -moz-fit-content;
-                    width: fit-content
-                }
-
-                .our-sponsors[data-v-dd43eb17] {
-                    padding-block:1rem}
-
-                .our-sponsors h2[data-v-dd43eb17] {
-                    font-size: 2rem;
-                    margin-block:0}
-            }
-        </style>
-        <style>
-            @font-face {
-                font-display: auto;
-                font-family: Poppins;
-                font-style: italic;
-                font-weight: 100;
-                src: local("Poppins"),url(/fonts/Poppins/Poppins-Thin.ttf) format("truetype")
-            }
-
-            @font-face {
-                font-display: auto;
-                font-family: Poppins;
-                font-style: normal;
-                font-weight: 300;
-                src: local("Poppins"),url(/fonts/Poppins/Poppins-Light.ttf) format("truetype")
-            }
-
-            @font-face {
-                font-display: auto;
-                font-family: Poppins;
-                font-style: normal;
-                font-weight: 600;
-                src: local("Poppins"),url(/fonts/Poppins/Poppins-Bold.ttf) format("truetype")
-            }
-
-            #threejs-container[data-v-cb6754e6] {
-                position: fixed
-            }
-
-            #threejs[data-v-cb6754e6],#threejs-container[data-v-cb6754e6] {
-                height: 100dvh;
-                inset: 0;
-                width: 100dvw
-            }
-
-            #threejs[data-v-cb6754e6] {
-                position: relative
-            }
-        </style>
-        <style>
-            @font-face {
-                font-display: auto;
-                font-family: Poppins;
-                font-style: italic;
-                font-weight: 100;
-                src: local("Poppins"),url(/fonts/Poppins/Poppins-Thin.ttf) format("truetype")
-            }
-
-            @font-face {
-                font-display: auto;
-                font-family: Poppins;
-                font-style: normal;
-                font-weight: 300;
-                src: local("Poppins"),url(/fonts/Poppins/Poppins-Light.ttf) format("truetype")
-            }
-
-            @font-face {
-                font-display: auto;
-                font-family: Poppins;
-                font-style: normal;
-                font-weight: 600;
-                src: local("Poppins"),url(/fonts/Poppins/Poppins-Bold.ttf) format("truetype")
-            }
-
-            body {
-                background-color: #0a0924;
-                font-family: Poppins;
-                margin: 0;
-                min-height: 100dvh;
-                text-rendering: geometricPrecision;
-                width: 100dvw
-            }
-
-            #__nuxt {
-                height: 100dvh;
-                overflow: auto;
-                position: relative
-            }
-
-            ol li::marker {
-                color: red;
-                font-family: Poppins;
-                font-size: 1.3rem
-            }
-
-            ul li::marker {
-                color: red;
-                content: "ø ";
-                font-family: Poppins;
-                font-size: 1.3rem
-            }
-
-            #main-app {
-                height: -moz-fit-content;
-                height: fit-content;
-                position: relative;
-                width: 100%
-            }
-        </style>
-        <link rel="stylesheet" href="/scripts/entry.css">
-        <link rel="modulepreload" as="script" crossorigin href="/scripts/entry.js">
-        <link rel="modulepreload" as="script" crossorigin href="/scripts/index.js">
-        <link rel="modulepreload" as="script" crossorigin href="/scripts/vue.js">
-        <link rel="prefetch" as="script" crossorigin href="/scripts/error_404.js">
-        <link rel="prefetch" as="script" crossorigin href="/scripts/error_500.js">
-        <script type="module" src="/scripts/entry.js" crossorigin></script>
-        <script id="unhead:payload" type="application/json">
-            {
-                "title": "GlacierCTF"
-            }</script>
-    </head>
-    <body>
-        <div id="__nuxt">
-            <div id="main-app">
-                <span></span>
-                <div class="page-container" data-v-dd43eb17>
-                    <div class="three-animation" data-v-dd43eb17>
-                        <div id="scroll-text" class="" data-v-dd43eb17>
-                            <p data-v-dd43eb17>scroll</p>
-                            <svg width="100%" height="100%" viewbox="0 0 10 10" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" id="scroll-arrow" data-v-dd43eb17>
-                                <path d="M2,5 L5,8 L 8,5"></path>
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="three-animation" data-v-dd43eb17></div>
-                    <div class="main-block" data-v-dd43eb17>
-                        <div class="text-block" data-v-dd43eb17>
-                            <h2 data-v-dd43eb17>GlacierCTF 2025</h2>
-                            <p data-v-dd43eb17>
-                                We 're excited to announce GlacierCTF 2025 for its fourth edition, organized by <a class="link" href="https://losfuzzys.net/" data-v-dd43eb17>LosFuzzys</a>
-                                . <br data-v-dd43eb17>
-                                <br data-v-dd43eb17>
-                                Join us for a 24-hour <b data-v-dd43eb17>jeopardy-style</b>
-                                CTF where players of all skill levels are warmly welcomed. Experience an engaging range of challenges, including pwn, rev, web, crypto, smart contracts, and misc.<br data-v-dd43eb17>
-                                <br data-v-dd43eb17>
-                                GlacierCTF 2025 is your opportunity to dive into the world of cybersecurity and enjoy a friendly competition with fellow enthusiasts. Get ready for an exciting weekend of hacking and problem-solving!<br data-v-dd43eb17>
-                                <br data-v-dd43eb17>
-                            </p>
-                        </div>
-                    </div>
-                    <div class="main-block" data-v-dd43eb17>
-                        <div class="text-block" data-v-dd43eb17>
-                            <h2 data-v-dd43eb17>Prizes</h2>
-                        </div>
-                    </div>
-                    <div class="three-animation" data-v-dd43eb17></div>
-                    <div class="three-animation" data-v-dd43eb17></div>
-                    <div class="our-sponsors" data-v-dd43eb17>
-                        <h2 data-v-dd43eb17>Prizes: Academic division</h2>
-                    </div>
-                    <div class="prize-container" data-v-dd43eb17 data-v-f7f5a91e>
-                        <!--[-->
-                        <div class="card-container" data-v-f7f5a91e>
-                            <span class="card" data-v-f7f5a91e>
-                                <div class="side front" data-v-f7f5a91e>
-                                    <div class="info" data-v-f7f5a91e>
-                                        <h2 data-v-f7f5a91e>1st place</h2>
-                                        <p data-v-f7f5a91e>
-                                        <ul data-v-f7f5a91e>
-                                            <!--[-->
-                                            <li data-v-f7f5a91e>ISEC Travel Grant for Graz Security Week 2026**</li>
-                                            <!--]-->
-                                        </ul>
-</p></div></div></span></div>
-<div class="card-container" data-v-f7f5a91e>
-    <span class="card" data-v-f7f5a91e>
-        <div class="side front" data-v-f7f5a91e>
-            <div class="info" data-v-f7f5a91e>
-                <h2 data-v-f7f5a91e>2nd place</h2>
-                <p data-v-f7f5a91e>
-                <ul data-v-f7f5a91e>
-                    <!--[-->
-                    <li data-v-f7f5a91e>ISEC Travel Grant for Graz Security Week 2026**</li>
-                    <!--]-->
-                </ul>
-</p></div></div></span></div>
-<div class="card-container" data-v-f7f5a91e>
-    <span class="card" data-v-f7f5a91e>
-        <div class="side front" data-v-f7f5a91e>
-            <div class="info" data-v-f7f5a91e>
-                <h2 data-v-f7f5a91e>3rd place</h2>
-                <p data-v-f7f5a91e>
-                <ul data-v-f7f5a91e>
-                    <!--[-->
-                    <li data-v-f7f5a91e>ISEC Travel Grant for Graz Security Week 2026**</li>
-                    <!--]-->
-                </ul>
-</p></div></div></span></div>
-<!--]-->
-</div>
-<div class="main-block" data-v-dd43eb17>
-    <div class="text-block" data-v-dd43eb17>
-        <h2 data-v-dd43eb17>Notes: Academic division</h2>
-        <h3 data-v-dd43eb17>**The ISEC travel grant includes the following:</h3>
-        <p data-v-dd43eb17>
-            The travel grant covers up to EUR 1,500.00 for attending Graz Security Week 2026 in total. The actual split of the grant between the team members is up to the winners. The payment of the travel grant is done as reimbursement. Hence, the winners register for Graz security week 2026 and after attendance all receipts have to be submitted to <a class="link" href="mailto:team@losfuzzys.net" data-v-dd43eb17>team@losfuzzys.net</a>
-            . The costs for registration, travel, and hotel will then be reimbursed 
-        </p>
-        <br data-v-dd43eb17>
-        <br data-v-dd43eb17>
-        <br data-v-dd43eb17>
-        <p data-v-dd43eb17>Academic teams are also eligible for the open category prizes.</p>
-    </div>
-</div>
-<div class="main-block" data-v-dd43eb17>
-    <div class="text-block" data-v-dd43eb17>
-        <h2 data-v-dd43eb17>Information</h2>
-        <h3 data-v-dd43eb17>PRIZE ELIGIBILITY</h3>
-        <p data-v-dd43eb17>Only teams whose members are enrolled in a school or university are eligible to win the student category prizes. Teams from countries that are sanctioned by the Austrian government or the European Union are exempt from receiving any prizes. To ensure this policy, in case of a team placing in the top 3, it 's registered members will have to provide proof of citizenship or enrolment at a university.</p>
-        <h3 data-v-dd43eb17>RULES</h3>
-        <p data-v-dd43eb17>During the competition, any of the following behaviours will result in immediate disqualification: 
-        <ul data-v-dd43eb17>
-            <li data-v-dd43eb17>Any behaviour that affects the fairness of the competition</li>
-            <li data-v-dd43eb17>Posting, sharing task solutions or flags</li>
-            <li data-v-dd43eb17>Each team may register only once, and a person may belong to only one team</li>
-            <li data-v-dd43eb17>Intentionally prevent other teams from scoring flags</li>
-            <li data-v-dd43eb17>Attacking personnel, including participants and non-participants, or the competition system itself</li>
-            <li data-v-dd43eb17>Violation of the Code of Conduct</li>
-        </ul>
-</p></div></div>
-<div class="our-sponsors" data-v-dd43eb17>
-    <h2 data-v-dd43eb17>Sponsors</h2>
-</div>
-<div class="sponsor-container" data-v-dd43eb17 data-v-a88121a0>
-    <!--[-->
-    <div class="card-container" data-v-a88121a0>
-        <div class="card-el" data-v-a88121a0>
-            <a class="card" href="https://www.isec.tugraz.at/" data-v-a88121a0>
-                <div class="side-front" data-v-a88121a0>
-                    <div class="sponsor-image" data-v-a88121a0>
-                        <img src="/_ipx/_/images/sponsors/tug.png" onerror="this.setAttribute('data-error', 1)" alt="ISec @ TU Graz" data-nuxt-img srcset="/_ipx/_/images/sponsors/tug.png 1x, /_ipx/_/images/sponsors/tug.png 2x" data-v-a88121a0>
-                    </div>
-                    <div class="info" data-v-a88121a0>
-                        <h2 data-v-a88121a0>ISec @ TU Graz</h2>
-                        <p data-v-a88121a0>We research Cybersecurity and teach future experts to create secure 
-        technologies for everyone.</p>
-                    </div>
-                </div>
-            </a>
-        </div>
-    </div>
-    <div class="card-container" data-v-a88121a0>
-        <div class="card-el" data-v-a88121a0>
-            <a class="card" href="https://services.google.com/fb/forms/ctfsponsorship/" data-v-a88121a0>
-                <div class="side-front" data-v-a88121a0>
-                    <div class="sponsor-image" data-v-a88121a0>
-                        <img src="/_ipx/_/images/sponsors/google.png" onerror="this.setAttribute('data-error', 1)" alt="Google" data-nuxt-img srcset="/_ipx/_/images/sponsors/google.png 1x, /_ipx/_/images/sponsors/google.png 2x" data-v-a88121a0>
-                    </div>
-                    <div class="info" data-v-a88121a0>
-                        <h2 data-v-a88121a0>Google</h2>
-                        <p data-v-a88121a0>Infra sponsored by goo.gle/ctfsponsorship.</p>
-                    </div>
-                </div>
-            </a>
-        </div>
-    </div>
-    <div class="card-container" data-v-a88121a0>
-        <div class="card-el" data-v-a88121a0>
-            <a class="card" href="https://hex-rays.com/" data-v-a88121a0>
-                <div class="side-front" data-v-a88121a0>
-                    <div class="sponsor-image" data-v-a88121a0>
-                        <img src="/_ipx/_/images/sponsors/hex_rays_sa_logo.jpeg" onerror="this.setAttribute('data-error', 1)" alt="Hex-Rays" data-nuxt-img srcset="/_ipx/_/images/sponsors/hex_rays_sa_logo.jpeg 1x, /_ipx/_/images/sponsors/hex_rays_sa_logo.jpeg 2x" data-v-a88121a0>
-                    </div>
-                    <div class="info" data-v-a88121a0>
-                        <h2 data-v-a88121a0>Hex-Rays</h2>
-                        <p data-v-a88121a0>Professional binary analysis with IDA Pro disassembler and decompiler. Tools for reverse engineering, malware analysis, and vulnerability research.</p>
-                    </div>
-                </div>
-            </a>
-        </div>
-    </div>
-    <!--]-->
-</div>
-<div class="three-animation" data-v-dd43eb17></div>
-<div class="three-animation" data-v-dd43eb17></div>
-<footer data-v-dd43eb17>
-    <a id="los-link" href="https://losfuzzys.net/" target="_blank" data-v-dd43eb17></a>
-    <p class="author" data-v-dd43eb17>
-        design and code by<br data-v-dd43eb17>
-        <a class="link" href="https://github.com/simonefranza" data-v-dd43eb17>simonefranza</a>
-    </p>
-</footer>
-</div></div></div><script type="application/json" id="__NUXT_DATA__" data-ssr="true">
-    [
-        {
-            "state": 1,
-            "_errors": 3,
-            "serverRendered": 5,
-            "path": 6,
-            "prerenderedAt": 7
-        },
-        [
-            "Reactive",
-            2
-        ],
-        {
-        },
-        [
-            "Reactive",
-            4
-        ],
-        {
-        },
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dashell Finn</title>
+    <link rel="icon" href="/images/favicon.png" />
+
+    <link
+      as="font"
+      href="/fonts/Poppins/Poppins-Thin.ttf"
+      type="font/ttf"
+      crossorigin="anonymous"
+    />
+    <link
+      as="font"
+      href="/fonts/Poppins/Poppins-Light.ttf"
+      type="font/ttf"
+      crossorigin="anonymous"
+    />
+    <link
+      as="font"
+      href="/fonts/Poppins/Poppins-Bold.ttf"
+      type="font/ttf"
+      crossorigin="anonymous"
+    />
+
+    <!-- Fonts -->
+    <style>
+      @font-face {
+        font-display: auto;
+        font-family: Poppins;
+        font-style: italic;
+        font-weight: 100;
+        src: local("Poppins"),
+          url(/fonts/Poppins/Poppins-Thin.ttf) format("truetype");
+      }
+      @font-face {
+        font-display: auto;
+        font-family: Poppins;
+        font-style: normal;
+        font-weight: 300;
+        src: local("Poppins"),
+          url(/fonts/Poppins/Poppins-Light.ttf) format("truetype");
+      }
+      @font-face {
+        font-display: auto;
+        font-family: Poppins;
+        font-style: normal;
+        font-weight: 600;
+        src: local("Poppins"),
+          url(/fonts/Poppins/Poppins-Bold.ttf) format("truetype");
+      }
+    </style>
+
+    <!-- Prize cards styles (kept because your index.js renders these classes) -->
+    <style>
+      .prize-container[data-v-f7f5a91e] {
+        align-items: stretch;
+        box-sizing: border-box;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2rem;
+        justify-content: center;
+        padding-block: 2.5rem;
+        position: relative;
+        width: 100%;
+      }
+
+      .card-container[data-v-f7f5a91e] {
+        background: rgba(10, 9, 36, 0.659);
+        border: 1px solid #a3e4f1;
+        border-radius: 1rem;
+        box-shadow: 0 0 6px 0 rgba(229, 248, 251, 0.122);
+        color: #a3e4f1;
+        padding: 1.2rem 1rem 1rem;
+        width: 300px;
+      }
+
+      .card-container h2[data-v-f7f5a91e] {
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin: 0;
+      }
+
+      .card-container p[data-v-f7f5a91e] {
+        font-size: 1rem;
+        line-height: 1.4rem;
+      }
+
+      .card-container a[data-v-f7f5a91e] {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .card-container ul[data-v-f7f5a91e] {
+        text-align: left;
+      }
+    </style>
+
+    <!-- Main page styles (kept; these target the classes your index.js renders) -->
+    <style>
+      .page-container[data-v-dd43eb17] {
+        background: transparent;
+        display: flex;
+        flex-direction: column;
+        font-size: 1.2rem;
+        height: 100%;
+        justify-content: center;
+        line-height: 2.3rem;
+        margin: auto;
+        max-width: 800px;
+        position: relative;
+        text-align: center;
+        width: 77%;
+        z-index: 1000;
+      }
+
+      .three-animation[data-v-dd43eb17] {
+        display: block;
+        height: 100dvh;
+        position: relative;
+      }
+
+      #scroll-text[data-v-dd43eb17] {
+        align-items: center;
+        bottom: 0;
+        color: #35a37d;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        left: 0;
+        opacity: 1;
+        padding-bottom: 1rem;
+        position: fixed;
+        transition: 1s ease-out;
+        transition-property: opacity, transform;
+        width: 100%;
+        will-change: opacity;
+      }
+
+      #scroll-text.hidden[data-v-dd43eb17] {
+        opacity: 0;
+      }
+
+      #scroll-arrow[data-v-dd43eb17] {
+        fill: none;
+        stroke: #35a37d;
+        fill-rule: evenodd;
+        clip-rule: evenodd;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-miterlimit: 1.5;
+        stroke-width: 1px;
+        animation-direction: alternate;
+        animation-duration: 0.55s;
+        animation-iteration-count: infinite;
+        animation-name: shake-dd43eb17;
+        animation-timing-function: ease-out;
+        height: 25px;
+        position: relative;
+        width: 25px;
+      }
+
+      .text-block[data-v-dd43eb17] {
+        background: rgba(10, 9, 36, 0.659);
+        border: 1px solid #a3e4f1;
+        border-radius: 1rem;
+        box-shadow: 0 0 6px 0 rgba(229, 248, 251, 0.122);
+        color: #a3e4f1;
+        padding: 3rem 2rem;
+      }
+
+      .text-block p[data-v-dd43eb17] {
+        line-height: 2rem;
+        margin: 0;
+      }
+
+      .text-block h2[data-v-dd43eb17] {
+        font-size: 3rem;
+        font-style: italic;
+        line-height: 3rem;
+        margin-block: 0 1rem;
+        text-align: center;
+      }
+
+      .text-block h3[data-v-dd43eb17] {
+        font-size: 1.6rem;
+        margin-block: 2rem 0;
+      }
+
+      .text-block ol[data-v-dd43eb17],
+      .text-block ul[data-v-dd43eb17] {
+        margin: auto;
+        padding-block: 1rem;
+        text-align: left;
+        width: 85%;
+      }
+
+      .our-sponsors[data-v-dd43eb17] {
+        background: rgba(10, 9, 36, 0.659);
+        border: 1px solid #a3e4f1;
+        border-radius: 1rem;
+        box-shadow: 0 0 6px 0 rgba(229, 248, 251, 0.122);
+        color: #a3e4f1;
+        margin: auto;
+        padding: 3rem 2rem;
+        width: fit-content;
+      }
+
+      .our-sponsors h2[data-v-dd43eb17] {
+        font-size: 3rem;
+        font-style: italic;
+        line-height: 3rem;
+        margin-block: 0;
+        text-align: center;
+      }
+
+      .main-block[data-v-dd43eb17] {
+        align-items: center;
+        box-sizing: border-box;
+        display: flex;
+        justify-content: center;
+        min-height: 100dvh;
+        padding-block: 5rem;
+      }
+
+      .author[data-v-dd43eb17] {
+        color: #a3e4f1;
+        font-size: 1rem;
+        width: 100%;
+      }
+
+      .author[data-v-dd43eb17],
+      .link[data-v-dd43eb17] {
+        position: relative;
+      }
+
+      .link[data-v-dd43eb17] {
+        color: inherit;
+        font-weight: 900;
+        text-decoration: none;
+      }
+
+      .link[data-v-dd43eb17]:after {
+        background: #a3a3a3;
+        content: "";
+        height: 1px;
+        left: 0;
+        position: absolute;
+        top: 90%;
+        width: 100%;
+      }
+
+      footer[data-v-dd43eb17] {
+        line-height: 1.3rem;
+      }
+
+      @keyframes shake-dd43eb17 {
+        0% {
+          transform: translate(0);
+        }
+        to {
+          transform: translateY(-20%);
+        }
+      }
+    </style>
+
+    <!-- ThreeJS container styles (kept) -->
+    <style>
+      #threejs-container[data-v-cb6754e6] {
+        position: fixed;
+      }
+      #threejs[data-v-cb6754e6],
+      #threejs-container[data-v-cb6754e6] {
+        height: 100dvh;
+        inset: 0;
+        width: 100dvw;
+      }
+      #threejs[data-v-cb6754e6] {
+        position: relative;
+      }
+    </style>
+
+    <!-- Global base styles -->
+    <style>
+      body {
+        background-color: #0a0924;
+        font-family: Poppins;
+        margin: 0;
+        min-height: 100dvh;
+        text-rendering: geometricPrecision;
+        width: 100dvw;
+      }
+
+      #__nuxt {
+        height: 100dvh;
+        overflow: auto;
+        position: relative;
+      }
+
+      ol li::marker {
+        color: red;
+        font-family: Poppins;
+        font-size: 1.3rem;
+      }
+
+      ul li::marker {
+        color: red;
+        content: "ø ";
+        font-family: Poppins;
+        font-size: 1.3rem;
+      }
+    </style>
+
+    <!-- ORANGE THEME + hide scrollbar + hero layout (no text here, just styling) -->
+    <style>
+      :root {
+        --accent: #ff8a00;
+      }
+
+      /* hide scrollbar (the “white vertical line”) */
+      #__nuxt {
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* old Edge/IE */
+      }
+      #__nuxt::-webkit-scrollbar {
+        width: 0;
+        height: 0;
+      }
+
+      /* apply orange accent to boxes/cards and arrow */
+      .text-block[data-v-dd43eb17],
+      .our-sponsors[data-v-dd43eb17],
+      .card-container[data-v-f7f5a91e] {
+        color: var(--accent) !important;
+        border-color: var(--accent) !important;
+        box-shadow: 0 0 10px 0 rgba(255, 138, 0, 0.18) !important;
+      }
+
+      #scroll-text[data-v-dd43eb17] {
+        color: var(--accent) !important;
+      }
+      #scroll-arrow[data-v-dd43eb17] {
+        stroke: var(--accent) !important;
+      }
+
+      .link[data-v-dd43eb17]:after {
+        background: var(--accent) !important;
+      }
+
+      ol li::marker,
+      ul li::marker {
+        color: var(--accent) !important;
+      }
+
+      /* spacing between paragraphs in a block */
+      .text-block[data-v-dd43eb17] p[data-v-dd43eb17] + p[data-v-dd43eb17] {
+        margin-top: 1rem !important;
+      }
+
+      /* hero layout used by index.js */
+      .hero-block[data-v-dd43eb17] {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100dvh;
+        width: 100%;
+        position: relative;
+        z-index: 1000;
+        padding: 0 1rem;
+        box-sizing: border-box;
+      }
+    </style>
+
+    <!-- Nuxt assets -->
+    <link rel="stylesheet" href="/scripts/entry.css" />
+    <link rel="modulepreload" as="script" crossorigin href="/scripts/entry.js" />
+    <link rel="modulepreload" as="script" crossorigin href="/scripts/index.js" />
+    <link rel="modulepreload" as="script" crossorigin href="/scripts/vue.js" />
+    <link rel="prefetch" as="script" crossorigin href="/scripts/error_404.js" />
+    <link rel="prefetch" as="script" crossorigin href="/scripts/error_500.js" />
+    <script type="module" src="/scripts/entry.js" crossorigin></script>
+
+    <script id="unhead:payload" type="application/json">
+      { "title": "Dashell Finn" }
+    </script>
+  </head>
+
+  <body>
+    <!-- IMPORTANT: Empty mount point. All visible content comes from /scripts/index.js -->
+    <div id="__nuxt"></div>
+
+    <!-- Keep Nuxt data/config scripts (no visible text) -->
+    <script type="application/json" id="__NUXT_DATA__" data-ssr="true">
+      [
+        { "state": 1, "_errors": 3, "serverRendered": 5, "path": 6, "prerenderedAt": 7 },
+        ["Reactive", 2],
+        {},
+        ["Reactive", 4],
+        {},
         true,
         "/",
         1763030111108
-    ]</script>
-<script>
-    window.__NUXT__ = {};
-    window.__NUXT__.config = {
+      ]
+    </script>
+
+    <script>
+      window.__NUXT__ = {};
+      window.__NUXT__.config = {
         public: {},
-        app: {
-            baseURL: "/",
-            buildAssetsDir: "/scripts/",
-            cdnURL: ""
-        }
-    }
-</script>
-</body></html>
+        app: { baseURL: "/", buildAssetsDir: "/scripts/", cdnURL: "" },
+      };
+    </script>
+  </body>
+</html>
