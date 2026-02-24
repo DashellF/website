@@ -32355,167 +32355,167 @@ class ThreeScene {
     }
     
 
-addDirtPath() {
+    addDirtPath() {
         // Random each page reload.
         const rand = Math.random;
 
-    // Path spans the camera travel range.
-    const zStart = this.cameraStartPos + 10;   // slightly in front of camera start
-    const zEnd = this.cameraEndPos - 20;       // slightly past camera end
-    const segments = 90;
+        // Path spans the camera travel range.
+        const zStart = this.cameraStartPos + 10;   // slightly in front of camera start
+        const zEnd = this.cameraEndPos - 20;       // slightly past camera end
+        const segments = 90;
 
-    // Base path params (low poly, wide enough to read from above).
-    const baseWidth = 1.5;
-    const bermWidth = 2.4;     // extra width on each side
-    const bermHeight = 0.65;   // berm raise amount
+        // Base path params (low poly, wide enough to read from above).
+        const baseWidth = 1.5;
+        const bermWidth = 2.4;     // extra width on each side
+        const bermHeight = 0.65;   // berm raise amount
 
-    let x = 0;
-    const maxX = 6;
+        let x = 0;
+        const maxX = 6;
 
-    // Keep above the ground plane to avoid z-fighting.
-    const yBase = -9.88;
+        // Keep above the ground plane to avoid z-fighting.
+        const yBase = -9.88;
 
-    // Store centerline so we can scatter rocks deterministically along the same path.
-    const centers = [];
-    const widths = [];
+        // Store centerline so we can scatter rocks deterministically along the same path.
+        const centers = [];
+        const widths = [];
 
-    const positions = [];
-    const uvs = [];
-    const indices = [];
+        const positions = [];
+        const uvs = [];
+        const indices = [];
 
-    for (let i = 0; i <= segments; i++) {
-        const t = i / segments;
-        const z = zStart + (zEnd - zStart) * t;
+        for (let i = 0; i <= segments; i++) {
+            const t = i / segments;
+            const z = zStart + (zEnd - zStart) * t;
 
-        // Smoothed random walk (non-periodic and gentle). Static per reload (seeded).
-        x += (rand() - 0.5) * 1.6;
-        x *= 0.88;
-        x = Math.max(-maxX, Math.min(maxX, x));
+            // Smoothed random walk (non-periodic and gentle). Static per reload (seeded).
+            x += (rand() - 0.5) * 1.6;
+            x *= 0.88;
+            x = Math.max(-maxX, Math.min(maxX, x));
 
-        const w = baseWidth + (rand() - 0.5) * 1.5;
+            const w = baseWidth + (rand() - 0.5) * 1.5;
 
-        centers.push(x);
-        widths.push(w);
+            centers.push(x);
+            widths.push(w);
 
-        const leftInner = x - w * 0.5;
-        const rightInner = x + w * 0.5;
-        const leftOuter = leftInner - bermWidth;
-        const rightOuter = rightInner + bermWidth;
+            const leftInner = x - w * 0.5;
+            const rightInner = x + w * 0.5;
+            const leftOuter = leftInner - bermWidth;
+            const rightOuter = rightInner + bermWidth;
 
-        // Add tiny height variation so it's not perfectly flat.
-        const yCenter = yBase + (rand() - 0.5) * 0.04;
-        const yBerm = yBase + bermHeight + (rand() - 0.5) * 0.15;
+            // Add tiny height variation so it's not perfectly flat.
+            const yCenter = yBase + (rand() - 0.5) * 0.04;
+            const yBerm = yBase + bermHeight + (rand() - 0.5) * 0.15;
 
-        // 4 verts per segment: left berm, left edge, right edge, right berm
-        positions.push(
-            leftOuter, yBerm, z,
-            leftInner, yCenter, z,
-            rightInner, yCenter, z,
-            rightOuter, yBerm, z
-        );
+            // 4 verts per segment: left berm, left edge, right edge, right berm
+            positions.push(
+                leftOuter, yBerm, z,
+                leftInner, yCenter, z,
+                rightInner, yCenter, z,
+                rightOuter, yBerm, z
+            );
 
-        // Simple UVs (not really used, but harmless)
-        uvs.push(0, t, 0.25, t, 0.75, t, 1, t);
+            // Simple UVs (not really used, but harmless)
+            uvs.push(0, t, 0.25, t, 0.75, t, 1, t);
 
-        if (i < segments) {
-            const a = 4 * i;
-            const b = a + 4;
+            if (i < segments) {
+                const a = 4 * i;
+                const b = a + 4;
 
-            // left slope quad (a0-a1-b1-b0)
-            indices.push(a, a + 1, b + 1, a, b + 1, b);
+                // left slope quad (a0-a1-b1-b0)
+                indices.push(a, a + 1, b + 1, a, b + 1, b);
 
-            // center quad (a1-a2-b2-b1)
-            indices.push(a + 1, a + 2, b + 2, a + 1, b + 2, b + 1);
+                // center quad (a1-a2-b2-b1)
+                indices.push(a + 1, a + 2, b + 2, a + 1, b + 2, b + 1);
 
-            // right slope quad (a2-a3-b3-b2)
-            indices.push(a + 2, a + 3, b + 3, a + 2, b + 3, b + 2);
+                // right slope quad (a2-a3-b3-b2)
+                indices.push(a + 2, a + 3, b + 3, a + 2, b + 3, b + 2);
+            }
         }
-    }
-    //avoid area for grass + things
-    this.pathProfile = { zStart, zEnd, segments, centers, widths };
+        //avoid area for grass + things
+        this.pathProfile = { zStart, zEnd, segments, centers, widths };
 
-    const geo = new Zt;
-    geo.setIndex(indices);
-    geo.setAttribute("position", new Tt(positions,3));
-    geo.setAttribute("uv", new Tt(uvs,2));
-    geo.computeVertexNormals();
+        const geo = new Zt;
+        geo.setIndex(indices);
+        geo.setAttribute("position", new Tt(positions,3));
+        geo.setAttribute("uv", new Tt(uvs,2));
+        geo.computeVertexNormals();
 
-    const mat = new Td({
-        color: 6968368
-    });
+        const mat = new Td({
+            color: 6968368
+        });
 
-    const mesh = new Vt(geo, mat);
-    mesh.name = "dirtPath";
-    mesh.renderOrder = 0;
+        const mesh = new Vt(geo, mat);
+        mesh.name = "dirtPath";
+        mesh.renderOrder = 0;
 
-    this.scene.add(mesh);
-    this.dirtPath = mesh;
+        this.scene.add(mesh);
+        this.dirtPath = mesh;
 
-    // --- Rocks: deterministic scatter along and near the berms (low poly) ---
-        const randRock = Math.random;
-    const rocks = new Gt;
-    rocks.name = "rocks";
+        // --- Rocks: deterministic scatter along and near the berms (low poly) ---
+            const randRock = Math.random;
+        const rocks = new Gt;
+        rocks.name = "rocks";
 
-    const rockGeo = new Tu(0.22, 5, 4); // low-poly "boulder"
-    const rockMat = new Td({ color: 5987163 }); // muted gray-brown
+        const rockGeo = new Tu(0.22, 5, 4); // low-poly "boulder"
+        const rockMat = new Td({ color: 5987163 }); // muted gray-brown
 
-    const rockCount = 750;
+        const rockCount = 750;
 
-    for (let k = 0; k < rockCount; k++) {
-        const t = randRock();
-        const z = zStart + (zEnd - zStart) * t;
+        for (let k = 0; k < rockCount; k++) {
+            const t = randRock();
+            const z = zStart + (zEnd - zStart) * t;
 
-        // interpolate center + width
-        let p = t * segments;
-        let idx = Math.floor(p);
-        if (idx >= segments) idx = segments - 1;
-        const a = p - idx;
+            // interpolate center + width
+            let p = t * segments;
+            let idx = Math.floor(p);
+            if (idx >= segments) idx = segments - 1;
+            const a = p - idx;
 
-        const cx = centers[idx] * (1 - a) + centers[idx + 1] * a;
-        const w = widths[idx] * (1 - a) + widths[idx + 1] * a;
+            const cx = centers[idx] * (1 - a) + centers[idx + 1] * a;
+            const w = widths[idx] * (1 - a) + widths[idx + 1] * a;
 
-        // Bias rocks toward the berm edges.
-        const edgeBias = randRock() < 0.75;
+            // Bias rocks toward the berm edges.
+            const edgeBias = randRock() < 0.75;
 
-        // no-rock zone = inside the path (plus a little safety margin)
-        const clear = (w * 0.5) + 0.45;   // tweak 0.35 to taste (bigger = wider clear lane)
+            // no-rock zone = inside the path (plus a little safety margin)
+            const clear = (w * 0.5) + 0.45;   // tweak 0.35 to taste (bigger = wider clear lane)
 
-        let rx;
-        const side = randRock() < 0.5 ? -1 : 1;
+            let rx;
+            const side = randRock() < 0.5 ? -1 : 1;
 
-        if (edgeBias) {
-        // Mostly on berms/outside
-        rx = cx + side * (clear + 0.9 + randRock() * 3.5) + (randRock() - 0.5) * 0.6;
-        } else {
-        // Still outside the path (just less “berm-biased”)
-        rx = cx + side * (clear + randRock() * 4.5);
+            if (edgeBias) {
+            // Mostly on berms/outside
+            rx = cx + side * (clear + 0.9 + randRock() * 3.5) + (randRock() - 0.5) * 0.6;
+            } else {
+            // Still outside the path (just less “berm-biased”)
+            rx = cx + side * (clear + randRock() * 4.5);
+            }
+
+            // Height: mostly on/near ground; slightly higher near berms
+            const ry = edgeBias ? (-9.82 + randRock() * 0.18) : (-9.92 + randRock() * 0.12);
+
+            const rMesh = new Vt(rockGeo, rockMat);
+            rMesh.position.set(rx, ry, z + (randRock() - 0.5) * 1.2);
+            rMesh.rotation.set(
+                randRock() * Math.PI,
+                randRock() * Math.PI,
+                randRock() * Math.PI
+            );
+
+            // Non-uniform scale for irregular low-poly rocks
+            const s = 0.18 + randRock() * 0.94;
+            rMesh.scale.set(
+                s * (0.7 + randRock() * 0.7),
+                s * (0.6 + randRock() * 0.9),
+                s * (0.7 + randRock() * 0.7)
+            );
+
+            rocks.add(rMesh);
         }
 
-        // Height: mostly on/near ground; slightly higher near berms
-        const ry = edgeBias ? (-9.82 + randRock() * 0.18) : (-9.92 + randRock() * 0.12);
-
-        const rMesh = new Vt(rockGeo, rockMat);
-        rMesh.position.set(rx, ry, z + (randRock() - 0.5) * 1.2);
-        rMesh.rotation.set(
-            randRock() * Math.PI,
-            randRock() * Math.PI,
-            randRock() * Math.PI
-        );
-
-        // Non-uniform scale for irregular low-poly rocks
-        const s = 0.18 + randRock() * 0.94;
-        rMesh.scale.set(
-            s * (0.7 + randRock() * 0.7),
-            s * (0.6 + randRock() * 0.9),
-            s * (0.7 + randRock() * 0.7)
-        );
-
-        rocks.add(rMesh);
+        this.scene.add(rocks);
+        this.rocksGroup = rocks;
     }
-
-    this.scene.add(rocks);
-    this.rocksGroup = rocks;
-}
     addForest() {
         const e = new Gt;
         e.name = "forest";

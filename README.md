@@ -28,7 +28,7 @@ the code format:
 
 - index.html: combines everything into one page, no viewable text is made here.
 - images/:
-    - none of the stuff here is required for the website to run, all of it is custom stuff I reference in the 3d model segment of entry.js.
+    - none of the stuff here is required for the website to run, all of it is custom stuff I reference in the 3d model segment of entry.js or index.html in the website logo.
 - fonts/:  
     - self explanatory, this is where I stored the font.
 - scripts/:
@@ -37,6 +37,6 @@ the code format:
   - entry.js + entry.css:
     - Lines 1-8892: Vue renderer
     - Lines 8893-32171: Three.js renderer, shader chunks, loaders, basically the compiler for 3d rendering.
-    - Lines 32172-33208: The custom stuff I made for the 3d background (trees, path, leaves, etc). This is the stuff you would edit if you want to make your own website.
-    - Lines 33209-33520: Mount and export with Nuxt.
+    - Lines 32172-32791: The custom stuff I made for the 3d background (camera, trees, leaves, path, etc). This is the stuff you would edit if you want to make your own website.
+    - Lines 32792-33125: Mount and export with Nuxt.
 - _payload.json: useful for if you want multiple pages, I don't so its empty

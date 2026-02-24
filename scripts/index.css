@@ -252,6 +252,7 @@ ul li::marker {
   letter-spacing: 0.1em;
   text-transform: lowercase;
   font-size: 20px;
+  font-weight: 540; 
 }
 
 #scroll-arrow {

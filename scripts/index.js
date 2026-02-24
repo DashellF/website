@@ -14,7 +14,6 @@ import {
   v as x,
 } from "./entry.js";
 
-
 const ce = { class: "prize-container" };
 const le = { class: "card" };
 const ue = { class: "side front" };
@@ -23,15 +22,63 @@ const he = { class: "info" };
 const fe = k({
   __name: "Projects",
   setup() {
-
+    // Each project now has an editable name + bullet items
     const s = S([
-      ["custom trained AI model", "ngrok connected backend", "expo go app configuration", "mongodb login sql database"],
-      ["godot game engine", "runs as an app on android and pc"],
-      ["custom trained AI model", "mongodb", "can run as a website, IOS app, and Android app"],
-      ["real time audio tracking with whisper", "uses gpt api", "runs a website database for long term runs"],
-      ["escape room puzzle box", "custom mousepad with conductive paper"],
-      //add slot for hardening script
-      //add spot for this website
+      {
+        // Add link to the Scrapboard word only
+        name: `Trash Detection App (<a class="link" href="https://github.com/WilyHyperion/RandomForestHacks/tree/main/backend" target="_blank" rel="noopener noreferrer">Scrapboard</a>)`,
+        items: [
+          "custom trained AI model",
+          "ngrok connected backend",
+          "expo go app configuration",
+          "mongodb login sql database",
+        ],
+      },
+      {
+        // Add link to the Emoti text
+        name: `Emotion Recognition App (<a class="link" href="https://github.com/DashellF/Sparkhub-Hackathon-Facial-Recognition-App" target="_blank" rel="noopener noreferrer">Emoti</a>)`,
+        items: [
+          "custom trained AI model",
+          "mongodb",
+          "can run as a website, IOS app, and Android app",
+        ],
+      },
+      {
+        name: "Windows Hardening Script",
+        items: [
+          "dc script that secures the whole network",
+          "uses pingcastle and hardeningkitty for further safety",
+          "audits all ports and services across all machines",
+        ],
+      },
+      {
+        name: "Real-time AI Fact Checker",
+        items: [
+          "real time audio tracking with whisper",
+          "uses gpt api",
+          "runs a website database for long term runs",
+        ],
+      },
+      {
+        // Add link to the title of the space project
+        name: `<a class="link" href="https://github.com/DashellF/space-project" target="_blank" rel="noopener noreferrer">Space Simulator</a>`,
+        items: ["godot game engine", "runs as an app on android and on computers"],
+      },
+
+      {
+        name: "Raspberry Pis",
+        items: ["several escape room puzzles", "custom mousepad with conductive paper"],
+      },
+
+      {
+        // Add link to the "This Website!" text
+        name: `<a class="link" href="https://github.com/DashellF/website" target="_blank" rel="noopener noreferrer">This Website!</a>`,
+        items: [
+          "surprisingly lightweight!",
+          "no imports required!",
+          "uses vue.js and nuxt framework to render 3d objects.",
+        ],
+      },
     ]);
 
     return (i, a) => (
@@ -47,14 +94,16 @@ const fe = k({
               l("span", le, [
                 l("div", ue, [
                   l("div", he, [
-                    l("h2", null, "Project " + I(n + 1), 1),
+                    // CHANGED: use innerHTML so the <a> tags render as real links
+                    l("h2", { innerHTML: r.name }, null, 8, ["innerHTML"]),
+
                     l("p", null, [
                       l("ul", null, [
                         (m(!0),
                         g(
                           W,
                           null,
-                          A(r, (o) => (m(), g("li", { key: o }, I(o), 1))),
+                          A(r.items, (o) => (m(), g("li", { key: o }, I(o), 1))),
                           128
                         )),
                       ]),
@@ -71,7 +120,6 @@ const fe = k({
   },
 });
 const ve = fe;
-
 
 const Ue = { class: "page-container" };
 const Ve = { class: "three-animation" };
@@ -116,22 +164,22 @@ const SectionsTop = P(
 const SectionsBottom = P(
   '<div class="main-block"><div class="text-block">' +
     "<h2>Skills</h2>" +
-    "<p>I really like tweaking and hardening windows machines. Hardening scripts are fun to make, and are decent in competitions.</p>" +
-    "<p>For ctfs, I usually do really well in rev, osint, and crypto. I usually play solo, so I've still gotten pretty good at web, misc, android, and forensics challs.</p>" +
-    "<p>I am afluent with many developer tools such as git, expogo, mongodb, ngrok, godot, raspberry pis, and gdb.</p>" +
+    "<p>For ctfs, I usually do really well in <strong>rev</strong>, <strong>osint</strong>, and <strong>crypto</strong>. I usually play solo, so I've still gotten pretty good at web, misc, android, and forensics challs.</p>" +    "<p>I really enjoy tweaking, hardening, and breaking into windows machines. Hardening scripts are also fun to make, and are decent in competitions.</p>" +
+    "<p>I am afluent with many developer tools such as git, expogo, react, mongodb, ngrok, godot, raspberry pis, and gdb.</p>" +
+    "<p>Here is my resume, including a lot of this and more!" +
   "</div></div>" +
 
   '<div class="main-block"><div class="text-block">' +
     "<h2>Experience</h2>" +
-    "<p>I was on my high school's cyber competition team my senior year, participating in many ctfs and cyberpatriot</p>" +
+    "<p>I was on my high school's cyber competition team my senior year, participating in many ctfs and Cyberpatriot.</p>" +
     "<p>I did/am doing cptc and ccdc my freshman year at SDSU.</p>" +
-    "<p>I\'ve also been doing ctfs every week for about a year now.</p>" +
-    "</div></div>" +
+    "<p>I\'ve also been doing ctfs every week for about a year now (currently 5th in the US on <a class=\"link\" href=\"https://ctftime.org/team/419145\" target=\"_blank\" rel=\"noopener noreferrer\">CTFTime</a>).</p>" +
+  "</div></div>" +
 
   '<div class="main-block"><div class="text-block">' +
     "<h2>Contact</h2>" +
-    "<p>To contact me, email me at djf1517@gmail.com or shoot me a dm on discord (dashel1)</p>" +
-    "<p>I\'ll usually respond within 1-3 days by email and a couple hours by discord</p>" +
+    "<p>To contact me, email me at djf1517@gmail.com or shoot me a dm on discord (dashel1).</p>" +
+    "<p>I\'ll usually respond within 1-2 days by email and a couple hours by discord.</p>" +
   "</div></div>" +
 
   '<div class="three-animation"></div>',
@@ -144,7 +192,7 @@ const Tail = P(
   '<footer id="site-footer">' +
     '<p class="author">' +
       '<span class="madeby">This website was made by ' +
-        '<a class="link" href="https://github.com/dashellf/website" target="_blank" rel="noopener noreferrer">me!</a>' +
+        '<a class="link" href="https://github.com/DashellF/website" target="_blank" rel="noopener noreferrer">me!</a>' +
       "</span>" +
       "<br>" +
       '<span class="inspo">Inspiration from ' +
@@ -173,8 +221,8 @@ const Xe = k({
 
       const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
 
-      const FOOTER_RANGE = 1200; 
-      const FOOTER_LERP = 0.025; 
+      const FOOTER_RANGE = 1200;
+      const FOOTER_LERP = 0.025;
 
       let footerTarget = 0;
       let footerCurrent = 0;
