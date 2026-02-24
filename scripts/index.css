@@ -186,7 +186,7 @@ ul li::marker {
 }
 
 /* =========================================================
-   Prize cards
+   Project cards
    ========================================================= */
 .prize-container {
   align-items: stretch;
@@ -275,7 +275,7 @@ ul li::marker {
 }
 
 /* =========================================================
-   Footer links
+   Footer
    ========================================================= */
 .author {
   color: var(--accent);
@@ -304,10 +304,7 @@ footer {
   line-height: 1.3rem;
 }
 
-/* =========================================================
-   Footer fade in/out (fixed overlay, slow + early)
-   JS sets --reveal in [0..1]
-   ========================================================= */
+
 #site-footer {
   --reveal: 0;
 }
@@ -326,13 +323,13 @@ footer {
   transform: translate(-50%, calc((1 - var(--reveal)) * 55px));
   will-change: opacity, transform;
 }
-
+/* footer made by text */
 .author .madeby {
   display: inline-block;
-  font-size: 1.15rem;  /* increase to taste */
+  font-size: 1.15rem;  
   line-height: 1.4rem;
 }
-
+/* footer inspired by text */
 .author .inspo {
   display: inline-block;
   margin-top: 0.35rem;

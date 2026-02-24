@@ -14,24 +14,24 @@ import {
   v as x,
 } from "./entry.js";
 
-/* =========================================================
-   Projects cards (formerly AcademicPrizes)
-   ========================================================= */
+
 const ce = { class: "prize-container" };
 const le = { class: "card" };
 const ue = { class: "side front" };
 const he = { class: "info" };
 
 const fe = k({
-  __name: "AcademicPrizes",
+  __name: "Projects",
   setup() {
-    // 5 cards (added 2 more like the 1st and 2nd)
+
     const s = S([
-      ["Placeholder prize item A", "Placeholder prize item B", "Placeholder prize item C"],
-      ["Placeholder prize item A", "Placeholder prize item B"],
-      ["Placeholder prize item A"],
-      ["Placeholder prize item A", "Placeholder prize item B", "Placeholder prize item C"],
-      ["Placeholder prize item A", "Placeholder prize item B"],
+      ["custom trained AI model", "ngrok connected backend", "expo go app configuration", "mongodb login sql database"],
+      ["godot game engine", "runs as an app on android and pc"],
+      ["custom trained AI model", "mongodb", "can run as a website, IOS app, and Android app"],
+      ["real time audio tracking with whisper", "uses gpt api", "runs a website database for long term runs"],
+      ["escape room puzzle box", "custom mousepad with conductive paper"],
+      //add slot for hardening script
+      //add spot for this website
     ]);
 
     return (i, a) => (
@@ -72,13 +72,10 @@ const fe = k({
 });
 const ve = fe;
 
-/* =========================================================
-   Page constants / static sections
-   ========================================================= */
+
 const Ue = { class: "page-container" };
 const Ve = { class: "three-animation" };
 
-/* Hero block */
 const Hero = P(
   '<div class="hero-block">' +
     '<div class="text-block">' +
@@ -89,7 +86,6 @@ const Hero = P(
   1
 );
 
-/* Scroll hint */
 const ScrollHint = P(
   '<div id="scroll-text" class="">' +
     "<p>scroll</p>" +
@@ -100,7 +96,6 @@ const ScrollHint = P(
   1
 );
 
-/* Top sections (About + Projects heading) */
 const SectionsTop = P(
   '<div class="three-animation"></div>' +
 
@@ -118,29 +113,31 @@ const SectionsTop = P(
   3
 );
 
-/* Bottom sections (everything after Projects cards) */
 const SectionsBottom = P(
   '<div class="main-block"><div class="text-block">' +
     "<h2>Skills</h2>" +
-    "<p>Placeholder skills text. Add languages, tools, and security areas you're focusing on.</p>" +
+    "<p>I really like tweaking and hardening windows machines. Hardening scripts are fun to make, and are decent in competitions.</p>" +
+    "<p>For ctfs, I usually do really well in rev, osint, and crypto. I usually play solo, so I've still gotten pretty good at web, misc, android, and forensics challs.</p>" +
+    "<p>I am afluent with many developer tools such as git, expogo, mongodb, ngrok, godot, raspberry pis, and gdb.</p>" +
   "</div></div>" +
 
   '<div class="main-block"><div class="text-block">' +
     "<h2>Experience</h2>" +
-    "<p>Placeholder experience text. Add clubs, internships, competitions, certifications, etc.</p>" +
-  "</div></div>" +
+    "<p>I was on my high school's cyber competition team my senior year, participating in many ctfs and cyberpatriot</p>" +
+    "<p>I did/am doing cptc and ccdc my freshman year at SDSU.</p>" +
+    "<p>I\'ve also been doing ctfs every week for about a year now.</p>" +
+    "</div></div>" +
 
   '<div class="main-block"><div class="text-block">' +
     "<h2>Contact</h2>" +
     "<p>To contact me, email me at djf1517@gmail.com or shoot me a dm on discord (dashel1)</p>" +
-    "<p>I\\'ll usually respond within 1-3 days by email and a couple hours by discord</p>" +
+    "<p>I\'ll usually respond within 1-3 days by email and a couple hours by discord</p>" +
   "</div></div>" +
 
   '<div class="three-animation"></div>',
   4
 );
 
-/* Footer (id for CSS/JS) */
 const Tail = P(
   '<div class="three-animation"></div>' +
   '<div class="three-animation"></div>' +
@@ -160,6 +157,7 @@ const Tail = P(
 
 const Qe = 30;
 
+//footer and scroll hint fade
 const Xe = k({
   __name: "index",
   setup() {
@@ -175,10 +173,9 @@ const Xe = k({
 
       const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
 
-      const FOOTER_RANGE = 1200; // bigger = appears earlier & slower (try 1200–2000)
-      const FOOTER_LERP = 0.025; // smaller = slower easing both directions (try 0.015–0.04)
+      const FOOTER_RANGE = 1200; 
+      const FOOTER_LERP = 0.025; 
 
-      // smooth state
       let footerTarget = 0;
       let footerCurrent = 0;
       let animating = false;
@@ -212,7 +209,6 @@ const Xe = k({
 
         footerCurrent = footerCurrent + (footerTarget - footerCurrent) * FOOTER_LERP;
 
-        // snap tiny diffs
         if (Math.abs(footerTarget - footerCurrent) < 0.0015) {
           footerCurrent = footerTarget;
         }
@@ -236,7 +232,6 @@ const Xe = k({
       };
 
       const update = () => {
-        // --- scroll hint (unchanged)
         if (hint) {
           const top = getTop();
           if (top > Qe) hint.classList.add("hidden");
@@ -257,7 +252,6 @@ const Xe = k({
         }
       };
 
-      // initial
       schedule();
 
       if (scroller) scroller.addEventListener("scroll", schedule, { passive: true });
