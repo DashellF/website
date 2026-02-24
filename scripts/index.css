@@ -45,12 +45,11 @@ body {
 
 #__nuxt {
   height: 100dvh;
-  overflow: auto;
+  overflow: hidden; /* CHANGED */
   position: relative;
 
-  /* hide scrollbar */
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* old Edge/IE */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 #__nuxt::-webkit-scrollbar {
   width: 0;
@@ -333,4 +332,175 @@ footer {
   display: inline-block;
   margin-top: 0.35rem;
   font-size: 0.80rem;
+}
+
+
+/* =========================================================
+   3D view rotator (index <-> writups)
+   ========================================================= */
+
+.scene {
+  --depth: 50vw;
+  height: 100dvh;
+  width: 100dvw;
+  position: relative;
+  perspective: 1600px;
+  overflow: hidden;
+}
+
+.scene.no-anim .view-rotator {
+  transition: none !important;
+}
+
+.view-rotator {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transform: translateZ(calc(-1 * var(--depth))) rotateY(0deg);
+  transition: transform 0.85s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.scene.is-writups .view-rotator {
+  transform: translateZ(calc(-1 * var(--depth))) rotateY(-90deg);
+}
+
+.view {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+.view-scroll {
+  height: 100%;
+  overflow: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.view-scroll::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* “front face” */
+.index-view {
+  transform: rotateY(0deg) translateZ(var(--depth));
+}
+
+/* “right face” */
+.writups-view {
+  transform: rotateY(90deg) translateZ(var(--depth));
+}
+
+/* When in writups view, hide index-only fixed overlays cleanly */
+.scene.is-writups #scroll-text,
+.scene.is-writups #site-footer {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* =========================================================
+   Writups navigation hint 
+   ========================================================= */
+
+#writups-switch {
+  position: fixed;
+  top: 50%;
+  right: 1.2rem;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+
+  color: var(--accent);
+  z-index: 9999;
+  opacity: 1;
+  transition: opacity 0.35s ease-out, transform 0.35s ease-out;
+  will-change: opacity, transform;
+  cursor: pointer;
+  pointer-events: auto;
+  user-select: none;
+}
+
+#writups-switch.hidden {
+  opacity: 0;
+  transform: translateY(-50%) translateX(10px);
+  pointer-events: none;
+}
+
+#writups-switch p {
+  margin: 0;
+  letter-spacing: 0.08em;
+  text-transform: lowercase;
+  font-size: 20px;
+  font-weight: 540;
+}
+
+#writups-arrow {
+  fill: none;
+  stroke: var(--accent);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-miterlimit: 1.5;
+  stroke-width: 1px;
+  height: 22px;
+  width: 22px;
+  animation: bounce-right 0.55s ease-out infinite alternate;
+}
+
+@keyframes bounce-right {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(22%); }
+}
+
+/* =========================================================
+   Navigation back to about me page
+   ========================================================= */
+
+#back-about {
+  position: fixed;
+  top: 50%;
+  left: 1.2rem;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+
+  color: var(--accent);
+  z-index: 9999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease-out;
+  user-select: none;
+  cursor: pointer;
+}
+
+.scene.is-writups #back-about {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#back-about p {
+  margin: 0;
+  letter-spacing: 0.08em;
+  text-transform: lowercase;
+  font-size: 20px;
+  font-weight: 540;
+}
+
+#back-arrow {
+  fill: none;
+  stroke: var(--accent);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-miterlimit: 1.5;
+  stroke-width: 1px;
+  height: 22px;
+  width: 22px;
+  animation: bounce-left 0.55s ease-out infinite alternate;
+}
+
+@keyframes bounce-left {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-22%); }
 }

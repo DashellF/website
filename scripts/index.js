@@ -14,6 +14,8 @@ import {
   v as x,
 } from "./entry.js";
 
+import Writups from "./writups.js";
+
 const ce = { class: "prize-container" };
 const le = { class: "card" };
 const ue = { class: "side front" };
@@ -22,10 +24,8 @@ const he = { class: "info" };
 const fe = k({
   __name: "Projects",
   setup() {
-    // Each project now has an editable name + bullet items
     const s = S([
       {
-        // Add link to the Scrapboard word only
         name: `Trash Detection App (<a class="link" href="https://github.com/WilyHyperion/RandomForestHacks/tree/main/backend" target="_blank" rel="noopener noreferrer">Scrapboard</a>)`,
         items: [
           "custom trained AI model",
@@ -35,7 +35,6 @@ const fe = k({
         ],
       },
       {
-        // Add link to the Emoti text
         name: `Emotion Recognition App (<a class="link" href="https://github.com/DashellF/Sparkhub-Hackathon-Facial-Recognition-App" target="_blank" rel="noopener noreferrer">Emoti</a>)`,
         items: [
           "custom trained AI model",
@@ -60,18 +59,14 @@ const fe = k({
         ],
       },
       {
-        // Add link to the title of the space project
         name: `<a class="link" href="https://github.com/DashellF/space-project" target="_blank" rel="noopener noreferrer">Space Simulator</a>`,
         items: ["godot game engine", "runs as an app on android and on computers"],
       },
-
       {
         name: "Raspberry Pis",
         items: ["several escape room puzzles", "custom mousepad with conductive paper"],
       },
-
       {
-        // Add link to the "This Website!" text
         name: `<a class="link" href="https://github.com/DashellF/website" target="_blank" rel="noopener noreferrer">This Website!</a>`,
         items: [
           "surprisingly lightweight!",
@@ -94,9 +89,7 @@ const fe = k({
               l("span", le, [
                 l("div", ue, [
                   l("div", he, [
-                    // CHANGED: use innerHTML so the <a> tags render as real links
                     l("h2", { innerHTML: r.name }, null, 8, ["innerHTML"]),
-
                     l("p", null, [
                       l("ul", null, [
                         (m(!0),
@@ -147,7 +140,7 @@ const ScrollHint = P(
 const SectionsTop = P(
   '<div class="three-animation"></div>' +
 
-  '<div class="main-block"><div class="text-block">' +
+  '<div class="main-block" id="about-me"><div class="text-block">' +
     "<h2>About Me</h2>" +
     "<p>I'm currently a freshman in college studying computer science.</p>" +
     "<p>I do a lot of cybersecurity competitions including ccdc, cptc, and lots of ctfs.</p>" +
@@ -162,17 +155,17 @@ const SectionsTop = P(
 );
 
 const SectionsBottom = P(
-
   '<div class="main-block"><div class="text-block">' +
     "<h2>Experience</h2>" +
     "<p>I was on my high school's cyber competition team my senior year, participating in many ctfs and Cyberpatriot.</p>" +
     "<p>I did/am doing cptc and ccdc my freshman year at SDSU.</p>" +
     "<p>I\'ve also been doing ctfs every week for about a year now (currently 5th in the US on <a class=\"link\" href=\"https://ctftime.org/team/419145\" target=\"_blank\" rel=\"noopener noreferrer\">CTFTime</a>).</p>" +
   "</div></div>" +
-  
+
   '<div class="main-block"><div class="text-block">' +
     "<h2>Skills</h2>" +
-    "<p>For ctfs, I usually do really well in <strong>rev</strong>, <strong>osint</strong>, and <strong>crypto</strong>. I usually play solo, so I've still gotten pretty good at web, misc, android, and forensics challs.</p>" +    "<p>I really enjoy tweaking, hardening, and breaking into windows machines. Hardening scripts are also fun to make, and are decent in competitions.</p>" +
+    "<p>For ctfs, I usually do really well in <strong>rev</strong>, <strong>osint</strong>, and <strong>crypto</strong>. I usually play solo, so I've still gotten pretty good at web, misc, android, and forensics challs.</p>" +
+    "<p>I really enjoy tweaking, hardening, and breaking into windows machines. Hardening scripts are also fun to make, and are decent in competitions.</p>" +
     "<p>I am afluent with many developer tools such as git, expogo, react, mongodb, ngrok, godot, raspberry pis, and gdb.</p>" +
     "<p>Here is my <a class=\"link\" href=\"/resume.pdf\">resume</a>, including a lot of this and more!</p>" +
   "</div></div>" +
@@ -206,19 +199,64 @@ const Tail = P(
 
 const Qe = 30;
 
-//footer and scroll hint fade
+// footer + scroll hint fade + writups view rotator
 const Xe = k({
   __name: "index",
   setup() {
-    D(() => {
-      const scroller =
-        document.querySelector("#__nuxt") ||
-        document.scrollingElement ||
-        document.documentElement ||
-        document.body;
+    const isWritups = S(false);
+    const noAnim = S(false);
 
+    const parseUrl = () => {
+      const sp = new URLSearchParams(window.location.search);
+      const weird = sp.get("") === "writups"; // supports "/?=writups"
+      const view = sp.get("view") || (weird ? "writups" : null);
+      const w = sp.get("w") || sp.get("writeup");
+      return { view: view || (w ? "writups" : null), w };
+    };
+
+    const setUrl = (view, w) => {
+      const url = new URL(window.location.href);
+      if (view === "writups") url.searchParams.set("view", "writups");
+      else url.searchParams.delete("view");
+      if (w) url.searchParams.set("w", w);
+      else url.searchParams.delete("w");
+      history.pushState({}, "", url);
+    };
+
+    const replaceUrl = (view, w) => {
+      const url = new URL(window.location.href);
+      if (view === "writups") url.searchParams.set("view", "writups");
+      else url.searchParams.delete("view");
+      if (w) url.searchParams.set("w", w);
+      else url.searchParams.delete("w");
+      history.replaceState({}, "", url);
+    };
+
+    const goWritups = (w) => {
+      isWritups.value = true;
+      setUrl("writups", w);
+      if (w) {
+        requestAnimationFrame(() => {
+          window.dispatchEvent(new CustomEvent("writups:open", { detail: { id: w } }));
+        });
+      }
+    };
+
+    const goAboutMe = () => {
+      isWritups.value = false;
+      replaceUrl(null, null);
+      requestAnimationFrame(() => {
+        const about = document.getElementById("about-me");
+        about?.scrollIntoView({ behavior: "auto", block: "start" });
+      });
+    };
+
+    D(() => {
+      const indexScroller = document.getElementById("index-scroll");
       const hint = document.getElementById("scroll-text");
       const footer = document.getElementById("site-footer");
+      const writupsSwitch = document.getElementById("writups-switch");
+      const aboutMe = document.getElementById("about-me");
 
       const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
 
@@ -230,25 +268,18 @@ const Xe = k({
       let animating = false;
 
       const getTop = () =>
-        scroller && typeof scroller.scrollTop === "number"
-          ? scroller.scrollTop
+        indexScroller && typeof indexScroller.scrollTop === "number"
+          ? indexScroller.scrollTop
           : (window.scrollY || 0);
 
       const getHeight = () => {
-        if (
-          scroller &&
-          scroller !== document.documentElement &&
-          scroller !== document.body &&
-          scroller !== document.scrollingElement
-        ) {
-          return scroller.clientHeight;
-        }
+        if (indexScroller) return indexScroller.clientHeight;
         return window.innerHeight || document.documentElement.clientHeight;
       };
 
       const getScrollHeight = () =>
-        scroller && typeof scroller.scrollHeight === "number"
-          ? scroller.scrollHeight
+        indexScroller && typeof indexScroller.scrollHeight === "number"
+          ? indexScroller.scrollHeight
           : document.documentElement.scrollHeight;
 
       const smoothstep = (t) => t * t * (3 - 2 * t);
@@ -264,11 +295,8 @@ const Xe = k({
 
         footer.style.setProperty("--reveal", String(footerCurrent));
 
-        if (footerCurrent !== footerTarget) {
-          requestAnimationFrame(animate);
-        } else {
-          animating = false;
-        }
+        if (footerCurrent !== footerTarget) requestAnimationFrame(animate);
+        else animating = false;
       };
 
       let raf = 0;
@@ -278,6 +306,27 @@ const Xe = k({
           raf = 0;
           update();
         });
+      };
+
+      let nearAbout = false;
+
+      if (aboutMe && indexScroller && "IntersectionObserver" in window) {
+        const io = new IntersectionObserver(
+          (entries) => {
+            nearAbout = !!entries?.[0]?.isIntersecting;
+            schedule();
+          },
+          { root: indexScroller, threshold: 0.55 }
+        );
+        io.observe(aboutMe);
+      }
+
+      const fallbackNearAbout = () => {
+        if (!aboutMe) return false;
+        const r = aboutMe.getBoundingClientRect();
+        const mid = r.top + r.height / 2;
+        const screenMid = window.innerHeight / 2;
+        return Math.abs(mid - screenMid) < 220;
       };
 
       const update = () => {
@@ -299,11 +348,53 @@ const Xe = k({
             requestAnimationFrame(animate);
           }
         }
+
+        if (writupsSwitch) {
+          const ok =
+            !isWritups.value &&
+            (nearAbout || (!("IntersectionObserver" in window) && fallbackNearAbout()));
+          if (ok) writupsSwitch.classList.remove("hidden");
+          else writupsSwitch.classList.add("hidden");
+        }
       };
+
+      // initial view from URL
+      const initial = parseUrl();
+      if (initial.view === "writups") {
+        noAnim.value = true;
+        isWritups.value = true;
+
+        requestAnimationFrame(() => {
+          noAnim.value = false;
+          if (initial.w) {
+            window.dispatchEvent(new CustomEvent("writups:open", { detail: { id: initial.w } }));
+          }
+        });
+      }
+
+      window.addEventListener("popstate", () => {
+        const s = parseUrl();
+        isWritups.value = s.view === "writups";
+
+        if (isWritups.value && s.w) {
+          requestAnimationFrame(() => {
+            window.dispatchEvent(new CustomEvent("writups:open", { detail: { id: s.w } }));
+          });
+        }
+
+        if (!isWritups.value) {
+          requestAnimationFrame(() => {
+            const about = document.getElementById("about-me");
+            about?.scrollIntoView({ behavior: "auto", block: "start" });
+          });
+        }
+
+        schedule();
+      });
 
       schedule();
 
-      if (scroller) scroller.addEventListener("scroll", schedule, { passive: true });
+      indexScroller?.addEventListener("scroll", schedule, { passive: true });
       window.addEventListener("resize", schedule, { passive: true });
     });
 
@@ -312,13 +403,73 @@ const Xe = k({
 
       return (
         m(),
-        g("div", Ue, [
-          l("div", Ve, [Hero]),
-          ScrollHint,
-          SectionsTop,
-          x(Academic),
-          SectionsBottom,
-          Tail,
+        g("div", { class: ["scene", isWritups.value ? "is-writups" : "", noAnim.value ? "no-anim" : ""] }, [
+          l("div", { class: "view-rotator" }, [
+            // FRONT FACE
+            l("section", { class: "view index-view" }, [
+              l("div", { id: "index-scroll", class: "view-scroll" }, [
+                g("div", Ue, [
+                  l("div", Ve, [Hero]),
+                  ScrollHint,
+                  SectionsTop,
+                  x(Academic),
+                  SectionsBottom,
+                  Tail,
+                ]),
+              ]),
+            ]),
+
+            // RIGHT FACE
+            l("section", { class: "view writups-view" }, [
+              l("div", { id: "writups-scroll", class: "view-scroll" }, [x(Writups)]),
+            ]),
+          ]),
+
+          // OVERLAYS (built as normal VNodes — this avoids your crash)
+          l(
+            "div",
+            {
+              id: "writups-switch",
+              class: ["hidden"],
+              onClick: () => goWritups(),
+            },
+            [
+              l("p", null, "writups"),
+              l(
+                "svg",
+                {
+                  width: "100%",
+                  height: "100%",
+                  viewBox: "0 0 10 10",
+                  xmlns: "http://www.w3.org/2000/svg",
+                  id: "writups-arrow",
+                },
+                [l("path", { d: "M5,2 L8,5 L5,8" })]
+              ),
+            ]
+          ),
+
+          l(
+            "div",
+            {
+              id: "back-about",
+              onClick: () => goAboutMe(),
+            },
+            [
+              l(
+                "svg",
+                {
+                  width: "100%",
+                  height: "100%",
+                  viewBox: "0 0 10 10",
+                  xmlns: "http://www.w3.org/2000/svg",
+                  id: "back-arrow",
+                },
+                [l("path", { d: "M5,2 L2,5 L5,8" })]
+              ),
+              l("p", null, "about me"),
+            ]
+          ),
         ])
       );
     };

@@ -1,0 +1,81 @@
+/* Writups-only layout bits (theme uses your existing :root vars in index.css) */
+
+.writups-container {
+  width: 77%;
+  margin: auto;
+}
+
+.writups-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 2.5rem 0 3.5rem;
+}
+
+/* Card matches your “panel” look */
+.writeup-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  box-shadow: var(--panel-shadow);
+  color: var(--accent);
+  overflow: hidden;
+}
+
+/* Clickable header (condensed view) */
+.writeup-head {
+  cursor: pointer;
+  padding: 1.2rem 1.4rem 1.1rem;
+  user-select: none;
+}
+
+.writeup-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  display: inline-block;
+}
+
+/* underline ONLY on hover */
+.writeup-head:hover .writeup-title {
+  text-decoration-line: underline;
+  text-decoration-color: var(--accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+.writeup-subtitle {
+  margin: 0.35rem 0 0;
+  font-size: 1rem;
+  line-height: 1.4rem;
+  opacity: 0.95;
+}
+
+/* Expanded content */
+.writeup-body {
+  padding: 0 1.4rem 1.3rem;
+  animation: writeup-pop 140ms ease-out;
+}
+
+@keyframes writeup-pop {
+  from { transform: translateY(-4px); opacity: 0.75; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+.writeup-body p {
+  margin: 0.85rem 0 0;
+  line-height: 1.8rem;
+}
+
+.writeup-body pre {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 138, 0, 0.45);
+  border-radius: 0.8rem;
+  padding: 1rem;
+  overflow: auto;
+  margin: 1rem 0 0;
+}
+
+.writeup-body code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
