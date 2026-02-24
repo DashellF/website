@@ -52,7 +52,7 @@ const fe = k({
         ],
       },
       {
-        name: "Real-time AI Fact Checker",
+        name: `<a class="link" href="https://github.com/AV-FactChecker/AV-ai-FactChecker" target="_blank" rel="noopener noreferrer">Real-time AI Fact Checker</a>`,
         items: [
           "real time audio tracking with whisper",
           "uses gpt api",
@@ -127,7 +127,7 @@ const Ve = { class: "three-animation" };
 const Hero = P(
   '<div class="hero-block">' +
     '<div class="text-block">' +
-      "<h2>Hi!</h2>" +
+      "<h2>Hi there!</h2>" +
       "<p>Hi, my name is Dashell Finn and I am aspiring for a career in cybersecurity/software engineering!</p>" +
     "</div>" +
   "</div>",
@@ -152,7 +152,7 @@ const SectionsTop = P(
     "<p>I'm currently a freshman in college studying computer science.</p>" +
     "<p>I do a lot of cybersecurity competitions including ccdc, cptc, and lots of ctfs.</p>" +
     "<p>I also like being active, running, and coding in general.</p>" +
-    "<p>If you are interested in some of my ctf writups, click to the right.</p>" +
+    "<p>If you are interested in reading some of my ctf writups, click to the right.</p>" +
   "</div></div>" +
 
   '<div class="section-heading">' +
@@ -162,18 +162,19 @@ const SectionsTop = P(
 );
 
 const SectionsBottom = P(
-  '<div class="main-block"><div class="text-block">' +
-    "<h2>Skills</h2>" +
-    "<p>For ctfs, I usually do really well in <strong>rev</strong>, <strong>osint</strong>, and <strong>crypto</strong>. I usually play solo, so I've still gotten pretty good at web, misc, android, and forensics challs.</p>" +    "<p>I really enjoy tweaking, hardening, and breaking into windows machines. Hardening scripts are also fun to make, and are decent in competitions.</p>" +
-    "<p>I am afluent with many developer tools such as git, expogo, react, mongodb, ngrok, godot, raspberry pis, and gdb.</p>" +
-    "<p>Here is my resume, including a lot of this and more!" +
-  "</div></div>" +
 
   '<div class="main-block"><div class="text-block">' +
     "<h2>Experience</h2>" +
     "<p>I was on my high school's cyber competition team my senior year, participating in many ctfs and Cyberpatriot.</p>" +
     "<p>I did/am doing cptc and ccdc my freshman year at SDSU.</p>" +
     "<p>I\'ve also been doing ctfs every week for about a year now (currently 5th in the US on <a class=\"link\" href=\"https://ctftime.org/team/419145\" target=\"_blank\" rel=\"noopener noreferrer\">CTFTime</a>).</p>" +
+  "</div></div>" +
+  
+  '<div class="main-block"><div class="text-block">' +
+    "<h2>Skills</h2>" +
+    "<p>For ctfs, I usually do really well in <strong>rev</strong>, <strong>osint</strong>, and <strong>crypto</strong>. I usually play solo, so I've still gotten pretty good at web, misc, android, and forensics challs.</p>" +    "<p>I really enjoy tweaking, hardening, and breaking into windows machines. Hardening scripts are also fun to make, and are decent in competitions.</p>" +
+    "<p>I am afluent with many developer tools such as git, expogo, react, mongodb, ngrok, godot, raspberry pis, and gdb.</p>" +
+    "<p>Here is my <a class=\"link\" href=\"/resume.pdf\">resume</a>, including a lot of this and more!</p>" +
   "</div></div>" +
 
   '<div class="main-block"><div class="text-block">' +

@@ -213,10 +213,13 @@ ul li::marker {
   font-size: 1rem;
   line-height: 1.4rem;
 }
-.card-container a {
+
+/* OPTION A: don't remove underline for links that have class="link" */
+.card-container a:not(.link) {
   color: inherit;
   text-decoration: none;
 }
+
 .card-container ul {
   text-align: left;
 }
@@ -252,7 +255,7 @@ ul li::marker {
   letter-spacing: 0.1em;
   text-transform: lowercase;
   font-size: 20px;
-  font-weight: 540; 
+  font-weight: 540;
 }
 
 #scroll-arrow {
@@ -285,26 +288,19 @@ ul li::marker {
   position: relative;
 }
 
-.link {
+/* underline that works across wrapped lines */
+a.link {
   color: inherit;
   font-weight: 900;
-  text-decoration: none;
-  position: relative;
-}
-.link::after {
-  background: var(--accent);
-  content: "";
-  height: 1px;
-  left: 0;
-  position: absolute;
-  top: 90%;
-  width: 100%;
+  text-decoration-line: underline;
+  text-decoration-color: var(--accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.15em;
 }
 
 footer {
   line-height: 1.3rem;
 }
-
 
 #site-footer {
   --reveal: 0;
@@ -324,12 +320,14 @@ footer {
   transform: translate(-50%, calc((1 - var(--reveal)) * 55px));
   will-change: opacity, transform;
 }
+
 /* footer made by text */
 .author .madeby {
   display: inline-block;
-  font-size: 1.15rem;  
+  font-size: 1.15rem;
   line-height: 1.4rem;
 }
+
 /* footer inspired by text */
 .author .inspo {
   display: inline-block;
