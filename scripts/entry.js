@@ -32232,7 +32232,6 @@ class ThreeScene {
         this.renderer.setSize(this.sizes.width, this.sizes.height),
         this.renderer.setPixelRatio(window.devicePixelRatio),
         e.appendChild(this.renderer.domElement),
-        this.addScrollHint(),
         0,
         this.addObjects(),
         window.addEventListener("resize", () => this.updateSizes()),
@@ -32257,10 +32256,10 @@ class ThreeScene {
 
         if (this.sizes.width >= 900) {
             this.cameraGroup.position.x +=
-            (this.mousePos.x * 2 - this.cameraGroup.position.x) * 0.1;
+            (this.mousePos.x * 3 - this.cameraGroup.position.x) * 0.1;
 
             this.cameraGroup.position.y +=
-            (this.mousePos.y * 2 + 13 - this.cameraGroup.position.y) * 0.1;
+            (this.mousePos.y * 3 + 13 - this.cameraGroup.position.y) * 0.1;
         } else {
             this.cameraGroup.position.x = 0;
             this.cameraGroup.position.y = 13;
@@ -32284,8 +32283,6 @@ class ThreeScene {
         }
 
         this.cameraGroup.position.z += (t - this.cameraGroup.position.z) * as;
-
-        this.updateScrollHint();
         this.renderer.render(this.scene, this.camera);
         if (this.isDemo) this.stats.update();
     }
@@ -32341,77 +32338,6 @@ class ThreeScene {
         this.addForest(),
         this.addGrassPatches();  
         this.leafFall = this.addLeafFall()
-    }
-
-    addScrollHint() {
-    // Remove any existing hint (prevents duplicates if the scene is recreated)
-    const existing = document.getElementById("ts-scrollhint");
-    if (existing) existing.remove();
-
-    const container = document.createElement("div");
-    container.id = "ts-scrollhint";
-    container.style.position = "fixed";
-    container.style.left = "50%";
-    container.style.bottom = "24px";
-    container.style.transform = "translateX(-50%)";
-    container.style.display = "flex";
-    container.style.flexDirection = "column";
-    container.style.alignItems = "center";
-    container.style.gap = "10px";
-    container.style.pointerEvents = "none";
-    container.style.zIndex = "9999";
-
-    // Inject font + keyframes once
-    if (!document.getElementById("ts-scrollhint-style")) {
-        const style = document.createElement("style");
-        style.id = "ts-scrollhint-style";
-        style.textContent = `
-        @font-face {
-            font-family: "PoppinsLight";
-            src: url("${fr}fonts/Poppins/Poppins-Light.ttf") format("truetype");
-            font-weight: 300;
-            font-style: normal;
-            font-display: swap;
-        }
-
-        /* Bounce tuned to feel more like a "classic" scroll indicator */
-        @keyframes ts-scroll-bounce {
-            0%, 20%  { transform: translateY(0) rotate(45deg); opacity: 0.75; }
-            50%      { transform: translateY(12px) rotate(45deg); opacity: 1; }
-            70%      { transform: translateY(8px) rotate(45deg);  opacity: 0.95; }
-            100%     { transform: translateY(0) rotate(45deg);  opacity: 0.75; }
-        }
-        `;
-        document.head.appendChild(style);
-    }
-
-    // label (NOT bouncing)
-    const label = document.createElement("div");
-    label.textContent = "scroll";
-    label.style.fontFamily = `"PoppinsLight", "Poppins", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif`;
-    label.style.fontSize = "15px";           // a little bigger
-    label.style.letterSpacing = "0.10em";
-    label.style.textTransform = "lowercase";
-    label.style.lineHeight = "1";
-    label.style.color = "#ff7a00";
-
-    // orange chevron arrow (bouncing)
-    const arrow = document.createElement("div");
-    arrow.style.width = "12px";
-    arrow.style.height = "12px";
-    arrow.style.borderRight = "2px solid #ff7a00";
-    arrow.style.borderBottom = "2px solid #ff7a00";
-    arrow.style.transform = "rotate(45deg)";
-    arrow.style.animation = "ts-scroll-bounce 1.25s ease-in-out infinite";
-
-    container.appendChild(label);
-    container.appendChild(arrow);
-    document.body.appendChild(container);
-
-    this.scrollHint = container;
-    }
-    updateScrollHint() {
-        this.scrollHint && (this.scrollHint.style.opacity = String(Math.max(0, 1 - this.currentPage * 1.3)))
     }
 
     addHill() {
@@ -32680,27 +32606,28 @@ addDirtPath() {
         group.name = "grassPatches";
 
         // --- Tunables ---
-        const PATCH_COUNT = 650;          // “every so often”; increase if you want more
-        const X_HALF = 420;               // match your forest width (same as addForest c)
-        const Z_HALF = 300;               // match your forest length (same as addForest u)
-        const yGround = -10;              // your ground plane y
-        const pathMargin = 1.2;           // extra clearance from the dirt path edges
+        const PATCH_COUNT = 1000;
+        const X_HALF = 420;
+        const Z_HALF = 300;
+        const yGround = -10;
+        const pathMargin = 1.2;
 
-        // --- Low-poly “tuft” geometry (lathe cone-ish, few segments) ---
-        // Uses the same Lathe approach as your trees (bu + xe)
-        const tuftH = 1.25;
-        const tuftR = 0.45;
+        // --- Slimmer, less-wide blades (narrower radius + slimmer x/z scaling) ---
+        const tuftH = 1.45;
+        const tuftR = 0.24; // ↓ was wider; smaller = thinner blades
+
         const tuftGeo = new bu(
             [
                 new xe(0.00, 0.00),
-                new xe(tuftR, 0.00),
-                new xe(tuftR * 0.25, tuftH * 0.65),
+                new xe(tuftR * 0.90, 0.02),
+                new xe(tuftR * 1.00, tuftH * 0.22),
+                new xe(tuftR * 0.45, tuftH * 0.62),
+                new xe(tuftR * 0.16, tuftH * 0.90),
                 new xe(0.00, tuftH)
             ],
-            4 // low segments = low-poly
+            10 // keep it reasonably “more poly”
         );
 
-        // Grass material (flat shading helps the low-poly look if Td supports it)
         const grassMat = new Td({
             color: 0x2f7d32,
             flatShading: !0
@@ -32726,39 +32653,33 @@ addDirtPath() {
             return Math.abs(x - cx) < (w * 0.5 + pathMargin);
         };
 
-        // Make “patches”: each patch is a small cluster of 3–6 tufts
         for (let i = 0; i < PATCH_COUNT; i++) {
-            // pick a base location (retry a few times to avoid path)
             let x = 0, z = 0, ok = false;
+
             for (let tries = 0; tries < 10; tries++) {
                 x = (rand() - 0.5) * 2 * X_HALF;
                 z = (rand() - 0.5) * 2 * Z_HALF;
-
-                // Avoid the path corridor wherever it meanders
                 if (!isOnPath(x, z)) { ok = true; break; }
             }
             if (!ok) continue;
 
             const patch = new Gt();
 
-            const tuftCount = 3 + Math.floor(rand() * 4); // 3..6
+            const tuftCount = 4 + Math.floor(rand() * 5); // 4..8
             for (let k = 0; k < tuftCount; k++) {
                 const m = new Vt(tuftGeo, grassMat);
 
-                // Spread tufts inside patch radius
-                const r = 0.3 + rand() * 0.9;
+                const r = 0.22 + rand() * 0.80;
                 const ang = rand() * Math.PI * 2;
                 m.position.set(Math.cos(ang) * r, 0, Math.sin(ang) * r);
 
-                // Random rotation + scale
                 m.rotation.y = rand() * Math.PI * 2;
 
-                const s = 0.6 + rand() * 0.9;
-                m.scale.set(
-                    s * (0.8 + rand() * 0.4),
-                    s * (0.8 + rand() * 0.6),
-                    s * (0.8 + rand() * 0.4)
-                );
+                // Make blades noticeably less wide: shrink X/Z relative to Y
+                const s = 0.55 + rand() * 0.95;
+                const xz = 0.42 + rand() * 0.35;     // ↓ slimmer width band
+                const yy = 0.95 + rand() * 0.85;     // keep height healthy
+                m.scale.set(s * xz, s * yy, s * xz);
 
                 patch.add(m);
             }

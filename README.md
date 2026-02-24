@@ -39,3 +39,4 @@ the code format:
     - Lines 8893-32171: Three.js renderer, shader chunks, loaders, basically the compiler for 3d rendering.
     - Lines 32172-33208: The custom stuff I made for the 3d background (trees, path, leaves, etc). This is the stuff you would edit if you want to make your own website.
     - Lines 33209-33520: Mount and export with Nuxt.
+- _payload.json: useful for if you want multiple pages, I don't so its empty
