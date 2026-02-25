@@ -353,11 +353,26 @@ footer {
    ========================================================= */
 
 .scene {
-  --depth: 50vw;
+  /*
+    Keep your original depth setup (this is what makes the writups face
+    actually come into view when rotating).
+  */
+  --depth: 62vw;
+  --depth-side: 62vw;
+
   height: 100dvh;
   width: 100dvw;
   position: relative;
-  perspective: 1600px;
+
+  /* Keep strong 3D */
+  perspective: 1700px;
+
+  /*
+    CAMERA UP:
+    move the vanishing point upward (smaller Y = higher camera feel)
+  */
+  perspective-origin: 50% 42%;
+
   overflow: hidden;
 }
 
@@ -369,12 +384,12 @@ footer {
   position: absolute;
   inset: 0;
   transform-style: preserve-3d;
-  transform: translateZ(calc(-1 * var(--depth))) rotateY(0deg);
+  transform: rotateY(0deg);
   transition: transform 0.85s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .scene.is-writups .view-rotator {
-  transform: translateZ(calc(-1 * var(--depth))) rotateY(-90deg);
+  transform: rotateY(90deg);
 }
 
 .view {
@@ -397,14 +412,14 @@ footer {
 }
 
 .index-view {
-  transform: rotateY(0deg) translateZ(var(--depth));
+  transform: rotateY(0deg) translateZ(calc(-1 * var(--depth)));
 }
 
 .writups-view {
-  transform: rotateY(90deg) translateZ(var(--depth));
+  transform: rotateY(-90deg) translateZ(calc(-1 * var(--depth-side)));
 }
 
-/* FIX: prevent the hidden 3D face from eating clicks */
+/* prevent the hidden face from eating clicks */
 .scene.is-writups .index-view { pointer-events: none; }
 .scene:not(.is-writups) .writups-view { pointer-events: none; }
 
@@ -518,7 +533,6 @@ footer {
    Clickability guard (critical)
    ========================================================= */
 
-/* Ensure your interactive areas reset any inherited pointer-events:none */
 .scene,
 .view-rotator,
 .view,
@@ -528,24 +542,20 @@ footer {
   pointer-events: auto;
 }
 
-/* Ensure anchors are always clickable (safe, minimal override) */
 a, a * {
   pointer-events: auto;
 }
 
-/* 1) Force the WebGL layer to never receive clicks */
 #threejs-container,
 #threejs {
   pointer-events: none !important;
 }
 
-/* 2) Force your actual app content above it, no matter what the compositor does */
 .scene {
   position: relative;
   z-index: 10;
 }
 
-/* Optional but helps with 3D hit-testing quirks on some browsers */
 .view-scroll {
   position: relative;
   transform: translateZ(0);

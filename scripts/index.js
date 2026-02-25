@@ -267,7 +267,7 @@ const Xe = k({
         else if (depthRaw.endsWith("px")) depthPx = n;
       }
 
-      rot.style.transform = `translateZ(-${depthPx}px) rotateY(${isWritups.value ? "-90deg" : "0deg"})`;
+      rot.style.transform = `rotateY(${isWritups.value ? "90deg" : "0deg"})`;
     };
 
     const parseUrl = () => {
