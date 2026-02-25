@@ -1,3 +1,5 @@
+// writups.js (full file, patched)
+
 import {
   m,
   q as g,
@@ -115,13 +117,17 @@ plain[i] = c[i] XOR keystream[i % 8]
         openId.value = id;
         requestAnimationFrame(() => scrollToWriteup(id, true));
       });
+
+      // close any open card when index switches back to "about me"
+      window.addEventListener("writups:close", () => {
+        openId.value = null;
+        updateUrl(null);
+      });
     });
 
     return (i, a) => (
       m(),
       g("div", Root, [
-        // REMOVED: top Spacer
-
         l("div", Main, [
           l("div", Text, [
             l("h2", null, "CTF Writeups"),
@@ -160,7 +166,6 @@ plain[i] = c[i] XOR keystream[i % 8]
                     {
                       class: "writeup-body",
                       innerHTML: openId.value === w.id ? w.body : "",
-                      // FIX: don't use null here — always set a value so display:none clears correctly
                       style: openId.value === w.id ? "" : "display:none;",
                     },
                     null,

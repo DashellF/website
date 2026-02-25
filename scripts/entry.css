@@ -93,3 +93,21 @@ ul li::marker {
   position: relative;
   transform: translateZ(0);
 }
+
+/* =========================================================
+   CRITICAL HIT-TESTING FIX
+   Force the inactive face AND ALL descendants to be non-interactive
+   ========================================================= */
+
+.scene:not(.is-writups) .writups-view,
+.scene:not(.is-writups) .writups-view * {
+  pointer-events: none !important;
+}
+
+.scene.is-writups .index-view,
+.scene.is-writups .index-view * {
+  pointer-events: none !important;
+}
+
+/* keep scroll hint non-interactive */
+#scroll-text { pointer-events: none !important; }

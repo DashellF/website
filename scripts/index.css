@@ -530,33 +530,61 @@ footer {
 }
 
 /* =========================================================
-   Clickability guard (critical)
+   SIMPLE MODE (NO OFF-SCREEN CLICKING)
+   ---------------------------------------------------------
+   This disables the 3D rotator hit-testing entirely and
+   switches to simple show/hide panels.
    ========================================================= */
 
-.scene,
-.view-rotator,
-.view,
-.view-scroll,
-#index-scroll,
-#writups-scroll {
-  pointer-events: auto;
-}
-
-a, a * {
-  pointer-events: auto;
-}
-
+/* Keep the WebGL background from ever capturing input */
 #threejs-container,
-#threejs {
+#threejs,
+#threejs-container *,
+#threejs * {
   pointer-events: none !important;
 }
 
+/* Ensure the app itself is above the background */
 .scene {
   position: relative;
   z-index: 10;
 }
 
-.view-scroll {
-  position: relative;
-  transform: translateZ(0);
+/* Disable 3D transforms even if JS sets inline styles */
+.view-rotator {
+  transform: none !important;
+  transition: none !important;
+  transform-style: flat !important;
 }
+
+.view,
+.index-view,
+.writups-view {
+  transform: none !important;
+  backface-visibility: visible !important;
+}
+
+/* Only show ONE face at a time (prevents invisible layers stealing clicks) */
+.scene:not(.is-writups) .writups-view {
+  display: none !important;
+}
+.scene.is-writups .index-view {
+  display: none !important;
+}
+
+/* Make sure the visible scroller is interactive */
+.view-scroll,
+#index-scroll,
+#writups-scroll {
+  pointer-events: auto !important;
+}
+
+/* Allow text selection on the content */
+.page-container,
+.text-block,
+.section-heading,
+.card-container,
+.view-scroll {
+  user-select: text;
+}
+

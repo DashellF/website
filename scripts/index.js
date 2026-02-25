@@ -1,3 +1,5 @@
+// index.js (full file, patched)
+
 import {
   _ as $,
   m,
@@ -43,6 +45,22 @@ const fe = k({
         ],
       },
       {
+        name: `<a class="link" href="https://github.com/DashellF/space-project" target="_blank" rel="noopener noreferrer">Space Simulator</a>`,
+        items: [
+          "godot game engine",
+          "runs as an app on android and on any computer",
+          "Includes a rocket orbit/travel simulator impementing Hauffman Transfers",
+        ],
+      },
+      {
+        name: `<a class="link" href="https://github.com/AV-FactChecker/AV-ai-FactChecker" target="_blank" rel="noopener noreferrer">Real-time Fact Checker</a>`,
+        items: [
+          "real time audio tracking with whisper",
+          "uses gpt api",
+          "runs a website database for long term runs",
+        ],
+      },
+      {
         name: "Windows Hardening Script",
         items: [
           "dc script that secures the whole network",
@@ -51,20 +69,8 @@ const fe = k({
         ],
       },
       {
-        name: `<a class="link" href="https://github.com/AV-FactChecker/AV-ai-FactChecker" target="_blank" rel="noopener noreferrer">Real-time AI Fact Checker</a>`,
-        items: [
-          "real time audio tracking with whisper",
-          "uses gpt api",
-          "runs a website database for long term runs",
-        ],
-      },
-      {
-        name: `<a class="link" href="https://github.com/DashellF/space-project" target="_blank" rel="noopener noreferrer">Space Simulator</a>`,
-        items: ["godot game engine", "runs as an app on android and on computers"],
-      },
-      {
         name: "Raspberry Pis",
-        items: ["several escape room puzzles", "custom mousepad with conductive paper"],
+        items: ["several escape room puzzles", "custom mousepad with conductive paper", "Use of breadboards, motors, and many types of sensors"],
       },
       {
         name: `<a class="link" href="https://github.com/DashellF/website" target="_blank" rel="noopener noreferrer">This Website!</a>`,
@@ -72,6 +78,7 @@ const fe = k({
           "surprisingly lightweight!",
           "no imports required!",
           "uses vue.js and nuxt framework to render 3d objects.",
+          "implements random generation for trees, path, leaves, and more"
         ],
       },
     ]);
@@ -120,10 +127,10 @@ const Ve = { class: "three-animation" };
 const Hero = P(
   '<div class="hero-block">' +
     '<div class="text-block">' +
-      "<h2>Hi there!</h2>" +
-      "<p>Hi, my name is Dashell Finn and I am aspiring for a career in cybersecurity/software engineering!</p>" +
+    "<h2>Hi there!</h2>" +
+    "<p>Hi, my name is Dashell Finn and I am aspiring for a career in cybersecurity/software engineering!</p>" +
     "</div>" +
-  "</div>",
+    "</div>",
   1
 );
 
@@ -131,26 +138,24 @@ const ScrollHint = P(
   '<div id="scroll-text" class="">' +
     "<p>scroll</p>" +
     '<svg width="100%" height="100%" viewBox="0 0 10 10" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" id="scroll-arrow">' +
-      '<path d="M2,5 L5,8 L 8,5"></path>' +
+    '<path d="M2,5 L5,8 L 8,5"></path>' +
     "</svg>" +
-  "</div>",
+    "</div>",
   1
 );
 
 const SectionsTop = P(
   '<div class="three-animation"></div>' +
-
-  '<div class="main-block" id="about-me"><div class="text-block">' +
+    '<div class="main-block" id="about-me"><div class="text-block">' +
     "<h2>About Me</h2>" +
     "<p>I'm currently a freshman in college studying computer science.</p>" +
     "<p>I do a lot of cybersecurity competitions including ccdc, cptc, and lots of ctfs.</p>" +
     "<p>I also like being active, running, and coding in general.</p>" +
     "<p>If you are interested in reading some of my ctf writups, click to the right.</p>" +
-  "</div></div>" +
-
-  '<div class="section-heading">' +
+    "</div></div>" +
+    '<div class="section-heading">' +
     "<h2>Projects</h2>" +
-  "</div>",
+    "</div>",
   3
 );
 
@@ -159,41 +164,38 @@ const SectionsBottom = P(
     "<h2>Experience</h2>" +
     "<p>I was on my high school's cyber competition team my senior year, participating in many ctfs and Cyberpatriot.</p>" +
     "<p>I did/am doing cptc and ccdc my freshman year at SDSU.</p>" +
-    "<p>I\'ve also been doing ctfs every week for about a year now (currently 5th in the US on <a class=\"link\" href=\"https://ctftime.org/team/419145\" target=\"_blank\" rel=\"noopener noreferrer\">CTFTime</a>).</p>" +
-  "</div></div>" +
-
-  '<div class="main-block"><div class="text-block">' +
+    "<p>I've also been doing ctfs every week for about a year now (currently 5th in the US on <a class=\"link\" href=\"https://ctftime.org/team/419145\" target=\"_blank\" rel=\"noopener noreferrer\">CTFTime</a>).</p>" +
+    "</div></div>" +
+    '<div class="main-block"><div class="text-block">' +
     "<h2>Skills</h2>" +
     "<p>For ctfs, I usually do really well in <strong>rev</strong>, <strong>osint</strong>, and <strong>crypto</strong>. I usually play solo, so I've still gotten pretty good at web, misc, android, and forensics challs.</p>" +
     "<p>I really enjoy tweaking, hardening, and breaking into windows machines. Hardening scripts are also fun to make, and are decent in competitions.</p>" +
-    "<p>I am afluent with many developer tools such as git, expogo, react, mongodb, ngrok, godot, raspberry pis, and gdb.</p>" +
+    "<p>I am affluent with many developer tools such as git, expo go, React, MongoDB, ngrok, Godot, Raspberry Pis, and GDB.</p>" +
     "<p>Here is my <a class=\"link\" href=\"/resume.pdf\">resume</a>, including a lot of this and more!</p>" +
-  "</div></div>" +
-
-  '<div class="main-block"><div class="text-block">' +
+    "</div></div>" +
+    '<div class="main-block"><div class="text-block">' +
     "<h2>Contact</h2>" +
     "<p>To contact me, email me at djf1517@gmail.com or shoot me a dm on discord (dashel1).</p>" +
-    "<p>I\'ll usually respond within 1-2 days by email and a couple hours by discord.</p>" +
-  "</div></div>" +
-
-  '<div class="three-animation"></div>',
+    "<p>I'll usually respond within 1-2 days by email and a couple hours by discord.</p>" +
+    "</div></div>" +
+    '<div class="three-animation"></div>',
   4
 );
 
 const Tail = P(
   '<div class="three-animation"></div>' +
-  '<div class="three-animation"></div>' +
-  '<footer id="site-footer">' +
+    '<div class="three-animation"></div>' +
+    '<footer id="site-footer">' +
     '<p class="author">' +
-      '<span class="madeby">This website was made by ' +
-        '<a class="link" href="https://github.com/DashellF/website" target="_blank" rel="noopener noreferrer">me!</a>' +
-      "</span>" +
-      "<br>" +
-      '<span class="inspo">Inspiration from ' +
-        '<a class="link" href="https://glacierctf.com" target="_blank" rel="noopener noreferrer">glacierctf.com</a>' +
-      "</span>" +
+    '<span class="madeby">This website was made by ' +
+    '<a class="link" href="https://github.com/DashellF/website" target="_blank" rel="noopener noreferrer">me!</a>' +
+    "</span>" +
+    "<br>" +
+    '<span class="inspo">Inspiration from ' +
+    '<a class="link" href="https://glacierctf.com" target="_blank" rel="noopener noreferrer">glacierctf.com</a>' +
+    "</span>" +
     "</p>" +
-  "</footer>",
+    "</footer>",
   3
 );
 
@@ -218,6 +220,11 @@ const Xe = k({
     const isWritups = S(initialState.view === "writups");
     const noAnim = S(initialState.view === "writups");
 
+    // wired up in onMounted (D)
+    let resetFooterInstant = () => {};
+    // NEW: wired up in onMounted to prevent scroll-hint flicker on programmatic scroll
+    let suppressScrollHint = (_ms) => {};
+
     const scrollIndexTop = () => {
       const indexScroller = document.getElementById("index-scroll");
       if (indexScroller && typeof indexScroller.scrollTop === "number") {
@@ -227,7 +234,7 @@ const Xe = k({
       }
     };
 
-    const ABOUT_NUDGE_PX = 120;
+    const ABOUT_NUDGE_PX = 0; //needed to adjust one time, keep.
 
     const scrollIndexToEl = (el, smooth) => {
       if (!el) return;
@@ -296,9 +303,20 @@ const Xe = k({
       history.replaceState({}, "", url);
     };
 
-    // UPDATED (Option B): hide writups button instantly on click
+    // UPDATED: writups button ALWAYS goes to top of writups scroll
     const goWritups = (w) => {
       document.getElementById("writups-switch")?.classList.add("hidden");
+
+      const ws = document.getElementById("writups-scroll");
+      if (ws && typeof ws.scrollTop === "number") {
+        ws.scrollTop = 0;
+        ws.scrollTo?.({ top: 0, behavior: "auto" });
+        // do it again after the flip starts to be extra sure
+        requestAnimationFrame(() => {
+          ws.scrollTop = 0;
+          ws.scrollTo?.({ top: 0, behavior: "auto" });
+        });
+      }
 
       isWritups.value = true;
       setUrl("writups", w);
@@ -313,6 +331,14 @@ const Xe = k({
     };
 
     const goAboutMe = () => {
+      // prevent footer from flashing on view swap
+      resetFooterInstant();
+      // NEW: prevent scroll-hint flicker while we programmatically scroll to About Me
+      suppressScrollHint(1600);
+
+      // close any open writeup card
+      window.dispatchEvent(new CustomEvent("writups:close"));
+
       isWritups.value = false;
       replaceUrl(null, null);
       applyRotatorFallback();
@@ -377,6 +403,28 @@ const Xe = k({
         else animating = false;
       };
 
+      // instant hide (no lerp) — used when leaving/entering views
+      resetFooterInstant = () => {
+        if (!footer) return;
+        footerTarget = 0;
+        footerCurrent = 0;
+        animating = false;
+        footer.classList.add("footer-reveal");
+        footer.style.setProperty("--reveal", "0");
+      };
+
+      // NEW: scroll-hint suppression window (prevents 1-frame flash on programmatic scroll)
+      const now = () =>
+        typeof performance !== "undefined" && typeof performance.now === "function"
+          ? performance.now()
+          : Date.now();
+
+      let suppressHintUntil = 0;
+      suppressScrollHint = (ms = 1200) => {
+        suppressHintUntil = now() + ms;
+        hint?.classList.add("hidden");
+      };
+
       let raf = 0;
       const schedule = () => {
         if (raf) return;
@@ -410,7 +458,8 @@ const Xe = k({
       const update = () => {
         if (hint) {
           const top = getTop();
-          if (top > Qe) hint.classList.add("hidden");
+          if (now() < suppressHintUntil) hint.classList.add("hidden");
+          else if (top > Qe) hint.classList.add("hidden");
           else hint.classList.remove("hidden");
         }
 
@@ -467,6 +516,10 @@ const Xe = k({
         }
 
         if (!isWritups.value) {
+          // also avoid footer flash + ensure writups are closed on back nav
+          resetFooterInstant();
+          window.dispatchEvent(new CustomEvent("writups:close"));
+
           requestAnimationFrame(() => {
             scrollIndexTop();
           });
