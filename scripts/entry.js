@@ -32171,76 +32171,113 @@ const Gl = _r - 20
   , dr = 8;
 class ThreeScene {
     constructor(e, t) {
-        Ye(this, "canvas");
-        Ye(this, "scrollElement");
-        Ye(this, "isDemo");
-        Ye(this, "gui");
-        Ye(this, "stats");
-        Ye(this, "sizes");
-        Ye(this, "scene");
-        Ye(this, "camera");
-        Ye(this, "cameraGroup");
-        Ye(this, "controls");
-        Ye(this, "renderer");
-        Ye(this, "clock", new CA);
-        Ye(this, "plane");
-        Ye(this, "mousePos", {
-            x: 0,
-            y: 0
+    Ye(this, "canvas");
+    Ye(this, "scrollElement");
+    Ye(this, "isDemo");
+    Ye(this, "gui");
+    Ye(this, "stats");
+    Ye(this, "sizes");
+    Ye(this, "scene");
+    Ye(this, "camera");
+    Ye(this, "cameraGroup");
+    Ye(this, "controls");
+    Ye(this, "renderer");
+    Ye(this, "clock", new CA);
+    Ye(this, "plane");
+    Ye(this, "mousePos", { x: 0, y: 0 });
+    Ye(this, "textDownPosition", 3);
+    Ye(this, "textUpPosition", 8);
+    Ye(this, "textZPosition", As - 5);
+    Ye(this, "textZMobilePosition", Dd - 12);
+    Ye(this, "currentPage", 0);
+    Ye(this, "maxPages", 0);
+    Ye(this, "cameraStartPos", As);
+    Ye(this, "cameraEndPos", Uc);
+
+    this.isDemo = t;
+    fr = Aa().app.baseURL;
+
+    if (this.isDemo) {
+        this.gui = new eR;
+        this.gui.close();
+        this.stats = new kA;
+        this.stats.showPanel(0);
+        document.body.appendChild(this.stats.dom);
+    }
+
+    this.canvas = e;
+
+    // ✅ NEW: only About Me scroll should drive camera travel
+    const pickScrollEl = () =>
+        document.getElementById("index-scroll") ||
+        document.querySelector("#__nuxt") ||
+        document.querySelector("#scripts") ||
+        document.documentElement ||
+        document.body;
+
+    this.scrollElement = pickScrollEl();
+
+    this.sizes = { width: innerWidth, height: innerHeight };
+
+    const i = new Xe(657700);
+    this.scene = new O1;
+    this.scene.background = i;
+    this.scene.fog = new Mu(i, 25, 260);
+
+    this.cameraGroup = new Gt;
+    this.camera = new sn(Ld, this.sizes.width / this.sizes.height, 0.1, 300);
+    this.camera.rotation.x = -0.15;
+    this.cameraGroup.add(this.camera);
+
+    // camera height
+    this.cameraGroup.position.y = 13;
+    this.cameraGroup.position.z = this.cameraStartPos;
+
+    if (this.isDemo) {
+        this.gui.add(this.camera, "fov", 10, 150, 1).onChange(() => {
+        this.camera.updateProjectionMatrix();
         });
-        Ye(this, "textDownPosition", 3);
-        Ye(this, "textUpPosition", 8);
-        Ye(this, "textZPosition", As - 5);
-        Ye(this, "textZMobilePosition", Dd - 12);
-        Ye(this, "currentPage", 0);
-        Ye(this, "maxPages", 0);
-        Ye(this, "cameraStartPos", As);
-        Ye(this, "cameraEndPos", Uc);
-        this.isDemo = t,
-        fr = Aa().app.baseURL,
-        this.isDemo && (this.gui = new eR,
-        this.gui.close(),
-        this.stats = new kA,
-        this.stats.showPanel(0),
-        document.body.appendChild(this.stats.dom)),
-        this.canvas = e,
-        this.scrollElement = document.querySelector("#__nuxt") || document.querySelector("#scripts") || document.documentElement || document.body,
-        this.sizes = {
-            width: innerWidth,
-            height: innerHeight
-        };
-        const i = new Xe(657700);
-        this.scene = new O1,
-        this.scene.background = i,
-        this.scene.fog = new Mu(i,25,260),
-        this.cameraGroup = new Gt,
-        this.camera = new sn(Ld,this.sizes.width / this.sizes.height,.1,300),
-        this.camera.rotation.x = -.15,
-        this.cameraGroup.add(this.camera),
-        //camera height
-        this.cameraGroup.position.y = 13,
-        this.cameraGroup.position.z = this.cameraStartPos,
-        this.isDemo && (this.gui.add(this.camera, "fov", 10, 150, 1).onChange( () => {
-            this.camera.updateProjectionMatrix()
+        this.gui.add(this.cameraGroup.position, "z", 70, 100, 1);
+    }
+
+    this.scene.add(this.cameraGroup);
+
+    this.renderer = new tg({ antialias: !0 });
+    this.renderer.setSize(this.sizes.width, this.sizes.height);
+    this.renderer.setPixelRatio(window.devicePixelRatio);
+    e.appendChild(this.renderer.domElement);
+
+    this.addObjects();
+
+    window.addEventListener("resize", () => this.updateSizes());
+    window.addEventListener("mousemove", (s) => this.updateMousePosition(s));
+    window.addEventListener("deviceorientation", () => this.updateSizes(), !0);
+
+    // ✅ NEW: keep a stable handler so we can rebind if needed
+    this._onScroll = () => this.updateScroll();
+
+    if (this.scrollElement) {
+        this.scrollElement.addEventListener("scroll", this._onScroll, { passive: true });
+    }
+
+    // ✅ NEW: if ThreeScene is created before #index-scroll exists, rebind for ~1s
+    let tries = 0;
+    const rebind = () => {
+        const idx = document.getElementById("index-scroll");
+        if (idx && this.scrollElement !== idx) {
+        this.scrollElement?.removeEventListener("scroll", this._onScroll);
+        this.scrollElement = idx;
+        this.scrollElement.addEventListener("scroll", this._onScroll, { passive: true });
+        this.updateScroll();
+        return;
         }
-        ),
-        this.gui.add(this.cameraGroup.position, "z", 70, 100, 1)),
-        this.scene.add(this.cameraGroup),
-        this.renderer = new tg({
-            antialias: !0
-        }),
-        this.renderer.setSize(this.sizes.width, this.sizes.height),
-        this.renderer.setPixelRatio(window.devicePixelRatio),
-        e.appendChild(this.renderer.domElement),
-        0,
-        this.addObjects(),
-        window.addEventListener("resize", () => this.updateSizes()),
-        window.addEventListener("mousemove", s => this.updateMousePosition(s)),
-        window.addEventListener("deviceorientation", () => this.updateSizes(), !0),
-        this.scrollElement && this.scrollElement.addEventListener("scroll", () => this.updateScroll()),
-        this.updateSizes(),
-        this.updateScroll(),
-        this.animate()
+        if (++tries < 60) requestAnimationFrame(rebind);
+    };
+    requestAnimationFrame(rebind);
+
+    this.updateSizes();
+    this.updateScroll();
+    this.animate();
     }
     animate() {
         requestAnimationFrame(() => this.animate());
@@ -32265,7 +32302,14 @@ class ThreeScene {
             this.cameraGroup.position.y = 13;
         }
 
-        let t = 0;
+        // freeze forward/back camera travel while in writups
+        const inWritups =
+        document.querySelector(".scene")?.classList.contains("is-writups");
+
+        let t = this.cameraGroup.position.z; // default: hold current z (freeze)
+
+        if (!inWritups) {
+        // your existing scroll->z mapping
         if (this.currentPage < ls) {
             t =
             this.cameraStartPos +
@@ -32281,15 +32325,27 @@ class ThreeScene {
             (this.cameraEndPos - Gl) *
                 (Math.max(this.currentPage - dr, 0) / (this.maxPages - dr));
         }
+        }
 
         this.cameraGroup.position.z += (t - this.cameraGroup.position.z) * as;
         this.renderer.render(this.scene, this.camera);
         if (this.isDemo) this.stats.update();
     }
     updateScroll() {
-	        this.currentPage = (this.scrollElement ? this.scrollElement.scrollTop : (window.scrollY || 0)) / this.sizes.height;
-	        this.maxPages = ((this.scrollElement ? this.scrollElement.scrollHeight : document.body.scrollHeight) - innerHeight) / this.sizes.height;
-	    }
+        // Don't let writups scrolling affect camera travel
+        const inWritups =
+            document.querySelector(".scene")?.classList.contains("is-writups");
+        if (inWritups) return;
+
+        const el = this.scrollElement;
+
+        const top = el ? el.scrollTop : (window.scrollY || 0);
+        const h   = el ? el.clientHeight : (window.innerHeight || this.sizes.height || 1);
+        const sh  = el ? el.scrollHeight : document.documentElement.scrollHeight;
+
+        this.currentPage = top / h;
+        this.maxPages = Math.max(0, (sh - h) / h);
+    }
     updateSizes() {
         this.sizes.width = innerWidth,
         this.sizes.height = innerHeight,
@@ -32726,7 +32782,7 @@ class ThreeScene {
         };
 
         const geo = new Zt;
-        const count = 2000;
+        const count = 3000;
         const pos = new Float32Array(count * 3);
         const aScale = new Float32Array(count);
         const aSpeed = new Float32Array(count);
