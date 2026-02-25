@@ -203,12 +203,76 @@ const Qe = 30;
 const Xe = k({
   __name: "index",
   setup() {
-    const isWritups = S(false);
-    const noAnim = S(false);
+    const initialState = (() => {
+      try {
+        const sp = new URLSearchParams(window.location.search);
+        const weird = sp.get("") === "writups";
+        const view = sp.get("view") || (weird ? "writups" : null);
+        const w = sp.get("w") || sp.get("writeup");
+        return { view: view || (w ? "writups" : null), w };
+      } catch (_) {
+        return { view: null, w: null };
+      }
+    })();
+
+    const isWritups = S(initialState.view === "writups");
+    const noAnim = S(initialState.view === "writups");
+
+    const scrollIndexTop = () => {
+      const indexScroller = document.getElementById("index-scroll");
+      if (indexScroller && typeof indexScroller.scrollTop === "number") {
+        indexScroller.scrollTop = 0;
+      } else {
+        window.scrollTo(0, 0);
+      }
+    };
+
+    const ABOUT_NUDGE_PX = 120;
+
+    const scrollIndexToEl = (el, smooth) => {
+      if (!el) return;
+
+      const scroller = document.getElementById("index-scroll");
+
+      if (scroller && scroller.contains(el)) {
+        let top =
+          el.getBoundingClientRect().top -
+          scroller.getBoundingClientRect().top +
+          scroller.scrollTop;
+
+        top = Math.max(0, top - ABOUT_NUDGE_PX);
+
+        scroller.scrollTo({ top, behavior: smooth ? "smooth" : "auto" });
+        return;
+      }
+
+      el.scrollIntoView({ behavior: smooth ? "smooth" : "auto", block: "start" });
+    };
+
+    const applyRotatorFallback = () => {
+      const rot = document.querySelector(".view-rotator");
+      const scene = rot?.parentElement || document.querySelector(".scene");
+      if (!rot || !scene) return;
+
+      scene.classList.add("scene");
+      scene.classList.toggle("is-writups", !!isWritups.value);
+      scene.classList.toggle("no-anim", !!noAnim.value);
+
+      const depthRaw = getComputedStyle(scene).getPropertyValue("--depth").trim() || "50vw";
+
+      let depthPx = window.innerWidth * 0.5;
+      const n = parseFloat(depthRaw);
+      if (Number.isFinite(n)) {
+        if (depthRaw.endsWith("vw")) depthPx = window.innerWidth * (n / 100);
+        else if (depthRaw.endsWith("px")) depthPx = n;
+      }
+
+      rot.style.transform = `translateZ(-${depthPx}px) rotateY(${isWritups.value ? "-90deg" : "0deg"})`;
+    };
 
     const parseUrl = () => {
       const sp = new URLSearchParams(window.location.search);
-      const weird = sp.get("") === "writups"; // supports "/?=writups"
+      const weird = sp.get("") === "writups";
       const view = sp.get("view") || (weird ? "writups" : null);
       const w = sp.get("w") || sp.get("writeup");
       return { view: view || (w ? "writups" : null), w };
@@ -232,9 +296,15 @@ const Xe = k({
       history.replaceState({}, "", url);
     };
 
+    // UPDATED (Option B): hide writups button instantly on click
     const goWritups = (w) => {
+      document.getElementById("writups-switch")?.classList.add("hidden");
+
       isWritups.value = true;
       setUrl("writups", w);
+      applyRotatorFallback();
+      requestAnimationFrame(() => applyRotatorFallback());
+
       if (w) {
         requestAnimationFrame(() => {
           window.dispatchEvent(new CustomEvent("writups:open", { detail: { id: w } }));
@@ -245,13 +315,21 @@ const Xe = k({
     const goAboutMe = () => {
       isWritups.value = false;
       replaceUrl(null, null);
+      applyRotatorFallback();
+      requestAnimationFrame(() => applyRotatorFallback());
+
       requestAnimationFrame(() => {
-        const about = document.getElementById("about-me");
-        about?.scrollIntoView({ behavior: "auto", block: "start" });
+        const aboutMe = document.getElementById("about-me");
+        if (aboutMe) scrollIndexToEl(aboutMe, true);
+        else scrollIndexTop();
       });
     };
 
     D(() => {
+      try {
+        history.scrollRestoration = "manual";
+      } catch (_) {}
+
       const indexScroller = document.getElementById("index-scroll");
       const hint = document.getElementById("scroll-text");
       const footer = document.getElementById("site-footer");
@@ -270,7 +348,7 @@ const Xe = k({
       const getTop = () =>
         indexScroller && typeof indexScroller.scrollTop === "number"
           ? indexScroller.scrollTop
-          : (window.scrollY || 0);
+          : window.scrollY || 0;
 
       const getHeight = () => {
         if (indexScroller) return indexScroller.clientHeight;
@@ -358,23 +436,29 @@ const Xe = k({
         }
       };
 
-      // initial view from URL
-      const initial = parseUrl();
+      const initial = initialState;
       if (initial.view === "writups") {
-        noAnim.value = true;
-        isWritups.value = true;
-
+        applyRotatorFallback();
         requestAnimationFrame(() => {
           noAnim.value = false;
+          applyRotatorFallback();
           if (initial.w) {
             window.dispatchEvent(new CustomEvent("writups:open", { detail: { id: initial.w } }));
           }
+        });
+      } else {
+        applyRotatorFallback();
+        requestAnimationFrame(() => {
+          if (indexScroller && typeof indexScroller.scrollTop === "number") indexScroller.scrollTop = 0;
+          else window.scrollTo(0, 0);
+          applyRotatorFallback();
         });
       }
 
       window.addEventListener("popstate", () => {
         const s = parseUrl();
         isWritups.value = s.view === "writups";
+        requestAnimationFrame(() => applyRotatorFallback());
 
         if (isWritups.value && s.w) {
           requestAnimationFrame(() => {
@@ -384,8 +468,7 @@ const Xe = k({
 
         if (!isWritups.value) {
           requestAnimationFrame(() => {
-            const about = document.getElementById("about-me");
-            about?.scrollIntoView({ behavior: "auto", block: "start" });
+            scrollIndexTop();
           });
         }
 
@@ -395,17 +478,26 @@ const Xe = k({
       schedule();
 
       indexScroller?.addEventListener("scroll", schedule, { passive: true });
-      window.addEventListener("resize", schedule, { passive: true });
+      window.addEventListener(
+        "resize",
+        () => {
+          schedule();
+          requestAnimationFrame(() => applyRotatorFallback());
+        },
+        { passive: true }
+      );
     });
 
     return () => {
       const Academic = ve;
 
+      const sceneClass =
+        "scene" + (isWritups.value ? " is-writups" : "") + (noAnim.value ? " no-anim" : "");
+
       return (
         m(),
-        g("div", { class: ["scene", isWritups.value ? "is-writups" : "", noAnim.value ? "no-anim" : ""] }, [
+        g("div", { class: sceneClass }, [
           l("div", { class: "view-rotator" }, [
-            // FRONT FACE
             l("section", { class: "view index-view" }, [
               l("div", { id: "index-scroll", class: "view-scroll" }, [
                 g("div", Ue, [
@@ -418,19 +510,16 @@ const Xe = k({
                 ]),
               ]),
             ]),
-
-            // RIGHT FACE
             l("section", { class: "view writups-view" }, [
               l("div", { id: "writups-scroll", class: "view-scroll" }, [x(Writups)]),
             ]),
           ]),
 
-          // OVERLAYS (built as normal VNodes — this avoids your crash)
           l(
             "div",
             {
               id: "writups-switch",
-              class: ["hidden"],
+              class: "hidden",
               onClick: () => goWritups(),
             },
             [

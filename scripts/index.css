@@ -45,8 +45,9 @@ body {
 
 #__nuxt {
   height: 100dvh;
-  overflow: hidden; /* CHANGED */
+  overflow: hidden;
   position: relative;
+  z-index: 1; /* keep app above background */
 
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -71,7 +72,23 @@ ul li::marker {
    ========================================================= */
 #threejs-container {
   position: fixed;
+  inset: 0;
+  z-index: 0; /* background layer */
 }
+
+/*
+  IMPORTANT FIX:
+  Do NOT set pointer-events:none on #threejs-container or #threejs,
+  because if your app ends up nested under it (even accidentally),
+  pointer-events can inherit and kill ALL link clicks.
+  Only disable pointer events on the canvas itself.
+*/
+#threejs-container canvas,
+#threejs canvas,
+canvas#threejs {
+  pointer-events: none !important;
+}
+
 #threejs-container,
 #threejs {
   height: 100dvh;
@@ -102,8 +119,9 @@ ul li::marker {
   display: flex;
   flex-direction: column;
   font-size: 1.2rem;
-  height: 100%;
-  justify-content: center;
+  height: auto;
+  min-height: 100%;
+  justify-content: flex-start;
   line-height: 2.3rem;
   margin: auto;
   max-width: var(--max-width);
@@ -287,7 +305,6 @@ ul li::marker {
   position: relative;
 }
 
-/* underline that works across wrapped lines */
 a.link {
   color: inherit;
   font-weight: 900;
@@ -305,7 +322,6 @@ footer {
   --reveal: 0;
 }
 
-/* JS adds this class to turn it into a fixed, animated footer */
 #site-footer.footer-reveal {
   position: fixed;
   left: 50%;
@@ -320,20 +336,17 @@ footer {
   will-change: opacity, transform;
 }
 
-/* footer made by text */
 .author .madeby {
   display: inline-block;
   font-size: 1.15rem;
   line-height: 1.4rem;
 }
 
-/* footer inspired by text */
 .author .inspo {
   display: inline-block;
   margin-top: 0.35rem;
   font-size: 0.80rem;
 }
-
 
 /* =========================================================
    3D view rotator (index <-> writups)
@@ -371,6 +384,7 @@ footer {
   backface-visibility: hidden;
 }
 
+/* Scroll areas */
 .view-scroll {
   height: 100%;
   overflow: auto;
@@ -382,22 +396,17 @@ footer {
   height: 0;
 }
 
-/* “front face” */
 .index-view {
   transform: rotateY(0deg) translateZ(var(--depth));
 }
 
-/* “right face” */
 .writups-view {
   transform: rotateY(90deg) translateZ(var(--depth));
 }
 
-/* When in writups view, hide index-only fixed overlays cleanly */
-.scene.is-writups #scroll-text,
-.scene.is-writups #site-footer {
-  opacity: 0 !important;
-  pointer-events: none !important;
-}
+/* FIX: prevent the hidden 3D face from eating clicks */
+.scene.is-writups .index-view { pointer-events: none; }
+.scene:not(.is-writups) .writups-view { pointer-events: none; }
 
 /* =========================================================
    Writups navigation hint 
@@ -503,4 +512,23 @@ footer {
 @keyframes bounce-left {
   0% { transform: translateX(0); }
   100% { transform: translateX(-22%); }
+}
+
+/* =========================================================
+   Clickability guard (critical)
+   ========================================================= */
+
+/* Ensure your interactive areas reset any inherited pointer-events:none */
+.scene,
+.view-rotator,
+.view,
+.view-scroll,
+#index-scroll,
+#writups-scroll {
+  pointer-events: auto;
+}
+
+/* Ensure anchors are always clickable (safe, minimal override) */
+a, a * {
+  pointer-events: auto;
 }

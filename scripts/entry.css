@@ -34,23 +34,36 @@ body {
   width: 100dvw;
 }
 
+/* FIX: match your app’s “internal scrollers” design */
 #__nuxt {
   height: 100dvh;
-  overflow: auto;
+  overflow: hidden;  /* was auto */
   position: relative;
+  z-index: 1;        /* keep app above background */
 }
 
+/* FIX: keep background behind everything */
 #threejs-container {
   position: fixed;
+  inset: 0;
+  z-index: 0;
 }
+
 #threejs,
 #threejs-container {
   height: 100dvh;
-  inset: 0;
   width: 100dvw;
 }
+
 #threejs {
   position: relative;
+}
+
+/* FIX: disable pointer events ONLY on the canvas (safe even if DOM nesting changes) */
+#threejs-container canvas,
+#threejs canvas,
+canvas#threejs {
+  pointer-events: none !important;
 }
 
 ol li::marker,

@@ -72,10 +72,7 @@ plain[i] = c[i] XOR keystream[i % 8]
 
     const updateUrl = (idOrNull) => {
       const url = new URL(window.location.href);
-
-      // support your suggested weird style "?=writups" by still writing a real param
-      url.searchParams.set("view", "writups");
-
+      // Only manage the writeup id here. index.js owns the "view" param.
       if (idOrNull) url.searchParams.set("w", idOrNull);
       else url.searchParams.delete("w");
 
@@ -116,7 +113,6 @@ plain[i] = c[i] XOR keystream[i % 8]
         if (!exists) return;
 
         openId.value = id;
-        updateUrl(id);
         requestAnimationFrame(() => scrollToWriteup(id, true));
       });
     });
@@ -124,7 +120,7 @@ plain[i] = c[i] XOR keystream[i % 8]
     return (i, a) => (
       m(),
       g("div", Root, [
-        l("div", Spacer),
+        // REMOVED: top Spacer
 
         l("div", Main, [
           l("div", Text, [
@@ -149,15 +145,28 @@ plain[i] = c[i] XOR keystream[i % 8]
               m(),
               g(
                 "article",
-                { key: w.id, id: `writeup-${w.id}`, class: ["writeup-card", openId.value === w.id ? "open" : ""] },
+                {
+                  key: w.id,
+                  id: `writeup-${w.id}`,
+                  class: "writeup-card" + (openId.value === w.id ? " open" : ""),
+                },
                 [
                   l("header", { class: "writeup-head", onClick: () => toggle(w.id) }, [
                     l("h3", { class: "writeup-title" }, I(w.title), 1),
                     l("p", { class: "writeup-subtitle" }, I(w.subtitle), 1),
                   ]),
-                  openId.value === w.id
-                    ? l("div", { class: "writeup-body", innerHTML: w.body }, null, 8, ["innerHTML"])
-                    : null,
+                  l(
+                    "div",
+                    {
+                      class: "writeup-body",
+                      innerHTML: openId.value === w.id ? w.body : "",
+                      // FIX: don't use null here — always set a value so display:none clears correctly
+                      style: openId.value === w.id ? "" : "display:none;",
+                    },
+                    null,
+                    12,
+                    ["innerHTML", "style"]
+                  ),
                 ]
               )
             )),
