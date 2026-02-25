@@ -75,3 +75,21 @@ ul li::marker {
 ul li::marker {
   content: "ø ";
 }
+
+/* 1) Force the WebGL layer to never receive clicks */
+#threejs-container,
+#threejs {
+  pointer-events: none !important;
+}
+
+/* 2) Force your actual app content above it, no matter what the compositor does */
+.scene {
+  position: relative;
+  z-index: 10;
+}
+
+/* Optional but helps with 3D hit-testing quirks on some browsers */
+.view-scroll {
+  position: relative;
+  transform: translateZ(0);
+}
