@@ -1,3 +1,4 @@
+/* writups.css */
 /* Writups-only layout bits (theme uses your existing :root vars in index.css) */
 
 .writups-container {
@@ -5,11 +6,46 @@
   margin: auto;
 }
 
+/* =========================================================
+   GAP / CENTERING FIX (scoped to writups page)
+   index.css sets:
+     .main-block { min-height: 100dvh; padding-block: 5rem; justify-content:center; }
+   That makes the intro consume a full viewport and pushes the list far down.
+
+   Here, we:
+   - remove the forced full-viewport height
+   - add responsive top padding so the intro "starts around the middle"
+   - keep bottom padding small so the list is closer
+   ========================================================= */
+.writups-container .main-block {
+  min-height: auto !important;
+
+  /* approximate vertical centering without consuming a whole screen */
+  padding-top: clamp(5rem, calc(50dvh - 160px), 14rem) !important;
+
+  /* keep the gap under the intro small */
+  padding-bottom: 2.00rem !important;
+
+  margin-bottom: 0 !important;
+
+  /* the padding controls positioning; don't add flex-centering gaps */
+  justify-content: flex-start !important;
+}
+
+/* remove default bottom margin on the intro paragraph */
+.writups-container .text-block p {
+  margin-bottom: 0;
+}
+
+/* List of cards */
 .writups-list {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
-  padding: 2.5rem 0 3.5rem;
+
+  /* tighter top spacing above first card, slightly bigger bottom spacing */
+  padding: 0.75rem 0 4.25rem;
+  margin: 0;
 }
 
 /* Card matches your “panel” look */
@@ -55,6 +91,9 @@
 .writeup-body {
   padding: 0 1.4rem 1.3rem;
   animation: writeup-pop 140ms ease-out;
+
+  /* Keep overall writeup content centered like before... */
+  text-align: center;
 }
 
 @keyframes writeup-pop {
@@ -62,20 +101,175 @@
   to   { transform: translateY(0); opacity: 1; }
 }
 
+/* Paragraphs stay centered */
 .writeup-body p {
   margin: 0.85rem 0 0;
   line-height: 1.8rem;
+  text-align: center;
 }
 
+/* Headings inside body */
+.writeup-body h4 {
+  margin: 1.25rem 0 0.25rem;
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  text-align: center;
+}
+
+/* Horizontal rule */
+.writeup-body hr {
+  border: none;
+  border-top: 1px solid rgba(255, 138, 0, 0.35);
+  margin: 1.15rem 0 0.35rem;
+}
+
+/* ---------- LEFT-ALIGNED AREAS ---------- */
+
+/* "Description:" label at top left (but still centered container-wise) */
+.writeup-body .desc-label {
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: left;
+}
+
+/* Description block: keep the box centered, but left-align text inside */
+.writeup-body blockquote.desc-area {
+  max-width: 900px;
+  margin: 0.8rem auto 0;
+  text-align: left;
+}
+
+/* Meta row: keep it in the same centered flow, but left-align its text */
+.writeup-body .writeup-meta {
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: left;
+}
+
+/* Lists: keep block centered, but bullets + text left */
+.writeup-body ul,
+.writeup-body ol {
+  max-width: 900px;
+  margin: 0.75rem auto 0;
+  padding-left: 1.35rem;
+  text-align: left;
+}
+
+.writeup-body li {
+  margin: 0.35rem 0;
+  line-height: 1.7rem;
+  text-align: left;
+}
+
+/* Code blocks: keep box centered, text left */
 .writeup-body pre {
+  max-width: 900px;
+  margin: 1rem auto 0;
+  text-align: left;
+
   background: rgba(0, 0, 0, 0.35);
   border: 1px solid rgba(255, 138, 0, 0.45);
   border-radius: 0.8rem;
   padding: 1rem;
   overflow: auto;
-  margin: 1rem 0 0;
 }
 
-.writeup-body code {
+.writeup-body pre code {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.95rem;
+  line-height: 1.45rem;
+  background: transparent;
+  border: none;
+  padding: 0;
+  text-align: left;
+  white-space: pre;
+}
+
+/* Inline code: keep centered paragraphs, but code itself reads cleanly */
+.writeup-body :not(pre) > code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  background: rgba(0, 0, 0, 0.30);
+  border: 1px solid rgba(255, 138, 0, 0.28);
+  border-radius: 0.45rem;
+  padding: 0.12rem 0.38rem;
+  font-size: 0.95em;
+}
+
+/* ---------- KEEP THESE CENTERED ---------- */
+
+/* Blockquotes / notes (box styling; alignment is handled above for desc-area) */
+.writeup-body blockquote {
+  padding: 0.9rem 1rem;
+  border-left: 3px solid var(--accent);
+  border-radius: 0.85rem;
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.writeup-body blockquote p {
+  margin: 0.4rem 0 0;
+}
+
+.writeup-body blockquote p:first-child {
+  margin-top: 0;
+}
+
+/* Callout stays centered */
+.writeup-body .callout {
+  max-width: 900px;
+  margin: 0.95rem auto 0;
+  padding: 0.95rem 1rem;
+  border-radius: 0.85rem;
+  background: rgba(0, 0, 0, 0.24);
+  border: 1px solid rgba(255, 138, 0, 0.35);
+  line-height: 1.7rem;
+  text-align: center;
+}
+
+.writeup-body .callout.important {
+  border-left: 3px solid var(--accent);
+}
+
+/* Images stay centered */
+.writeup-body .writeup-img {
+  display: block;
+  width: 100%;
+  max-width: 800px;
+  height: auto;
+  margin: 1rem auto 0;
+  border-radius: 0.9rem;
+  border: 1px solid rgba(255, 138, 0, 0.35);
+  box-shadow: 0 0.75rem 1.8rem rgba(0, 0, 0, 0.35);
+}
+
+.writeup-body .caption {
+  margin-top: 1.05rem;
+  opacity: 0.95;
+  text-align: center;
+}
+
+/* Links */
+.writeup-body a {
+  color: var(--accent);
+  text-decoration-line: underline;
+  text-decoration-color: rgba(255, 138, 0, 0.75);
+  text-underline-offset: 0.18em;
+}
+
+.writeup-body a:hover {
+  text-decoration-color: var(--accent);
+}
+
+/* Small meta pill */
+.writeup-body .pill {
+  display: inline-block;
+  margin-left: 0.35rem;
+  padding: 0.12rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 138, 0, 0.45);
+  background: rgba(0, 0, 0, 0.22);
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
 }
