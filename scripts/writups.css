@@ -87,18 +87,36 @@
   opacity: 0.95;
 }
 
-/* Expanded content */
+/* =========================================================
+   CSS-only open/close animation (works for BOTH open and close)
+   ========================================================= */
 .writeup-body {
-  padding: 0 1.4rem 1.3rem;
-  animation: writeup-pop 140ms ease-out;
+  overflow: hidden;
+
+  /* closed state */
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-6px);
+  padding: 0 1.4rem 0;
+
+  transition:
+    max-height 520ms ease,
+    opacity 320ms ease,
+    transform 520ms ease,
+    padding 520ms ease;
+
+  will-change: max-height, opacity, transform;
 
   /* Keep overall writeup content centered like before... */
   text-align: center;
 }
 
-@keyframes writeup-pop {
-  from { transform: translateY(-4px); opacity: 0.75; }
-  to   { transform: translateY(0); opacity: 1; }
+.writeup-card.open .writeup-body {
+  /* open state */
+  max-height: 200000px; /* big enough for long writeups */
+  opacity: 1;
+  transform: translateY(0);
+  padding: 0 1.4rem 1.3rem;
 }
 
 /* Paragraphs stay centered */
@@ -272,4 +290,77 @@
   background: rgba(0, 0, 0, 0.22);
   font-size: 0.85rem;
   letter-spacing: 0.02em;
+}
+
+
+/* ===== Writeups: header badges (colors set via --tag-color) ===== */
+
+.writeup-card {
+  position: relative; /* needed for absolute left badges */
+}
+
+/* Left badges (ONLY on closed cards) */
+.writeup-badges-left {
+  position: absolute;
+  left: 28px;
+  top: 37px;
+  transform: translate3d(0, -50%, 0);
+
+  display: flex;
+  align-items: center;
+
+  pointer-events: none; /* never blocks clicking */
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+  transform-style: preserve-3d;
+
+  transition: opacity 150ms ease, transform 150ms ease;
+}
+
+/* 25px horizontal spacing for any additional left badges */
+.writeup-badges-left .writeup-tag + .writeup-tag {
+  margin-left: 25px;
+}
+
+/* Hide the left badges when open */
+.writeup-card.open .writeup-badges-left {
+  opacity: 0;
+  transform: translate3d(0, calc(-50% - 4px), 0);
+}
+
+/* Reusable tag style (left + right) */
+.writeup-tag {
+  padding: 5px 10px;
+
+  border: 2px solid var(--tag-color, currentColor);
+  color: var(--tag-color, currentColor);
+
+  border-radius: 10px; /* less curved than pill */
+  background: transparent;
+
+  font-weight: 700;
+  font-size: 0.85rem;
+  line-height: 1;
+  letter-spacing: 0.02em;
+
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+  transform: translateZ(0);
+}
+
+/* Header layout so we can place a right-side label next to title */
+.writeup-head-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.writeup-badges-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  pointer-events: none;
+  white-space: nowrap;
 }

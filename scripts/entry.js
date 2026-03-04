@@ -32207,7 +32207,7 @@ class ThreeScene {
 
     this.canvas = e;
 
-    // ✅ NEW: only About Me scroll should drive camera travel
+    // only About Me scroll should drive camera travel
     const pickScrollEl = () =>
         document.getElementById("index-scroll") ||
         document.querySelector("#__nuxt") ||
