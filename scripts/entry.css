@@ -21,8 +21,44 @@
 }
 
 :root {
-  --bg: #0a0924;
   --accent: #ff8a00;
+
+  /* =========================================================
+     THEME EDITABLE COLORS (Three.js reads these at runtime)
+     You can use hex (#rrggbb) or rgb()/rgba()
+     ========================================================= */
+
+  /* Sky / fog */
+  --sky-color: #0a0924; /* scene.background */
+  --fog-color: #0a0924; /* scene.fog */
+
+  /* App background (defaults to sky so they match) */
+  --bg: var(--sky-color);
+
+  /* Forest (tree) colors */
+  --tree-trunk: #6b4a2b;   /* stump/trunk color */
+  --tree-green: #1b5e20;
+  --tree-orange: #8a4917;
+  --tree-red: #6e1b17;
+  --tree-brown: #4a2b13;
+
+  /* Falling leaf particle colors (defaults to tree colors, override if desired) */
+  --leaf-green: var(--tree-green);
+  --leaf-orange: var(--tree-orange);
+  --leaf-red: var(--tree-red);
+  --leaf-brown: var(--tree-brown);
+
+    /* Ground / vegetation / soil */
+  --ground-color: #2b5d36; /* was 2841910 */
+  --grass-color:  #2f7d32; /* used by small + tall grass */
+  --dirt-color:   #6a5430; /* was 6968368 */
+  --dirt-path-color: #6a5430;
+  --dirt-patch-color: #4d3620;   /* darker = closer to black/brown */
+
+
+
+  /* Optional (nice for rocks/boulders) */
+  --rock-color:   #5b5b5b; /* was 5987163 */
 }
 
 body {
