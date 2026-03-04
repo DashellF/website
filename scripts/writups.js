@@ -1,4 +1,4 @@
-// writups.js (full file, patched: CSS-only open/close using .open class)
+// writups.js (full file, patched: deterministic offset scroll + robust direct-link + badges)
 
 import {
   m,
@@ -23,19 +23,19 @@ const List = { class: "writups-list" };
 const Writups = k({
   __name: "Writups",
   setup() {
+    const diffColorOf = (d) => (d === "hard" ? "#b91c1c" : "#22c55e"); // hard darker than #ef4444
+
     const writeups = S([
       {
         id: "emoji_captcha",
         title: "Emoji CAPTCHA",
         subtitle: "Work In Progress",
-        badgesLeft: [
-          { text: "easy", color: "#60a5fa" },
-          { text: "wip", color: "#f59e0b" },
-        ],
-        badgesRight: [{ text: "🩸First Blood🩸", color: "#ef4444" }],
+        difficulty: "hard",
+        category: "misc",
+        catColor: "#a855f7", // purple
         body: `
           <p class="writeup-meta">
-            <strong>Category:</strong> <span class="pill">wip</span>
+            <strong>Category:</strong> <span class="pill">misc</span>
           </p>
 
           <p class="desc-label"><strong>Description:</strong></p>
@@ -53,14 +53,12 @@ const Writups = k({
         id: "eye_on_the_sky",
         title: "Eye on the Sky",
         subtitle: "Work In Progress",
-        badgesLeft: [
-          { text: "easy", color: "#60a5fa" },
-          { text: "wip", color: "#f59e0b" },
-        ],
-        badgesRight: [],
+        difficulty: "hard",
+        category: "osint",
+        catColor: "#60a5fa", // light blue
         body: `
           <p class="writeup-meta">
-            <strong>Category:</strong> <span class="pill">wip</span>
+            <strong>Category:</strong> <span class="pill">osint</span>
           </p>
 
           <p class="desc-label"><strong>Description:</strong></p>
@@ -78,11 +76,9 @@ const Writups = k({
         id: "kaizo_brackeys",
         title: "Kaizo Brackeys",
         subtitle: "LITCTF · rev — patching Unity scripts to skip scenes and read the flag",
-        badgesLeft: [
-          { text: "easy", color: "#60a5fa" },
-          { text: "rev", color: "#22c55e" },
-        ],
-        badgesRight: [],
+        difficulty: "hard",
+        category: "rev",
+        catColor: "#9ca3af", // gray
         body: `
           <p class="writeup-meta">
             <strong>Category:</strong> <span class="pill">rev</span>
@@ -276,11 +272,9 @@ public class LevelComplete : MonoBehaviour
         id: "jailpy3",
         title: "jailpy3",
         subtitle: "LITCTF · rev — peeling an 11MB pyjail print into a readable flag",
-        badgesLeft: [
-          { text: "easy", color: "#60a5fa" },
-          { text: "rev", color: "#22c55e" },
-        ],
-        badgesRight: [],
+        difficulty: "easy",
+        category: "rev",
+        catColor: "#9ca3af", // gray
         body: `
           <p class="writeup-meta">
             <strong>Category:</strong> <span class="pill">rev</span>
@@ -321,10 +315,75 @@ The code that divides the flag simplifies down to the line <code>os._exit(2)</co
 
     const openId = S(null);
 
-    const scrollToWriteup = (id, smooth) => {
+    // robust, deterministic offset scroll (beats scroll restoration + late layout shifts)
+    const scrollToWriteup = (id, smooth, tries = 0, rescrolls = 0) => {
       const el = document.getElementById(`writeup-${id}`);
-      if (!el) return;
-      el.scrollIntoView({ behavior: smooth ? "smooth" : "auto", block: "start" });
+
+      // retry a few frames on initial load / view transitions
+      if (!el) {
+        if (tries < 48) requestAnimationFrame(() => scrollToWriteup(id, smooth, tries + 1, rescrolls));
+        return;
+      }
+
+      const findScrollParent = (node) => {
+        let p = node && node.parentElement;
+        while (p) {
+          const st = window.getComputedStyle(p);
+          const oy = st.overflowY;
+          if ((oy === "auto" || oy === "scroll" || oy === "overlay") && p.scrollHeight > p.clientHeight + 2) {
+            return p;
+          }
+          p = p.parentElement;
+        }
+        return document.scrollingElement || document.documentElement;
+      };
+
+      const offset = 90; // matches scroll-margin-top / desired header offset
+
+      const scrollOnce = (useSmooth) => {
+        const scroller = findScrollParent(el);
+
+        // window/document scroller
+        if (
+          scroller === document.scrollingElement ||
+          scroller === document.documentElement ||
+          scroller === document.body
+        ) {
+          const y = el.getBoundingClientRect().top + (window.pageYOffset || 0);
+          const top = Math.max(0, y - offset);
+          window.scrollTo({ top, behavior: useSmooth ? "smooth" : "auto" });
+          return;
+        }
+
+        // nested scroller
+        const scRect = scroller.getBoundingClientRect();
+        const elRect = el.getBoundingClientRect();
+        const y = elRect.top - scRect.top + scroller.scrollTop;
+        const top = Math.max(0, y - offset);
+
+        if (typeof scroller.scrollTo === "function") {
+          scroller.scrollTo({ top, behavior: useSmooth ? "smooth" : "auto" });
+        } else {
+          scroller.scrollTop = top;
+        }
+      };
+
+      const verifyAndRescroll = () => {
+        // if late layout shifts push it away, re-apply a couple times
+        const delta = el.getBoundingClientRect().top - offset;
+        if (Math.abs(delta) > 26 && rescrolls < 3) {
+          scrollOnce(false);
+          setTimeout(() => scrollToWriteup(id, false, tries, rescrolls + 1), 140);
+        }
+      };
+
+      // wait 2 frames so layout (and .open max-height) is applied before measuring
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          scrollOnce(!!smooth);
+          setTimeout(verifyAndRescroll, smooth ? 260 : 120);
+        });
+      });
     };
 
     const updateUrl = (idOrNull) => {
@@ -353,8 +412,18 @@ The code that divides the flag simplifies down to the line <code>os._exit(2)</co
       const exists = writeups.value.find((w) => w.id === id);
       if (!exists) return;
 
+      // prevent browser scroll restoration from overriding our direct-link scroll
+      try {
+        if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+      } catch (e) {}
+
       openId.value = id;
+
+      // Important: do not assume DOM is ready; scrollToWriteup handles retries + resettles
       requestAnimationFrame(() => scrollToWriteup(id, !!smooth));
+
+      // one extra settle pass for late-loading assets / dvh changes
+      setTimeout(() => scrollToWriteup(id, false), 350);
     };
 
     D(() => {
@@ -377,6 +446,11 @@ The code that divides the flag simplifies down to the line <code>os._exit(2)</co
       window.addEventListener("writups:close", () => {
         openId.value = null;
         updateUrl(null);
+      });
+
+      // if page is restored from bfcache, re-apply direct-link scroll
+      window.addEventListener("pageshow", (e) => {
+        if (e.persisted) openFromUrl(false);
       });
     });
 
@@ -409,59 +483,42 @@ The code that divides the flag simplifies down to the line <code>os._exit(2)</co
                   class: "writeup-card" + (openId.value === w.id ? " open" : ""),
                 },
                 [
-                  // top-left badges (only visible while card is closed via CSS)
+                  /* left tiles */
                   l("div", { class: "writeup-badges-left" }, [
-                    (m(!0),
-                    g(
-                      W,
-                      null,
-                      A(w.badgesLeft, (b) => (
-                        m(),
-                        g(
-                          "span",
-                          {
-                            key: b.text,
-                            class: "writeup-tag",
-                            style: { "--tag-color": b.color },
-                          },
-                          I(b.text),
-                          5
-                        )
-                      )),
-                      128
-                    )),
+                    l(
+                      "div",
+                      {
+                        class: "writeup-badge writeup-diff",
+                        style: { "--diff-color": diffColorOf(w.difficulty) },
+                      },
+                      I(w.difficulty),
+                      5
+                    ),
+                    l(
+                      "div",
+                      {
+                        class: "writeup-badge writeup-cat",
+                        style: { "--badge-color": w.catColor },
+                      },
+                      I(w.category),
+                      5
+                    ),
                   ]),
+
+                  /* right tile (only for Emoji CAPTCHA) */
+                  l(
+                    "div",
+                    {
+                      class: "writeup-badges-right",
+                      style: { display: w.id === "emoji_captcha" ? "" : "none" },
+                    },
+                    [l("div", { class: "writeup-badge writeup-firstblood" }, "🩸First Blood🩸")]
+                  ),
 
                   l("header", { class: "writeup-head", onClick: () => toggle(w.id) }, [
-                    l("div", { class: "writeup-head-top" }, [
-                      l("h3", { class: "writeup-title" }, I(w.title), 1),
-                      w.badgesRight && w.badgesRight.length
-                        ? l("div", { class: "writeup-badges-right" }, [
-                            (m(!0),
-                            g(
-                              W,
-                              null,
-                              A(w.badgesRight, (b) => (
-                                m(),
-                                g(
-                                  "span",
-                                  {
-                                    key: b.text,
-                                    class: "writeup-tag",
-                                    style: { "--tag-color": b.color },
-                                  },
-                                  I(b.text),
-                                  5
-                                )
-                              )),
-                              128
-                            )),
-                          ])
-                        : null,
-                    ]),
+                    l("h3", { class: "writeup-title" }, I(w.title), 1),
                     l("p", { class: "writeup-subtitle" }, I(w.subtitle), 1),
                   ]),
-
                   l(
                     "div",
                     {

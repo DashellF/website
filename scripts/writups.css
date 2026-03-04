@@ -4,6 +4,12 @@
 .writups-container {
   width: 77%;
   margin: auto;
+
+  /* helps direct-link scroll land consistently if this (or an ancestor) is the scroller */
+  scroll-padding-top: 90px;
+
+  /* reduce browser scroll-anchoring surprises when cards expand / images load */
+  overflow-anchor: none;
 }
 
 /* =========================================================
@@ -56,6 +62,11 @@
   box-shadow: var(--panel-shadow);
   color: var(--accent);
   overflow: hidden;
+
+  position: relative; /* needed for the absolute tiles */
+
+  /* make scrollIntoView land slightly below top (also matches JS offset) */
+  scroll-margin-top: 90px;
 }
 
 /* Clickable header (condensed view) */
@@ -88,24 +99,21 @@
 }
 
 /* =========================================================
-   CSS-only open/close animation (works for BOTH open and close)
+   OPEN / CLOSE (CSS-driven)
+   - Closed: body collapsed
+   - Open: body expanded + original pop animation (140ms)
    ========================================================= */
 .writeup-body {
-  overflow: hidden;
-
   /* closed state */
   max-height: 0;
   opacity: 0;
-  transform: translateY(-6px);
-  padding: 0 1.4rem 0;
+  overflow: hidden;
 
-  transition:
-    max-height 520ms ease,
-    opacity 320ms ease,
-    transform 520ms ease,
-    padding 520ms ease;
+  padding: 0 1.4rem 0; /* no bottom padding while closed */
+  pointer-events: none;
 
-  will-change: max-height, opacity, transform;
+  /* snappy like original */
+  transition: max-height 140ms ease-out, opacity 140ms ease-out, padding 140ms ease-out;
 
   /* Keep overall writeup content centered like before... */
   text-align: center;
@@ -113,10 +121,18 @@
 
 .writeup-card.open .writeup-body {
   /* open state */
-  max-height: 200000px; /* big enough for long writeups */
+  max-height: 9000px; /* big enough for your longest writeup */
   opacity: 1;
-  transform: translateY(0);
+
   padding: 0 1.4rem 1.3rem;
+  pointer-events: auto;
+
+  animation: writeup-pop 140ms ease-out;
+}
+
+@keyframes writeup-pop {
+  from { transform: translateY(-4px); opacity: 0.75; }
+  to   { transform: translateY(0); opacity: 1; }
 }
 
 /* Paragraphs stay centered */
@@ -292,14 +308,11 @@
   letter-spacing: 0.02em;
 }
 
-
-/* ===== Writeups: header badges (colors set via --tag-color) ===== */
-
-.writeup-card {
-  position: relative; /* needed for absolute left badges */
-}
-
-/* Left badges (ONLY on closed cards) */
+/* =========================================================
+   Title tiles (ALWAYS visible)
+   - Left: difficulty + category
+   - Right: First Blood (Emoji CAPTCHA only via JS display)
+   ========================================================= */
 .writeup-badges-left {
   position: absolute;
   left: 28px;
@@ -307,60 +320,57 @@
   transform: translate3d(0, -50%, 0);
 
   display: flex;
+  gap: 25px;
   align-items: center;
 
-  pointer-events: none; /* never blocks clicking */
+  pointer-events: none;
   -webkit-font-smoothing: antialiased;
   text-rendering: geometricPrecision;
-  transform-style: preserve-3d;
-
-  transition: opacity 150ms ease, transform 150ms ease;
 }
 
-/* 25px horizontal spacing for any additional left badges */
-.writeup-badges-left .writeup-tag + .writeup-tag {
-  margin-left: 25px;
+.writeup-badges-right {
+  position: absolute;
+  right: 28px;
+  top: 37px;
+  transform: translate3d(0, -50%, 0);
+
+  display: flex;
+  gap: 25px;
+  align-items: center;
+
+  pointer-events: none;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
 }
 
-/* Hide the left badges when open */
-.writeup-card.open .writeup-badges-left {
-  opacity: 0;
-  transform: translate3d(0, calc(-50% - 4px), 0);
-}
-
-/* Reusable tag style (left + right) */
-.writeup-tag {
+.writeup-badge {
   padding: 5px 10px;
+  border: 2px solid currentColor;
+  color: currentColor;
 
-  border: 2px solid var(--tag-color, currentColor);
-  color: var(--tag-color, currentColor);
-
-  border-radius: 10px; /* less curved than pill */
+  border-radius: 10px;
   background: transparent;
 
   font-weight: 700;
   font-size: 0.85rem;
   line-height: 1;
   letter-spacing: 0.02em;
-
-  -webkit-font-smoothing: antialiased;
-  text-rendering: geometricPrecision;
-  transform: translateZ(0);
 }
 
-/* Header layout so we can place a right-side label next to title */
-.writeup-head-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+/* Difficulty badge uses JS-provided --diff-color (easy green, hard dark red) */
+.writeup-badge.writeup-diff {
+  border-color: var(--diff-color, #22c55e);
+  color: var(--diff-color, #22c55e);
 }
 
-.writeup-badges-right {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+/* category badge uses JS-provided --badge-color */
+.writeup-badge.writeup-cat {
+  border-color: var(--badge-color, currentColor);
+  color: var(--badge-color, currentColor);
+}
 
-  pointer-events: none;
-  white-space: nowrap;
+/* First Blood badge */
+.writeup-badge.writeup-firstblood {
+  border-color: #ef4444;
+  color: #ef4444;
 }
