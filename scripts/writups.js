@@ -1,4 +1,4 @@
-// writups.js (full file, patched: deterministic offset scroll + robust direct-link + badges + measured-height for smooth slow open/close)
+// writups.js (full file, patched: deterministic offset scroll + robust direct-link + badges + measured-height + close button)
 
 import {
   m,
@@ -363,7 +363,10 @@ The code that divides the flag simplifies down to the line <code>os._exit(2)</co
 
       // retry a few frames on initial load / view transitions
       if (!el) {
-        if (tries < 48) requestAnimationFrame(() => scrollToWriteup(id, smooth, tries + 1, rescrolls));
+        if (tries < 48)
+          requestAnimationFrame(() =>
+            scrollToWriteup(id, smooth, tries + 1, rescrolls)
+          );
         return;
       }
 
@@ -372,7 +375,12 @@ The code that divides the flag simplifies down to the line <code>os._exit(2)</co
         while (p) {
           const st = window.getComputedStyle(p);
           const oy = st.overflowY;
-          if ((oy === "auto" || oy === "scroll" || oy === "overlay") && p.scrollHeight > p.clientHeight + 2) {
+          if (
+            (oy === "auto" ||
+              oy === "scroll" ||
+              oy === "overlay") &&
+            p.scrollHeight > p.clientHeight + 2
+          ) {
             return p;
           }
           p = p.parentElement;
@@ -415,7 +423,10 @@ The code that divides the flag simplifies down to the line <code>os._exit(2)</co
         const delta = el.getBoundingClientRect().top - offset;
         if (Math.abs(delta) > 26 && rescrolls < 3) {
           scrollOnce(false);
-          setTimeout(() => scrollToWriteup(id, false, tries, rescrolls + 1), 260);
+          setTimeout(
+            () => scrollToWriteup(id, false, tries, rescrolls + 1),
+            260
+          );
         }
       };
 
@@ -436,6 +447,12 @@ The code that divides the flag simplifies down to the line <code>os._exit(2)</co
       else url.searchParams.delete("w");
 
       history.replaceState({}, "", url);
+    };
+
+    const closeAll = () => {
+      clearBodyObserver();
+      openId.value = null;
+      updateUrl(null);
     };
 
     const toggle = (id) => {
@@ -507,9 +524,7 @@ The code that divides the flag simplifies down to the line <code>os._exit(2)</co
 
       // close any open card when index switches back to "about me"
       window.addEventListener("writups:close", () => {
-        clearBodyObserver();
-        openId.value = null;
-        updateUrl(null);
+        closeAll();
       });
 
       // if page is restored from bfcache, re-apply direct-link scroll
@@ -583,6 +598,7 @@ The code that divides the flag simplifies down to the line <code>os._exit(2)</co
                     l("h3", { class: "writeup-title" }, I(w.title), 1),
                     l("p", { class: "writeup-subtitle" }, I(w.subtitle), 1),
                   ]),
+
                   l(
                     "div",
                     {
@@ -592,6 +608,22 @@ The code that divides the flag simplifies down to the line <code>os._exit(2)</co
                     null,
                     8,
                     ["innerHTML"]
+                  ),
+
+                  // bottom-right close button (only visible when .open)
+                  l(
+                    "button",
+                    {
+                      type: "button",
+                      class: "writeup-close-btn",
+                      title: "Close",
+                      "aria-label": "Close writeup",
+                      onClick: (e) => {
+                        e.stopPropagation();
+                        closeAll();
+                      },
+                    },
+                    "×"
                   ),
                 ],
                 2

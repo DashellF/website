@@ -10,6 +10,15 @@
 
   /* reduce browser scroll-anchoring surprises when cards expand / images load */
   overflow-anchor: none;
+
+  /* =========================================================
+     CLOSE SPEED CONTROL (adjust these)
+     - --writeup-close-maxh controls the collapse speed (main one)
+     - --writeup-close-pad controls how fast padding collapses
+     ========================================================= */
+  --writeup-close-opacity: 220ms;
+  --writeup-close-maxh: 260ms; /* <- tweak this to change close time */
+  --writeup-close-pad: 220ms;
 }
 
 /* =========================================================
@@ -63,7 +72,7 @@
   color: var(--accent);
   overflow: hidden;
 
-  position: relative; /* needed for the absolute tiles */
+  position: relative; /* needed for the absolute tiles & close button */
 
   /* make scrollIntoView land slightly below top (also matches JS offset) */
   scroll-margin-top: 90px;
@@ -99,8 +108,9 @@
 }
 
 /* =========================================================
-   OPEN / CLOSE (measured height) — smooth slow open + smooth slow close
+   OPEN / CLOSE (measured height) — smooth slow open + FAST close
    - Close fade-out time kept the same (220ms)
+   - Close collapse is now much faster (controlled by vars above)
    ========================================================= */
 
 .writeup-body {
@@ -113,9 +123,9 @@
 
   /* CLOSE timing (applies when .open is removed) */
   transition:
-    opacity 220ms ease-in,        /* keep: you said fade-out feels good */
-    max-height 1100ms ease-in,    /* slow full collapse */
-    padding 900ms ease-in;
+    opacity var(--writeup-close-opacity, 220ms) ease-in,
+    max-height var(--writeup-close-maxh, 260ms) ease-in,
+    padding var(--writeup-close-pad, 220ms) ease-in;
 
   text-align: center;
   transform: translateY(0);
@@ -127,7 +137,8 @@
   max-height: var(--body-h, 0px);
   opacity: 1;
 
-  padding: 0 1.4rem 1.3rem;
+  /* extra bottom space so the close button doesn't cover the last line */
+  padding: 0 1.4rem 3.2rem;
   pointer-events: auto;
 
   /* OPEN timing (applies when .open is added) — much slower */
@@ -142,6 +153,57 @@
 @keyframes writeup-pop {
   from { transform: translateY(-10px); }
   to   { transform: translateY(0); }
+}
+
+/* Bottom-right close button (only visible when open) */
+.writeup-close-btn {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  z-index: 5;
+
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+
+  display: grid;
+  place-items: center;
+
+  border: 1px solid rgba(255, 138, 0, 0.55);
+  background: rgba(0, 0, 0, 0.38);
+  color: var(--accent);
+
+  font-size: 1.35rem;
+  line-height: 1;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(6px);
+
+  transition:
+    opacity 160ms ease-out,
+    transform 160ms ease-out,
+    background 160ms ease-out,
+    border-color 160ms ease-out;
+}
+
+.writeup-card.open .writeup-close-btn {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.writeup-close-btn:hover {
+  background: rgba(0, 0, 0, 0.52);
+  border-color: rgba(255, 138, 0, 0.8);
+}
+
+.writeup-close-btn:focus-visible {
+  outline: 2px solid rgba(255, 138, 0, 0.85);
+  outline-offset: 2px;
 }
 
 /* Paragraphs stay centered */
