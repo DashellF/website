@@ -1,4 +1,4 @@
-// writups.js (full file, patched: deterministic offset scroll + robust direct-link + badges)
+// writups.js (full file, patched: deterministic offset scroll + robust direct-link + badges + measured-height for smooth slow open/close)
 
 import {
   m,
@@ -75,7 +75,7 @@ const Writups = k({
       {
         id: "kaizo_brackeys",
         title: "Kaizo Brackeys",
-        subtitle: "LITCTF · rev — patching Unity scripts to skip scenes and read the flag",
+        subtitle: "LITCTF 2025 · Hacking a unity game for all it has to offer",
         difficulty: "hard",
         category: "rev",
         catColor: "#9ca3af", // gray
@@ -271,7 +271,7 @@ public class LevelComplete : MonoBehaviour
       {
         id: "jailpy3",
         title: "jailpy3",
-        subtitle: "LITCTF · rev — peeling an 11MB pyjail print into a readable flag",
+        subtitle: "LITCTF 2025 · Decyphering a 11MB pyjail",
         difficulty: "easy",
         category: "rev",
         catColor: "#9ca3af", // gray
@@ -314,6 +314,48 @@ The code that divides the flag simplifies down to the line <code>os._exit(2)</co
     ]);
 
     const openId = S(null);
+
+    // ---------------------------------------------------------
+    // MEASURED HEIGHT SUPPORT (fixes "slow then snap" max-height)
+    // Sets CSS var --body-h to the body's scrollHeight while open.
+    // Keeps it updated if images load / content reflows.
+    // ---------------------------------------------------------
+    let bodyRO = null;
+
+    const setBodyHeight = (id) => {
+      const body = document.querySelector(`#writeup-${id} .writeup-body`);
+      if (!body) return;
+
+      const apply = () => {
+        // scrollHeight includes padding; ensure we measure when open padding is applied
+        body.style.setProperty("--body-h", body.scrollHeight + "px");
+      };
+
+      // Apply now + after layout settles a bit
+      requestAnimationFrame(() => {
+        apply();
+        requestAnimationFrame(apply);
+      });
+
+      // Keep it correct while open (images, fonts, etc.)
+      try {
+        bodyRO?.disconnect();
+        bodyRO = new ResizeObserver(() => {
+          if (openId.value === id) apply();
+        });
+        bodyRO.observe(body);
+      } catch (e) {
+        // Fallback if ResizeObserver isn't available
+        setTimeout(apply, 350);
+      }
+    };
+
+    const clearBodyObserver = () => {
+      try {
+        bodyRO?.disconnect();
+      } catch (e) {}
+      bodyRO = null;
+    };
 
     // robust, deterministic offset scroll (beats scroll restoration + late layout shifts)
     const scrollToWriteup = (id, smooth, tries = 0, rescrolls = 0) => {
@@ -373,15 +415,16 @@ The code that divides the flag simplifies down to the line <code>os._exit(2)</co
         const delta = el.getBoundingClientRect().top - offset;
         if (Math.abs(delta) > 26 && rescrolls < 3) {
           scrollOnce(false);
-          setTimeout(() => scrollToWriteup(id, false, tries, rescrolls + 1), 140);
+          setTimeout(() => scrollToWriteup(id, false, tries, rescrolls + 1), 260);
         }
       };
 
-      // wait 2 frames so layout (and .open max-height) is applied before measuring
+      // wait 2 frames so layout (and .open max-height var) is applied before measuring
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           scrollOnce(!!smooth);
-          setTimeout(verifyAndRescroll, smooth ? 260 : 120);
+          // longer settle because your open animation is now slower
+          setTimeout(verifyAndRescroll, smooth ? 700 : 220);
         });
       });
     };
@@ -396,11 +439,20 @@ The code that divides the flag simplifies down to the line <code>os._exit(2)</co
     };
 
     const toggle = (id) => {
-      openId.value = openId.value === id ? null : id;
+      const next = openId.value === id ? null : id;
+
+      // switching cards: stop observing the old one first
+      clearBodyObserver();
+
+      openId.value = next;
       updateUrl(openId.value);
 
       if (openId.value) {
-        requestAnimationFrame(() => scrollToWriteup(openId.value, true));
+        // let DOM apply .open first, then measure height and scroll
+        requestAnimationFrame(() => {
+          setBodyHeight(openId.value);
+          scrollToWriteup(openId.value, true);
+        });
       }
     };
 
@@ -417,13 +469,19 @@ The code that divides the flag simplifies down to the line <code>os._exit(2)</co
         if ("scrollRestoration" in history) history.scrollRestoration = "manual";
       } catch (e) {}
 
+      clearBodyObserver();
       openId.value = id;
 
-      // Important: do not assume DOM is ready; scrollToWriteup handles retries + resettles
-      requestAnimationFrame(() => scrollToWriteup(id, !!smooth));
+      requestAnimationFrame(() => {
+        setBodyHeight(id);
+        scrollToWriteup(id, !!smooth);
+      });
 
       // one extra settle pass for late-loading assets / dvh changes
-      setTimeout(() => scrollToWriteup(id, false), 350);
+      setTimeout(() => {
+        setBodyHeight(id);
+        scrollToWriteup(id, false);
+      }, 650);
     };
 
     D(() => {
@@ -438,12 +496,18 @@ The code that divides the flag simplifies down to the line <code>os._exit(2)</co
         const exists = writeups.value.find((w) => w.id === id);
         if (!exists) return;
 
+        clearBodyObserver();
         openId.value = id;
-        requestAnimationFrame(() => scrollToWriteup(id, true));
+
+        requestAnimationFrame(() => {
+          setBodyHeight(id);
+          scrollToWriteup(id, true);
+        });
       });
 
       // close any open card when index switches back to "about me"
       window.addEventListener("writups:close", () => {
+        clearBodyObserver();
         openId.value = null;
         updateUrl(null);
       });

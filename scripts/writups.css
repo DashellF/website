@@ -99,40 +99,49 @@
 }
 
 /* =========================================================
-   OPEN / CLOSE (CSS-driven)
-   - Closed: body collapsed
-   - Open: body expanded + original pop animation (140ms)
+   OPEN / CLOSE (measured height) — smooth slow open + smooth slow close
+   - Close fade-out time kept the same (220ms)
    ========================================================= */
+
 .writeup-body {
-  /* closed state */
   max-height: 0;
   opacity: 0;
   overflow: hidden;
 
-  padding: 0 1.4rem 0; /* no bottom padding while closed */
+  padding: 0 1.4rem 0;
   pointer-events: none;
 
-  /* snappy like original */
-  transition: max-height 140ms ease-out, opacity 140ms ease-out, padding 140ms ease-out;
+  /* CLOSE timing (applies when .open is removed) */
+  transition:
+    opacity 220ms ease-in,        /* keep: you said fade-out feels good */
+    max-height 1100ms ease-in,    /* slow full collapse */
+    padding 900ms ease-in;
 
-  /* Keep overall writeup content centered like before... */
   text-align: center;
+  transform: translateY(0);
+  will-change: max-height, opacity, padding;
 }
 
 .writeup-card.open .writeup-body {
-  /* open state */
-  max-height: 9000px; /* big enough for your longest writeup */
+  /* open to the measured content height */
+  max-height: var(--body-h, 0px);
   opacity: 1;
 
   padding: 0 1.4rem 1.3rem;
   pointer-events: auto;
 
-  animation: writeup-pop 140ms ease-out;
+  /* OPEN timing (applies when .open is added) — much slower */
+  transition:
+    max-height 2400ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 1200ms ease-out,
+    padding 1400ms ease-out;
+
+  animation: writeup-pop 900ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes writeup-pop {
-  from { transform: translateY(-4px); opacity: 0.75; }
-  to   { transform: translateY(0); opacity: 1; }
+  from { transform: translateY(-10px); }
+  to   { transform: translateY(0); }
 }
 
 /* Paragraphs stay centered */
@@ -309,7 +318,7 @@
 }
 
 /* =========================================================
-   Title tiles (ALWAYS visible)
+   Title tiles
    - Left: difficulty + category
    - Right: First Blood (Emoji CAPTCHA only via JS display)
    ========================================================= */
