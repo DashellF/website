@@ -32227,7 +32227,7 @@ class ThreeScene {
 
         this.theme = this.readThemeFromCSS();
         this.scatter = {
-            boulders: 90,
+            boulders: 50,
             tallGrassPatches: 290,
             tallGrassTuftsMin: 10,
             tallGrassTuftsMax: 28,

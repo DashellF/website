@@ -269,6 +269,18 @@
   text-align: left;
 }
 
+/* =========================================================
+   CODE BLOCKS
+   ========================================================= */
+
+/* wrapper around long code blocks (JS inserts this only when lines > 10) */
+.code-wrap {
+  max-width: 900px;
+  margin: 1rem auto 0;
+  text-align: left;
+  position: relative;
+}
+
 /* Code blocks: keep box centered, text left */
 .writeup-body pre {
   max-width: 900px;
@@ -278,8 +290,93 @@
   background: rgba(0, 0, 0, 0.35);
   border: 1px solid rgba(255, 138, 0, 0.45);
   border-radius: 0.8rem;
+
   padding: 1rem;
   overflow: auto;
+}
+
+/* when wrapped, the wrapper owns the margin */
+.code-wrap pre {
+  margin: 0;
+}
+
+/* leave room for the overlay arrow button (only for long code blocks) */
+.writeup-body pre.code-toggle {
+  padding: 1rem 1rem 3.2rem;
+}
+
+/* collapsed: exactly 10 lines visible (scrollable) */
+.writeup-body pre.code-toggle.code-collapsed {
+  max-height: calc((10 * 1.45rem) + 4.2rem);
+  overflow: auto;
+}
+
+/* expanded: exactly 25 lines visible (scrollable) */
+.writeup-body pre.code-toggle.code-open {
+  max-height: calc((25 * 1.45rem) + 4.2rem);
+  overflow: auto;
+}
+
+/* v/^ arrow button for long code blocks
+   - same size + border + bg + hover as the writeup close (×) button
+   - arrow is CSS-only (no characters) */
+.code-toggle-btn {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  z-index: 6;
+
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+
+  display: grid;
+  place-items: center;
+
+  border: 1px solid rgba(255, 138, 0, 0.55);
+  background: rgba(0, 0, 0, 0.38);
+  color: var(--accent);
+
+  cursor: pointer;
+
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+
+  transition:
+    opacity 160ms ease-out,
+    transform 160ms ease-out,
+    background 160ms ease-out,
+    border-color 160ms ease-out;
+}
+
+/* CSS-only chevron */
+.code-toggle-btn::before {
+  content: "";
+  width: 12px;
+  height: 12px;
+
+  /* thickness similar to the “×” weight visually */
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+
+  /* default is "down" */
+  transform: rotate(45deg);
+}
+
+/* open state = chevron up */
+.code-toggle-btn.is-open::before {
+  transform: rotate(-135deg);
+}
+
+.code-toggle-btn:hover {
+  background: rgba(0, 0, 0, 0.52);
+  border-color: rgba(255, 138, 0, 0.8);
+}
+
+.code-toggle-btn:focus-visible {
+  outline: 2px solid rgba(255, 138, 0, 0.85);
+  outline-offset: 2px;
 }
 
 .writeup-body pre code {
