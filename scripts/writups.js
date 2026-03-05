@@ -29,7 +29,7 @@ const Writups = k({
       {
         id: "emoji_captcha",
         title: "Emoji CAPTCHA",
-        subtitle: "Work In Progress",
+        subtitle: "Bypassing a robot image classification authenticator",
         difficulty: "hard",
         category: "misc",
         catColor: "#a855f7", // purple
@@ -52,7 +52,7 @@ const Writups = k({
       {
         id: "eye_on_the_sky",
         title: "Eye on the Sky",
-        subtitle: "Work In Progress",
+        subtitle: "Finding a flight and a trail with only a picture of a far away fogged mountain",
         difficulty: "hard",
         category: "osint",
         catColor: "#60a5fa", // light blue

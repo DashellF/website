@@ -32171,124 +32171,129 @@ const Gl = _r - 20
   , dr = 8;
 class ThreeScene {
     constructor(e, t) {
-    Ye(this, "canvas");
-    Ye(this, "scrollElement");
-    Ye(this, "isDemo");
-    Ye(this, "gui");
-    Ye(this, "stats");
-    Ye(this, "sizes");
-    Ye(this, "scene");
-    Ye(this, "camera");
-    Ye(this, "cameraGroup");
-    Ye(this, "controls");
-    Ye(this, "renderer");
-    Ye(this, "clock", new CA);
-    Ye(this, "plane");
-    Ye(this, "mousePos", { x: 0, y: 0 });
-    Ye(this, "textDownPosition", 3);
-    Ye(this, "textUpPosition", 8);
-    Ye(this, "textZPosition", As - 5);
-    Ye(this, "textZMobilePosition", Dd - 12);
-    Ye(this, "currentPage", 0);
-    Ye(this, "maxPages", 0);
-    Ye(this, "cameraStartPos", As);
-    Ye(this, "cameraEndPos", Uc);
+        Ye(this, "canvas");
+        Ye(this, "scrollElement");
+        Ye(this, "isDemo");
+        Ye(this, "gui");
+        Ye(this, "stats");
+        Ye(this, "sizes");
+        Ye(this, "scene");
+        Ye(this, "camera");
+        Ye(this, "cameraGroup");
+        Ye(this, "controls");
+        Ye(this, "renderer");
+        Ye(this, "clock", new CA());
+        Ye(this, "plane");
+        Ye(this, "mousePos", { x: 0, y: 0 });
+        Ye(this, "textDownPosition", 3);
+        Ye(this, "textUpPosition", 8);
+        Ye(this, "textZPosition", As - 5);
+        Ye(this, "textZMobilePosition", Dd - 12);
+        Ye(this, "currentPage", 0);
+        Ye(this, "maxPages", 0);
+        Ye(this, "cameraStartPos", As);
+        Ye(this, "cameraEndPos", Uc);
 
-    this.isDemo = t;
-    fr = Aa().app.baseURL;
+        // internal perf helpers
+        Ye(this, "_sceneRootEl", null);
+        Ye(this, "_inWritups", !1);
+        Ye(this, "_writupsObserver", null);
+        Ye(this, "_tmpMat4", new Float32Array(16));
+        Ye(this, "_tmpNMat3", new Float32Array(9));
 
-    if (this.isDemo) {
-        this.gui = new eR;
-        this.gui.close();
-        this.stats = new kA;
-        this.stats.showPanel(0);
-        document.body.appendChild(this.stats.dom);
-    }
+        this.isDemo = t;
+        fr = Aa().app.baseURL;
 
-    this.canvas = e;
-
-    // only About Me scroll should drive camera travel
-    const pickScrollEl = () =>
-        document.getElementById("index-scroll") ||
-        document.querySelector("#__nuxt") ||
-        document.querySelector("#scripts") ||
-        document.documentElement ||
-        document.body;
-
-    this.scrollElement = pickScrollEl();
-
-    this.sizes = { width: innerWidth, height: innerHeight };
-
-    // load editable colors from entry.css
-    this.theme = this.readThemeFromCSS();
-    this.scatter = {
-        boulders: 90,          // big boulders 
-        tallGrassPatches: 120, // number of tall fields
-        tallGrassTuftsMin: 10,
-        tallGrassTuftsMax: 28,
-        dirtPatches: 220,     
-    };
-
-    // editable sky + fog
-    const skyCol = new Xe(this.theme.sky);
-    this.scene = new O1;
-    this.scene.background = skyCol;
-    this.scene.fog = new Mu(new Xe(this.theme.fog), 25, 260);
-
-    this.cameraGroup = new Gt;
-    this.camera = new sn(Ld, this.sizes.width / this.sizes.height, 0.1, 300);
-    this.camera.rotation.x = -0.15;
-    this.cameraGroup.add(this.camera);
-
-    // camera height
-    this.cameraGroup.position.y = 13;
-    this.cameraGroup.position.z = this.cameraStartPos;
-
-    if (this.isDemo) {
-        this.gui.add(this.camera, "fov", 10, 150, 1).onChange(() => {
-        this.camera.updateProjectionMatrix();
-        });
-        this.gui.add(this.cameraGroup.position, "z", 70, 100, 1);
-    }
-
-    this.scene.add(this.cameraGroup);
-
-    this.renderer = new tg({ antialias: !0 });
-    this.renderer.setSize(this.sizes.width, this.sizes.height);
-    this.renderer.setPixelRatio(window.devicePixelRatio);
-    e.appendChild(this.renderer.domElement);
-
-    this.addObjects();
-
-    window.addEventListener("resize", () => this.updateSizes());
-    window.addEventListener("mousemove", (s) => this.updateMousePosition(s));
-    window.addEventListener("deviceorientation", () => this.updateSizes(), !0);
-
-    // keep a stable handler so we can rebind if needed
-    this._onScroll = () => this.updateScroll();
-
-    if (this.scrollElement) {
-        this.scrollElement.addEventListener("scroll", this._onScroll, { passive: true });
-    }
-
-    // if ThreeScene is created before #index-scroll exists, rebind for ~1s
-    let tries = 0;
-    const rebind = () => {
-        const idx = document.getElementById("index-scroll");
-        if (idx && this.scrollElement !== idx) {
-        this.scrollElement?.removeEventListener("scroll", this._onScroll);
-        this.scrollElement = idx;
-        this.scrollElement.addEventListener("scroll", this._onScroll, { passive: true });
-        this.updateScroll();
-        return;
+        if (this.isDemo) {
+            this.gui = new eR();
+            this.gui.close();
+            this.stats = new kA();
+            this.stats.showPanel(0);
+            document.body.appendChild(this.stats.dom);
         }
-        if (++tries < 60) requestAnimationFrame(rebind);
-    };
-    requestAnimationFrame(rebind);
 
-    this.updateSizes();
-    this.updateScroll();
-    this.animate();
+        this.canvas = e;
+
+        const pickScrollEl = () =>
+            document.getElementById("index-scroll") ||
+            document.querySelector("#__nuxt") ||
+            document.querySelector("#scripts") ||
+            document.documentElement ||
+            document.body;
+
+        this.scrollElement = pickScrollEl();
+
+        this.sizes = { width: innerWidth, height: innerHeight };
+
+        this.theme = this.readThemeFromCSS();
+        this.scatter = {
+            boulders: 90,
+            tallGrassPatches: 290,
+            tallGrassTuftsMin: 10,
+            tallGrassTuftsMax: 28,
+            dirtPatches: 220,
+        };
+
+        const skyCol = new Xe(this.theme.sky);
+        this.scene = new O1();
+        this.scene.background = skyCol;
+        this.scene.fog = new Mu(new Xe(this.theme.fog), 25, 260);
+
+        this.cameraGroup = new Gt();
+        this.camera = new sn(Ld, this.sizes.width / this.sizes.height, 0.1, 300);
+        this.camera.rotation.x = -0.15;
+        this.cameraGroup.add(this.camera);
+
+        this.cameraGroup.position.y = 13;
+        this.cameraGroup.position.z = this.cameraStartPos;
+
+        if (this.isDemo) {
+            this.gui.add(this.camera, "fov", 10, 150, 1).onChange(() => {
+            this.camera.updateProjectionMatrix();
+            });
+            this.gui.add(this.cameraGroup.position, "z", 70, 100, 1);
+        }
+
+        this.scene.add(this.cameraGroup);
+
+        // perf: cap DPR
+        this.renderer = new tg({ antialias: !0, powerPreference: "high-performance" });
+        this.renderer.setSize(this.sizes.width, this.sizes.height);
+        this.renderer.setPixelRatio(this._getPixelRatio());
+        e.appendChild(this.renderer.domElement);
+
+        this.addObjects();
+
+        window.addEventListener("resize", () => this.updateSizes());
+        window.addEventListener("mousemove", (s) => this.updateMousePosition(s));
+        window.addEventListener("deviceorientation", () => this.updateSizes(), !0);
+
+        this._onScroll = () => this.updateScroll();
+
+        if (this.scrollElement) {
+            this.scrollElement.addEventListener("scroll", this._onScroll, { passive: true });
+        }
+
+        let tries = 0;
+        const rebind = () => {
+            const idx = document.getElementById("index-scroll");
+            if (idx && this.scrollElement !== idx) {
+            this.scrollElement?.removeEventListener("scroll", this._onScroll);
+            this.scrollElement = idx;
+            this.scrollElement.addEventListener("scroll", this._onScroll, { passive: true });
+            this.updateScroll();
+            return;
+            }
+            if (++tries < 60) requestAnimationFrame(rebind);
+        };
+        requestAnimationFrame(rebind);
+
+        // perf: observe writups mode instead of querying every frame
+        this._setupWritupsObserver();
+
+        this.updateSizes();
+        this.updateScroll();
+        this.animate();
     }
     animate() {
         requestAnimationFrame(() => this.animate());
@@ -32299,8 +32304,11 @@ class ThreeScene {
         if (this.leafFall) {
             this.leafFall.material.uniforms.uTime.value = e;
             this.leafFall.material.uniforms.uShiftX.value -= this.mousePos.x * 0.04;
-        }
 
+            // guard runaway float drift
+            const sx = this.leafFall.material.uniforms.uShiftX.value;
+            if (Math.abs(sx) > 1e6) this.leafFall.material.uniforms.uShiftX.value = 0;
+        }
 
         if (this.sizes.width >= 900) {
             this.cameraGroup.position.x +=
@@ -32313,29 +32321,25 @@ class ThreeScene {
             this.cameraGroup.position.y = 13;
         }
 
-        // freeze forward/back camera travel while in writups
-        const inWritups =
-        document.querySelector(".scene")?.classList.contains("is-writups");
-
+        // perf: no querySelector in hot loop (observer keeps this._inWritups updated)
         let t = this.cameraGroup.position.z; // default: hold current z (freeze)
 
-        if (!inWritups) {
-        // your existing scroll->z mapping
-        if (this.currentPage < ls) {
+        if (!this._inWritups) {
+            if (this.currentPage < ls) {
             t =
-            this.cameraStartPos +
-            (ui - this.cameraStartPos) *
+                this.cameraStartPos +
+                (ui - this.cameraStartPos) *
                 Math.pow(Math.max(this.currentPage, 0) / ls, 2);
-        } else if (this.currentPage < Bo) {
+            } else if (this.currentPage < Bo) {
             t = ui + (_r - ui) * (Math.max(this.currentPage - ls, 0) / (Bo - ls));
-        } else if (this.currentPage < dr) {
+            } else if (this.currentPage < dr) {
             t = _r + (Gl - _r) * (Math.max(this.currentPage - Bo, 0) / (dr - Bo));
-        } else {
+            } else {
             t =
-            Gl +
-            (this.cameraEndPos - Gl) *
+                Gl +
+                (this.cameraEndPos - Gl) *
                 (Math.max(this.currentPage - dr, 0) / (this.maxPages - dr));
-        }
+            }
         }
 
         this.cameraGroup.position.z += (t - this.cameraGroup.position.z) * as;
@@ -32344,9 +32348,7 @@ class ThreeScene {
     }
     updateScroll() {
         // Don't let writups scrolling affect camera travel
-        const inWritups =
-            document.querySelector(".scene")?.classList.contains("is-writups");
-        if (inWritups) return;
+        if (this._inWritups) return;
 
         const el = this.scrollElement;
 
@@ -32358,26 +32360,36 @@ class ThreeScene {
         this.maxPages = Math.max(0, (sh - h) / h);
     }
     updateSizes() {
-        this.sizes.width = innerWidth,
-        this.sizes.height = innerHeight,
-        this.camera.aspect = this.sizes.width / this.sizes.height,
-        this.sizes.width > 600 ? (this.camera.fov = Ld,
-        this.cameraStartPos = As,
-        this.cameraEndPos = Uc,
-        this.textDownPosition = cR,
-        this.textUpPosition = hR,
-        ui = Wo + pg,
-        _r = ui - Vo * 4 - 5) : (this.camera.fov = sR,
-        this.cameraStartPos = Dd,
-        this.cameraEndPos = oR,
-        this.textDownPosition = uR,
-        this.textUpPosition = fR,
-        ui = Wo + aR,
-        _r = ui - Vo * 4 - 5),
-        this.camera.updateProjectionMatrix(),
-        this.renderer.setSize(this.sizes.width, this.sizes.height),
-        this.hill && (this.hill.position.z = _r,
-        this.hill.position.y = 8)
+        this.sizes.width = innerWidth;
+        this.sizes.height = innerHeight;
+
+        this.camera.aspect = this.sizes.width / this.sizes.height;
+
+        if (this.sizes.width > 600) {
+            this.camera.fov = Ld;
+            this.cameraStartPos = As;
+            this.cameraEndPos = Uc;
+            this.textDownPosition = cR;
+            this.textUpPosition = hR;
+            ui = Wo + pg;
+            _r = ui - Vo * 4 - 5;
+        } else {
+            this.camera.fov = sR;
+            this.cameraStartPos = Dd;
+            this.cameraEndPos = oR;
+            this.textDownPosition = uR;
+            this.textUpPosition = fR;
+            ui = Wo + aR;
+            _r = ui - Vo * 4 - 5;
+        }
+
+        this.camera.updateProjectionMatrix();
+
+        // perf: keep DPR cap on resize/orientation changes
+        this.renderer.setPixelRatio(this._getPixelRatio());
+        this.renderer.setSize(this.sizes.width, this.sizes.height);
+
+        this.hill && (this.hill.position.z = _r, this.hill.position.y = 8);
     }
     updateMousePosition(e) {
         this.mousePos.x = (e.clientX / this.sizes.width - .5) * 2,
@@ -32459,11 +32471,9 @@ class ThreeScene {
 
         if (this.bouldersGroup) this._disposeObject(this.bouldersGroup);
 
-        const group = new Gt();
-        group.name = "boulders";
         this.boulderBounds = [];
 
-        const COUNT = this.scatter?.boulders ?? 90; // (raise your scatter default too if you want)
+        const COUNT = this.scatter?.boulders ?? 90;
         const X_HALF = 420;
         const Z_HALF = 300;
 
@@ -32472,7 +32482,6 @@ class ThreeScene {
 
         const rand = Math.random;
 
-        // Get path center/width at a z (so boulders flank the path instead of sitting on it)
         const prof = this.pathProfile;
         const samplePathAtZ = (z) => {
             if (!prof) return null;
@@ -32492,7 +32501,6 @@ class ThreeScene {
             return { cx, w };
         };
 
-        // ✅ FIX: robust Z range (prevents “single horizontal line”)
         let zMin = -Z_HALF;
         let zMax =  Z_HALF;
 
@@ -32503,55 +32511,49 @@ class ThreeScene {
             zMax = z1 + 120;
         }
 
-        // safety fallback if the range ever collapses
         if (!Number.isFinite(zMin) || !Number.isFinite(zMax) || Math.abs(zMax - zMin) < 1e-3) {
             zMin = -Z_HALF;
             zMax =  Z_HALF;
         }
 
         const placed = [];
-        const minDist = 11; // was 18 (lets you place more)
+        const minDist = 11;
+
+        // merge all boulders into ONE mesh
+        const instances = [];
 
         for (let i = 0; i < COUNT; i++) {
-            let x = 0, z = 0, ok = false;
+            let x = 0, z = 0, ok = !1;
 
             for (let tries = 0; tries < 70; tries++) {
-            // 80% near corridor (so you see them), 20% anywhere (so it doesn’t feel like a line)
             if (rand() < 0.80) z = zMin + rand() * (zMax - zMin);
             else z = (rand() - 0.5) * 2 * Z_HALF;
 
             const path = samplePathAtZ(z);
 
             if (path) {
-                // flank the path (left/right) with a random offset
                 const side = rand() < 0.5 ? -1 : 1;
-                const clear = path.w * 0.5 + 10.0;      // keep away from the path itself
-                const offset = 12 + rand() * 160;       // spread into the forest
+                const clear = path.w * 0.5 + 10.0;
+                const offset = 12 + rand() * 160;
                 x = path.cx + side * (clear + offset) + (rand() - 0.5) * 10;
             } else {
-                // no path info at this z → just scatter
                 x = (rand() - 0.5) * 2 * X_HALF;
             }
 
-            // clamp to world bounds
             x = Math.max(-X_HALF, Math.min(X_HALF, x));
 
-            // keep path readable (extra safety)
             if (this._isNearPath(x, z, 10.0)) continue;
-
-            // optional: avoid dirt patches if you implemented _isOnDirtPatch
             if (this._isOnDirtPatch?.(x, z, 2.5)) continue;
 
-            // spacing check
-            let tooClose = false;
+            let tooClose = !1;
             for (let p = 0; p < placed.length; p++) {
                 const dx = x - placed[p].x;
                 const dz = z - placed[p].z;
-                if (dx * dx + dz * dz < minDist * minDist) { tooClose = true; break; }
+                if (dx * dx + dz * dz < minDist * minDist) { tooClose = !0; break; }
             }
             if (tooClose) continue;
 
-            ok = true;
+            ok = !0;
             break;
             }
 
@@ -32559,28 +32561,33 @@ class ThreeScene {
 
             placed.push({ x, z });
 
-            const m = new Vt(baseGeo, mat);
+            const py = -9.55;
 
-            // sit on ground
-            m.position.set(x, -9.55, z);
-
-            // chunky, irregular scale (big)
             const s = 1.3 + rand() * 3.4;
-            m.scale.set(
-            s * (0.75 + rand() * 0.85),
-            s * (0.65 + rand() * 0.95),
-            s * (0.75 + rand() * 0.85)
-            );
-            // approximate collision radius in XZ (baseGeo radius is 1.4)
-            const r = 1.4 * Math.max(m.scale.x, m.scale.z) * 1.05; // small buffer
+            const scx = s * (0.75 + rand() * 0.85);
+            const scy = s * (0.65 + rand() * 0.95);
+            const scz = s * (0.75 + rand() * 0.85);
+
+            const r = 1.4 * Math.max(scx, scz) * 1.05;
             this.boulderBounds.push({ x, z, r });
 
-            m.rotation.set(rand() * Math.PI, rand() * Math.PI, rand() * Math.PI);
-            group.add(m);
+            instances.push({
+            px: x, py, pz: z,
+            rx: rand() * Math.PI, ry: rand() * Math.PI, rz: rand() * Math.PI,
+            sx: scx, sy: scy, sz: scz
+            });
         }
 
-        this.scene.add(group);
-        this.bouldersGroup = group;
+        const mesh = this._makeMergedMesh(baseGeo, mat, instances, "boulders");
+        baseGeo.dispose?.();
+
+        if (mesh) {
+            this.scene.add(mesh);
+            this.bouldersGroup = mesh;
+        } else {
+            mat.dispose?.();
+            this.bouldersGroup = null;
+        }
     }
     _isNearBoulder(x, z, margin = 0) {
         const arr = this.boulderBounds;
@@ -32600,9 +32607,6 @@ class ThreeScene {
 
         if (this.tallGrassGroup) this._disposeObject(this.tallGrassGroup);
 
-        const group = new Gt();
-        group.name = "tallGrass";
-
         const PATCHES  = this.scatter?.tallGrassPatches ?? 200;
         const TUFT_MIN = this.scatter?.tallGrassTuftsMin ?? 10;
         const TUFT_MAX = this.scatter?.tallGrassTuftsMax ?? 28;
@@ -32611,8 +32615,7 @@ class ThreeScene {
         const Z_HALF = 300;
         const yGround = -10;
 
-        // ✅ FIX: much shorter base geometry + no insane Y-scale spikes
-        const tuftH = 1.25;  // was 2.8
+        const tuftH = 1.25;
         const tuftR = 0.30;
 
         const tuftGeo = new bu(
@@ -32627,77 +32630,76 @@ class ThreeScene {
             12
         );
 
-        const mat = new Td({
-            color: theme.grass,
-            flatShading: !0
-        });
+        const mat = new Td({ color: theme.grass, flatShading: !0 });
 
         const rand = Math.random;
 
-        // Prefer spawning where the camera actually travels, but not exclusively.
         const prof = this.pathProfile;
         const z0 = prof ? Math.min(prof.zStart, prof.zEnd) : -Z_HALF;
         const z1 = prof ? Math.max(prof.zStart, prof.zEnd) :  Z_HALF;
         const zCorrMin = z0 - 90;
         const zCorrMax = z1 + 90;
 
+        // merged mesh for all tufts
+        const instances = [];
+
         for (let i = 0; i < PATCHES; i++) {
-            let px = 0, pz = 0, ok = false;
+            let px = 0, pz = 0, ok = !1;
 
             for (let tries = 0; tries < 40; tries++) {
             px = (rand() - 0.5) * 2 * X_HALF;
 
-            // 75% near corridor, 25% anywhere
-            if (rand() < 0.75) {
-                pz = zCorrMin + rand() * (zCorrMax - zCorrMin);
-            } else {
-                pz = (rand() - 0.5) * 2 * Z_HALF;
-            }
+            if (rand() < 0.75) pz = zCorrMin + rand() * (zCorrMax - zCorrMin);
+            else pz = (rand() - 0.5) * 2 * Z_HALF;
 
-            // keep path readable
             if (this._isNearPath(px, pz, 2.6)) continue;
 
-            ok = true;
+            ok = !0;
             break;
             }
             if (!ok) continue;
 
-            const patch = new Gt();
-
-            // wide “field” radius
             const radius = 2.4 + rand() * 4.2;
 
-            // optional: avoid dirt patches if you implemented _isOnDirtPatch
             if (this._isOnDirtPatch?.(px, pz, radius + 1.0)) continue;
 
             const tuftCount = TUFT_MIN + Math.floor(rand() * (TUFT_MAX - TUFT_MIN + 1));
 
-            for (let k = 0; k < tuftCount; k++) {
-            const m = new Vt(tuftGeo, mat);
+            const patchRot = rand() * Math.PI * 2;
 
-            // scatter tufts over a disc (slightly biased to center)
-            const r = Math.pow(rand(), 0.55) * radius;
+            for (let k = 0; k < tuftCount; k++) {
+            const rr  = Math.pow(rand(), 0.55) * radius;
             const ang = rand() * Math.PI * 2;
 
-            m.position.set(Math.cos(ang) * r, 0, Math.sin(ang) * r);
-            m.rotation.y = rand() * Math.PI * 2;
+            const lx = Math.cos(ang) * rr;
+            const lz = Math.sin(ang) * rr;
 
-            // ✅ FIX: clamp height variation (no skyscrapers)
+            const cs = Math.cos(patchRot), sn = Math.sin(patchRot);
+            const wx = px + (lx * cs - lz * sn);
+            const wz = pz + (lx * sn + lz * cs);
+
             const s  = 0.85 + rand() * 1.15;
-            const xz = 0.45 + rand() * 0.35;   // width
-            const yy = 0.55 + rand() * 0.55;   // height (0.55..1.10)
-            m.scale.set(s * xz, s * yy, s * xz);
+            const xz = 0.45 + rand() * 0.35;
+            const yy = 0.55 + rand() * 0.55;
 
-            patch.add(m);
+            instances.push({
+                px: wx, py: yGround, pz: wz,
+                rx: 0, ry: patchRot + rand() * Math.PI * 2, rz: 0,
+                sx: s * xz, sy: s * yy, sz: s * xz
+            });
             }
-
-            patch.position.set(px, yGround, pz);
-            patch.rotation.y = rand() * Math.PI * 2;
-            group.add(patch);
         }
 
-        this.scene.add(group);
-        this.tallGrassGroup = group;
+        const mesh = this._makeMergedMesh(tuftGeo, mat, instances, "tallGrass");
+        tuftGeo.dispose?.();
+
+        if (mesh) {
+            this.scene.add(mesh);
+            this.tallGrassGroup = mesh;
+        } else {
+            mat.dispose?.();
+            this.tallGrassGroup = null;
+        }
     }
     addDirtPatches() {
         const theme = this.theme || (this.theme = this.readThemeFromCSS());
@@ -32863,22 +32865,19 @@ class ThreeScene {
         const rand = Math.random;
 
         // Path spans the camera travel range.
-        const zStart = this.cameraStartPos + 10;   // slightly in front of camera start
-        const zEnd = this.cameraEndPos - 20;       // slightly past camera end
+        const zStart = this.cameraStartPos + 10;
+        const zEnd = this.cameraEndPos - 20;
         const segments = 90;
 
-        // Base path params (low poly, wide enough to read from above).
         const baseWidth = 1.5;
-        const bermWidth = 2.4;     // extra width on each side
-        const bermHeight = 0.65;   // berm raise amount
+        const bermWidth = 2.4;
+        const bermHeight = 0.65;
 
         let x = 0;
         const maxX = 6;
 
-        // Keep above the ground plane to avoid z-fighting.
         const yBase = -9.88;
 
-        // Store centerline so we can scatter rocks deterministically along the same path.
         const centers = [];
         const widths = [];
 
@@ -32890,7 +32889,6 @@ class ThreeScene {
             const t = i / segments;
             const z = zStart + (zEnd - zStart) * t;
 
-            // Smoothed random walk (non-periodic and gentle). Static per reload (seeded).
             x += (rand() - 0.5) * 1.6;
             x *= 0.88;
             x = Math.max(-maxX, Math.min(maxX, x));
@@ -32905,42 +32903,34 @@ class ThreeScene {
             const leftOuter = leftInner - bermWidth;
             const rightOuter = rightInner + bermWidth;
 
-            // Add tiny height variation so it's not perfectly flat.
             const yCenter = yBase + (rand() - 0.5) * 0.04;
             const yBerm = yBase + bermHeight + (rand() - 0.5) * 0.15;
 
-            // 4 verts per segment: left berm, left edge, right edge, right berm
             positions.push(
-                leftOuter, yBerm, z,
-                leftInner, yCenter, z,
-                rightInner, yCenter, z,
-                rightOuter, yBerm, z
+            leftOuter, yBerm, z,
+            leftInner, yCenter, z,
+            rightInner, yCenter, z,
+            rightOuter, yBerm, z
             );
 
-            // Simple UVs (not really used, but harmless)
             uvs.push(0, t, 0.25, t, 0.75, t, 1, t);
 
             if (i < segments) {
-                const a = 4 * i;
-                const b = a + 4;
+            const a = 4 * i;
+            const b = a + 4;
 
-                // left slope quad (a0-a1-b1-b0)
-                indices.push(a, a + 1, b + 1, a, b + 1, b);
-
-                // center quad (a1-a2-b2-b1)
-                indices.push(a + 1, a + 2, b + 2, a + 1, b + 2, b + 1);
-
-                // right slope quad (a2-a3-b3-b2)
-                indices.push(a + 2, a + 3, b + 3, a + 2, b + 3, b + 2);
+            indices.push(a, a + 1, b + 1, a, b + 1, b);
+            indices.push(a + 1, a + 2, b + 2, a + 1, b + 2, b + 1);
+            indices.push(a + 2, a + 3, b + 3, a + 2, b + 3, b + 2);
             }
         }
-        //avoid area for grass + things
+
         this.pathProfile = { zStart, zEnd, segments, centers, widths, bermWidth };
 
-        const geo = new Zt;
+        const geo = new Zt();
         geo.setIndex(indices);
-        geo.setAttribute("position", new Tt(positions,3));
-        geo.setAttribute("uv", new Tt(uvs,2));
+        geo.setAttribute("position", new Tt(positions, 3));
+        geo.setAttribute("uv", new Tt(uvs, 2));
         geo.computeVertexNormals();
 
         const theme = this.theme || (this.theme = this.readThemeFromCSS());
@@ -32953,70 +32943,69 @@ class ThreeScene {
         this.scene.add(mesh);
         this.dirtPath = mesh;
 
-        // --- Rocks: deterministic scatter along and near the berms (low poly) ---
-            const randRock = Math.random;
-        const rocks = new Gt;
-        rocks.name = "rocks";
+        // --- Rocks (merged into ONE mesh) ---
+        const randRock = Math.random;
 
-        const rockGeo = new Tu(0.22, 5, 4); // low-poly "boulder"
-        const rockMat = new Td({ color: 5987163 }); // muted gray-brown
+        const rockGeo = new Tu(0.22, 5, 4);
+        const rockMat = new Td({ color: 5987163 });
 
         const rockCount = 750;
+
+        const rockInstances = [];
 
         for (let k = 0; k < rockCount; k++) {
             const t = randRock();
             const z = zStart + (zEnd - zStart) * t;
 
-            // interpolate center + width
             let p = t * segments;
             let idx = Math.floor(p);
             if (idx >= segments) idx = segments - 1;
             const a = p - idx;
 
             const cx = centers[idx] * (1 - a) + centers[idx + 1] * a;
-            const w = widths[idx] * (1 - a) + widths[idx + 1] * a;
+            const w  = widths[idx]  * (1 - a) + widths[idx + 1]  * a;
 
-            // Bias rocks toward the berm edges.
             const edgeBias = randRock() < 0.75;
-
-            // no-rock zone = inside the path (plus a little safety margin)
-            const clear = (w * 0.5) + 0.45;   // tweak 0.35 to taste (bigger = wider clear lane)
+            const clear = (w * 0.5) + 0.45;
 
             let rx;
             const side = randRock() < 0.5 ? -1 : 1;
 
-            if (edgeBias) {
-            // Mostly on berms/outside
-            rx = cx + side * (clear + 0.9 + randRock() * 3.5) + (randRock() - 0.5) * 0.6;
-            } else {
-            // Still outside the path (just less “berm-biased”)
-            rx = cx + side * (clear + randRock() * 4.5);
-            }
+            if (edgeBias) rx = cx + side * (clear + 0.9 + randRock() * 3.5) + (randRock() - 0.5) * 0.6;
+            else rx = cx + side * (clear + randRock() * 4.5);
 
-            // Height: mostly on/near ground; slightly higher near berms
             const ry = edgeBias ? (-9.82 + randRock() * 0.18) : (-9.92 + randRock() * 0.12);
 
-            const rMesh = new Vt(rockGeo, rockMat);
-            rMesh.position.set(rx, ry, z + (randRock() - 0.5) * 1.2);
-            rMesh.rotation.set(
-                randRock() * Math.PI,
-                randRock() * Math.PI,
-                randRock() * Math.PI
-            );
-
-            // Non-uniform scale for irregular low-poly rocks
             const s = 0.18 + randRock() * 0.94;
-            rMesh.scale.set(
-                s * (0.7 + randRock() * 0.7),
-                s * (0.6 + randRock() * 0.9),
-                s * (0.7 + randRock() * 0.7)
-            );
+            const scx = s * (0.7 + randRock() * 0.7);
+            const scy = s * (0.6 + randRock() * 0.9);
+            const scz = s * (0.7 + randRock() * 0.7);
 
-            rocks.add(rMesh);
+            rockInstances.push({
+            px: rx,
+            py: ry,
+            pz: z + (randRock() - 0.5) * 1.2,
+            rx: randRock() * Math.PI,
+            ry: randRock() * Math.PI,
+            rz: randRock() * Math.PI,
+            sx: scx,
+            sy: scy,
+            sz: scz,
+            });
         }
 
-        this.scene.add(rocks);
-        this.rocksGroup = rocks;
+        if (this.rocksGroup) this._disposeObject(this.rocksGroup);
+
+        const rocksMesh = this._makeMergedMesh(rockGeo, rockMat, rockInstances, "rocks");
+        rockGeo.dispose?.();
+
+        if (rocksMesh) {
+            this.scene.add(rocksMesh);
+            this.rocksGroup = rocksMesh;
+        } else {
+            rockMat.dispose?.();
+            this.rocksGroup = null;
+        }
     }
     // CSS variable -> THREE color int (0xRRGGBB)
     _cssVarInt(name, fallback) {
@@ -33079,25 +33068,23 @@ class ThreeScene {
         };
     }
     addForest() {
-        const e = new Gt;
-        e.name = "forest";
+        if (this.forest) this._disposeObject(this.forest);
 
-        // Pull latest theme (useful if CSS hot-reloads)
+        const forestGroup = new Gt();
+        forestGroup.name = "forest";
+
         const theme = this.theme || (this.theme = this.readThemeFromCSS());
 
-        // ---- Tree color tuning (percentages; will be normalized automatically) ----
         const PCT_GREEN  = 0.65;
         const PCT_ORANGE = 0.20;
         const PCT_RED    = 0.05;
         const PCT_BROWN  = 0.10;
 
-        // Editable via CSS
         const COLOR_GREEN  = theme.treeGreen;
         const COLOR_ORANGE = theme.treeOrange;
         const COLOR_RED    = theme.treeRed;
         const COLOR_BROWN  = theme.treeBrown;
 
-        // Keep for leafFall percentages (colors handled separately there)
         this.treeColorTuning = {
             PCT_GREEN, PCT_ORANGE, PCT_RED, PCT_BROWN,
             COLOR_GREEN, COLOR_ORANGE, COLOR_RED, COLOR_BROWN
@@ -33105,7 +33092,6 @@ class ThreeScene {
 
         const rand = Math.random;
 
-        // Editable trunk/stump color via CSS
         const trunkMat = new Td({ color: theme.trunk });
 
         const leafMatGreen  = new Td({ color: COLOR_GREEN  });
@@ -33114,157 +33100,144 @@ class ThreeScene {
         const leafMatBrown  = new Td({ color: COLOR_BROWN  });
 
         const totalPct = PCT_GREEN + PCT_ORANGE + PCT_RED + PCT_BROWN;
-        const pickLeafMat = () => {
+        const pickLeafIdx = () => {
             const r0 = rand() * totalPct;
-            if (r0 < PCT_GREEN) return leafMatGreen;
-            if (r0 < PCT_GREEN + PCT_ORANGE) return leafMatOrange;
-            if (r0 < PCT_GREEN + PCT_ORANGE + PCT_RED) return leafMatRed;
-            return leafMatBrown;
+            if (r0 < PCT_GREEN) return 0;
+            if (r0 < PCT_GREEN + PCT_ORANGE) return 1;
+            if (r0 < PCT_GREEN + PCT_ORANGE + PCT_RED) return 2;
+            return 3;
         };
 
-        // =========================================================
-        // Layered pines, tighter + NARROWER (reduced width)
-        // =========================================================
         const trunkH = 7;
-
-        // Still low-poly, just slightly smoother than before
         const trunkSegs = 10;
         const leafSegs  = 12;
 
-        // ✅ WIDTH CONTROL (narrower trees)
         const LEAF_RADIUS_SCALE = 0.68;
         const TRUNK_RADIUS_SCALE = 0.78;
         const TREE_XZ_SLENDER = 0.92;
 
         const trunkGeo = new bu(
-            [
-            new xe(0.70 * TRUNK_RADIUS_SCALE, 0),
-            new xe(0.50 * TRUNK_RADIUS_SCALE, trunkH)
-            ],
+            [ new xe(0.70 * TRUNK_RADIUS_SCALE, 0), new xe(0.50 * TRUNK_RADIUS_SCALE, trunkH) ],
             trunkSegs
         );
 
-        // 3 layered cones (bottom -> top) — radii scaled down
         const layer1Geo = new bu([new xe(4.4 * LEAF_RADIUS_SCALE, 0), new xe(0, 6.2)], leafSegs);
         const layer2Geo = new bu([new xe(3.4 * LEAF_RADIUS_SCALE, 0), new xe(0, 5.4)], leafSegs);
         const layer3Geo = new bu([new xe(2.6 * LEAF_RADIUS_SCALE, 0), new xe(0, 4.6)], leafSegs);
 
-        // ---- Forest extents ----
-        const u = 300; // half-length (Z)
-        const c = 420; // half-width  (X)
-        const BASE_DENSITY = 900 / (240 * 600); // original density
-        const TREE_MULT = 1.3; // 0.5 = half as many, 2.0 = double
+        // pre-combine leaf layers into a single base geometry
+        const l1 = layer1Geo.clone();
+        const l2 = layer2Geo.clone();
+        const l3 = layer3Geo.clone();
+        l1.translate?.(0, trunkH - 0.6, 0);
+        l2.translate?.(0, trunkH + 2.6, 0);
+        l3.translate?.(0, trunkH + 5.4, 0);
+        const leafCombinedGeo = this._mergeGeometriesRaw([l1, l2, l3]);
+
+        const u = 300;
+        const c = 420;
+        const BASE_DENSITY = 900 / (240 * 600);
+        const TREE_MULT = 1.3;
         const l = Math.floor(BASE_DENSITY * (2 * c) * (2 * u) * TREE_MULT);
 
-        // ✅ NEW: keep trees off boulders
-        const BOULDER_CLEAR = 3.5; // extra space around boulders so trunks don't clip
+        const BOULDER_CLEAR = 3.5;
+
+        // merged: 1 trunk mesh + 4 leaf meshes
+        const trunkInstances = [];
+        const leafInstances0 = [];
+        const leafInstances1 = [];
+        const leafInstances2 = [];
+        const leafInstances3 = [];
 
         for (let h = 0; h < l; h++) {
-            const f = new Gt;
-
-            const trunk = new Vt(trunkGeo, trunkMat);
-
-            // One color per tree across layers
-            const leafMat = pickLeafMat();
-            const a = new Vt(layer1Geo, leafMat);
-            const b = new Vt(layer2Geo, leafMat);
-            const d = new Vt(layer3Geo, leafMat);
-
-            // Tighter stacking
-            a.position.y = trunkH - 0.6;
-            b.position.y = trunkH + 2.6;
-            d.position.y = trunkH + 5.4;
-
-            f.add(trunk, a, b, d);
-
-            // ✅ NEW: choose a position that isn't on a boulder
-            let x = 0, m = 0, placedOK = false;
+            let x = 0, m = 0, placedOK = !1;
 
             for (let tries = 0; tries < 16; tries++) {
             x = (rand() - 0.5) * 2 * c;
             m = (rand() - 0.5) * 2 * u;
 
-            // Keep a clear corridor for the path.
             if (Math.abs(x) < 12) x += x < 0 ? -12 : 12;
-
-            // Don't put trees on boulders (requires you to have added _isNearBoulder + boulderBounds)
             if (this._isNearBoulder?.(x, m, BOULDER_CLEAR)) continue;
 
-            // Optional: also avoid dirt patches if you implemented _isOnDirtPatch + dirtPatchBounds
-            // if (this._isOnDirtPatch?.(x, m, 1.2)) continue;
-
-            placedOK = true;
+            placedOK = !0;
             break;
             }
 
             if (!placedOK) continue;
 
-            f.position.set(x, -10, m);
-            f.rotation.y = rand() * Math.PI * 2;
+            const rotY = rand() * Math.PI * 2;
 
-            // Make trees narrower without shrinking height as much
-            const s = 1 + rand() * 0.9;
-            f.scale.set(s * TREE_XZ_SLENDER, s, s * TREE_XZ_SLENDER);
+            const s  = 1 + rand() * 0.9;
+            const sx = s * TREE_XZ_SLENDER;
+            const sy = s;
+            const sz = s * TREE_XZ_SLENDER;
 
-            e.add(f);
+            const inst = { px: x, py: -10, pz: m, rx: 0, ry: rotY, rz: 0, sx, sy, sz };
+            trunkInstances.push(inst);
+
+            const leafIdx = pickLeafIdx();
+            if (leafIdx === 0) leafInstances0.push(inst);
+            else if (leafIdx === 1) leafInstances1.push(inst);
+            else if (leafIdx === 2) leafInstances2.push(inst);
+            else leafInstances3.push(inst);
         }
 
-        this.scene.add(e);
-        this.forest = e;
+        const trunkMesh = this._makeMergedMesh(trunkGeo, trunkMat, trunkInstances, "forestTrunks");
+        const leafMesh0 = this._makeMergedMesh(leafCombinedGeo, leafMatGreen,  leafInstances0, "forestLeavesGreen");
+        const leafMesh1 = this._makeMergedMesh(leafCombinedGeo, leafMatOrange, leafInstances1, "forestLeavesOrange");
+        const leafMesh2 = this._makeMergedMesh(leafCombinedGeo, leafMatRed,    leafInstances2, "forestLeavesRed");
+        const leafMesh3 = this._makeMergedMesh(leafCombinedGeo, leafMatBrown,  leafInstances3, "forestLeavesBrown");
+
+        trunkGeo.dispose?.();
+        layer1Geo.dispose?.(); layer2Geo.dispose?.(); layer3Geo.dispose?.();
+        l1.dispose?.(); l2.dispose?.(); l3.dispose?.();
+        leafCombinedGeo?.dispose?.();
+
+        if (trunkMesh) forestGroup.add(trunkMesh);
+        if (leafMesh0) forestGroup.add(leafMesh0);
+        if (leafMesh1) forestGroup.add(leafMesh1);
+        if (leafMesh2) forestGroup.add(leafMesh2);
+        if (leafMesh3) forestGroup.add(leafMesh3);
+
+        this.scene.add(forestGroup);
+        this.forest = forestGroup;
     }
 
     addGrassPatches() {
-        // If re-creating the scene, remove old grass
-        if (this.grassPatches) {
-            this.scene.remove(this.grassPatches);
-            this.grassPatches.traverse(obj => {
-                if (obj.geometry) obj.geometry.dispose?.();
-                if (obj.material) obj.material.dispose?.();
-            });
-            this.grassPatches = null;
-        }
+        if (this.grassPatches) this._disposeObject(this.grassPatches);
 
-        const group = new Gt();
-        group.name = "grassPatches";
-
-        // --- Tunables ---
         const PATCH_COUNT = 1000;
         const X_HALF = 420;
         const Z_HALF = 300;
         const yGround = -10;
         const pathMargin = 2.4;
 
-        // --- Slimmer, less-wide blades (narrower radius + slimmer x/z scaling) ---
         const tuftH = 1.45;
-        const tuftR = 0.24; // ↓ was wider; smaller = thinner blades
+        const tuftR = 0.24;
 
         const tuftGeo = new bu(
             [
-                new xe(0.00, 0.00),
-                new xe(tuftR * 0.90, 0.02),
-                new xe(tuftR * 1.00, tuftH * 0.22),
-                new xe(tuftR * 0.45, tuftH * 0.62),
-                new xe(tuftR * 0.16, tuftH * 0.90),
-                new xe(0.00, tuftH)
+            new xe(0.00, 0.00),
+            new xe(tuftR * 0.90, 0.02),
+            new xe(tuftR * 1.00, tuftH * 0.22),
+            new xe(tuftR * 0.45, tuftH * 0.62),
+            new xe(tuftR * 0.16, tuftH * 0.90),
+            new xe(0.00, tuftH)
             ],
-            10 // keep it reasonably “more poly”
+            10
         );
 
         const theme = this.theme || (this.theme = this.readThemeFromCSS());
-        const grassMat = new Td({
-            color: theme.grass,
-            flatShading: !0
-        });
+        const grassMat = new Td({ color: theme.grass, flatShading: !0 });
 
         const rand = Math.random;
 
-        // Helper: test whether a point is inside the dirt path corridor at this z
         const isOnPath = (x, z) => {
             const prof = this.pathProfile;
-            if (!prof) return false;
+            if (!prof) return !1;
 
             const t = (z - prof.zStart) / (prof.zEnd - prof.zStart);
-            if (t < 0 || t > 1) return false;
+            if (t < 0 || t > 1) return !1;
 
             const p = t * prof.segments;
             const idx = Math.min(prof.segments - 1, Math.max(0, Math.floor(p)));
@@ -33277,48 +33250,431 @@ class ThreeScene {
             return Math.abs(x - cx) < (w * 0.5 + berm + pathMargin);
         };
 
+        // merged mesh for all grass tufts
+        const instances = [];
+
         for (let i = 0; i < PATCH_COUNT; i++) {
-            let x = 0, z = 0, ok = false;
+            let x = 0, z = 0, ok = !1;
 
             for (let tries = 0; tries < 10; tries++) {
-                x = (rand() - 0.5) * 2 * X_HALF;
-                z = (rand() - 0.5) * 2 * Z_HALF;
-                if (this._isOnDirtPatch?.(x, z, 1.4)) continue;
-                if (!isOnPath(x, z)) { ok = true; break; }
+            x = (rand() - 0.5) * 2 * X_HALF;
+            z = (rand() - 0.5) * 2 * Z_HALF;
+            if (this._isOnDirtPatch?.(x, z, 1.4)) continue;
+            if (!isOnPath(x, z)) { ok = !0; break; }
             }
             if (!ok) continue;
 
-            const patch = new Gt();
+            const patchRot = rand() * Math.PI * 2;
 
             const tuftCount = 4 + Math.floor(rand() * 5); // 4..8
             for (let k = 0; k < tuftCount; k++) {
-                const m = new Vt(tuftGeo, grassMat);
+            const r = 0.22 + rand() * 0.80;
+            const ang = rand() * Math.PI * 2;
 
-                const r = 0.22 + rand() * 0.80;
-                const ang = rand() * Math.PI * 2;
-                m.position.set(Math.cos(ang) * r, 0, Math.sin(ang) * r);
+            const lx = Math.cos(ang) * r;
+            const lz = Math.sin(ang) * r;
 
-                m.rotation.y = rand() * Math.PI * 2;
+            const cs = Math.cos(patchRot), sn = Math.sin(patchRot);
+            const wx = x + (lx * cs - lz * sn);
+            const wz = z + (lx * sn + lz * cs);
 
-                // Make blades noticeably less wide: shrink X/Z relative to Y
-                const s = 0.55 + rand() * 0.95;
-                const xz = 0.42 + rand() * 0.35;     // ↓ slimmer width band
-                const yy = 0.95 + rand() * 0.85;     // keep height healthy
-                m.scale.set(s * xz, s * yy, s * xz);
+            const s  = 0.55 + rand() * 0.95;
+            const xz = 0.42 + rand() * 0.35;
+            const yy = 0.95 + rand() * 0.85;
 
-                patch.add(m);
+            instances.push({
+                px: wx, py: yGround, pz: wz,
+                rx: 0, ry: patchRot + rand() * Math.PI * 2, rz: 0,
+                sx: s * xz, sy: s * yy, sz: s * xz
+            });
             }
-
-            patch.position.set(x, yGround, z);
-            patch.rotation.y = rand() * Math.PI * 2;
-
-            group.add(patch);
         }
 
-        this.scene.add(group);
-        this.grassPatches = group;
-    }
+        const mesh = this._makeMergedMesh(tuftGeo, grassMat, instances, "grassPatches");
+        tuftGeo.dispose?.();
 
+        if (mesh) {
+            this.scene.add(mesh);
+            this.grassPatches = mesh;
+        } else {
+            grassMat.dispose?.();
+            this.grassPatches = null;
+        }
+    }
+    _getPixelRatio() {
+        const dpr = window.devicePixelRatio || 1;
+        return Math.min(dpr, 2);
+    }
+    _setupWritupsObserver() {
+        const tryFind = () => document.querySelector(".scene") || null;
+
+        this._sceneRootEl = tryFind();
+        this._inWritups = !!(this._sceneRootEl && this._sceneRootEl.classList.contains("is-writups"));
+
+        if (this._writupsObserver) {
+            try { this._writupsObserver.disconnect(); } catch (_) {}
+            this._writupsObserver = null;
+        }
+
+        if (this._sceneRootEl && "MutationObserver" in window) {
+            this._writupsObserver = new MutationObserver(() => {
+            this._inWritups = this._sceneRootEl.classList.contains("is-writups");
+            });
+            this._writupsObserver.observe(this._sceneRootEl, { attributes: !0, attributeFilter: ["class"] });
+            return;
+        }
+
+        let tries = 0;
+        const poll = () => {
+            if (this._sceneRootEl) return;
+            this._sceneRootEl = tryFind();
+            if (this._sceneRootEl) {
+            this._inWritups = this._sceneRootEl.classList.contains("is-writups");
+            if ("MutationObserver" in window) {
+                this._writupsObserver = new MutationObserver(() => {
+                this._inWritups = this._sceneRootEl.classList.contains("is-writups");
+                });
+                this._writupsObserver.observe(this._sceneRootEl, { attributes: !0, attributeFilter: ["class"] });
+            }
+            return;
+            }
+            if (++tries < 90) requestAnimationFrame(poll);
+        };
+        requestAnimationFrame(poll);
+    }
+    _composeMat4(out, px, py, pz, rx, ry, rz, sx, sy, sz) {
+        const a = Math.cos(rx), b = Math.sin(rx);
+        const c = Math.cos(ry), d = Math.sin(ry);
+        const e = Math.cos(rz), f = Math.sin(rz);
+
+        const ae = a * e, af = a * f, be = b * e, bf = b * f;
+
+        let m00 = c * e;
+        let m01 = -c * f;
+        let m02 = d;
+
+        let m10 = af + be * d;
+        let m11 = ae - bf * d;
+        let m12 = -b * c;
+
+        let m20 = bf - ae * d;
+        let m21 = be + af * d;
+        let m22 = a * c;
+
+        m00 *= sx; m10 *= sx; m20 *= sx;
+        m01 *= sy; m11 *= sy; m21 *= sy;
+        m02 *= sz; m12 *= sz; m22 *= sz;
+
+        out[0] = m00; out[1] = m10; out[2] = m20; out[3] = 0;
+        out[4] = m01; out[5] = m11; out[6] = m21; out[7] = 0;
+        out[8] = m02; out[9] = m12; out[10] = m22; out[11] = 0;
+        out[12] = px; out[13] = py; out[14] = pz; out[15] = 1;
+
+        return out;
+    }
+    _normalMat3FromMat4(out3, m4) {
+        const a00 = m4[0],  a01 = m4[4],  a02 = m4[8];
+        const a10 = m4[1],  a11 = m4[5],  a12 = m4[9];
+        const a20 = m4[2],  a21 = m4[6],  a22 = m4[10];
+
+        const c00 = (a11 * a22 - a12 * a21);
+        const c01 = -(a10 * a22 - a12 * a20);
+        const c02 = (a10 * a21 - a11 * a20);
+
+        const c10 = -(a01 * a22 - a02 * a21);
+        const c11 = (a00 * a22 - a02 * a20);
+        const c12 = -(a00 * a21 - a01 * a20);
+
+        const c20 = (a01 * a12 - a02 * a11);
+        const c21 = -(a00 * a12 - a02 * a10);
+        const c22 = (a00 * a11 - a01 * a10);
+
+        const det = a00 * c00 + a01 * c01 + a02 * c02;
+        const invDet = det ? (1 / det) : 1;
+
+        out3[0] = c00 * invDet; out3[1] = c10 * invDet; out3[2] = c20 * invDet;
+        out3[3] = c01 * invDet; out3[4] = c11 * invDet; out3[5] = c21 * invDet;
+        out3[6] = c02 * invDet; out3[7] = c12 * invDet; out3[8] = c22 * invDet;
+
+        return out3;
+    }
+    _buildMergedGeometry(baseGeo, instances) {
+        if (!baseGeo || !instances || !instances.length) return null;
+
+        const geo = baseGeo;
+
+        const posAttr = geo.getAttribute("position");
+        if (!posAttr) return null;
+
+        const norAttr = geo.getAttribute("normal") || null;
+        const uvAttr  = geo.getAttribute("uv") || null;
+
+        // Helper: get typed array if present
+        const arrOf = (attr) => (attr && (attr.array || (attr.data && attr.data.array))) || null;
+
+        const posArr = arrOf(posAttr);
+        const norArr = arrOf(norAttr);
+        const uvArr  = arrOf(uvAttr);
+
+        // Index can be "weird" in bundled builds: might not expose .array
+        const idxAttr = geo.index || null;
+        const idxArrRaw = arrOf(idxAttr);
+
+        const hasIndex = !!idxAttr;
+        const canUseIdxArray = !!idxArrRaw;
+
+        const baseVertCount = posAttr.count;
+        const baseIndexCount = hasIndex ? (idxAttr.count ?? (idxArrRaw ? idxArrRaw.length : 0)) : baseVertCount;
+
+        if (hasIndex && !baseIndexCount) return null;
+
+        const instCount = instances.length;
+        const totalVerts = baseVertCount * instCount;
+        const totalIdx   = (hasIndex ? baseIndexCount : baseVertCount) * instCount;
+
+        const outPos = new Float32Array(totalVerts * 3);
+        const outNor = norAttr ? new Float32Array(totalVerts * 3) : null;
+        const outUv  = uvAttr  ? new Float32Array(totalVerts * 2) : null;
+
+        const IndexType = totalVerts > 65535 ? Uint32Array : Uint16Array;
+        const outIdx = new IndexType(totalIdx);
+
+        const m = this._tmpMat4;
+        const n = this._tmpNMat3;
+
+        let vOff = 0;
+        let iOff = 0;
+
+        for (let ii = 0; ii < instCount; ii++) {
+            const it = instances[ii];
+
+            this._composeMat4(m, it.px, it.py, it.pz, it.rx, it.ry, it.rz, it.sx, it.sy, it.sz);
+            if (outNor) this._normalMat3FromMat4(n, m);
+
+            const m0  = m[0],  m1  = m[1],  m2  = m[2];
+            const m4  = m[4],  m5  = m[5],  m6  = m[6];
+            const m8  = m[8],  m9  = m[9],  m10 = m[10];
+            const m12 = m[12], m13 = m[13], m14 = m[14];
+
+            const n0m = outNor ? n[0] : 0, n1m = outNor ? n[1] : 0, n2m = outNor ? n[2] : 0;
+            const n3m = outNor ? n[3] : 0, n4m = outNor ? n[4] : 0, n5m = outNor ? n[5] : 0;
+            const n6m = outNor ? n[6] : 0, n7m = outNor ? n[7] : 0, n8m = outNor ? n[8] : 0;
+
+            // --- vertices ---
+            let outPi = vOff * 3;
+            let outUi = vOff * 2;
+
+            for (let v = 0; v < baseVertCount; v++) {
+            let x, y, z;
+
+            if (posArr) {
+                const bi = v * 3;
+                x = posArr[bi]; y = posArr[bi + 1]; z = posArr[bi + 2];
+            } else {
+                // interleaved fallback
+                x = posAttr.getX(v); y = posAttr.getY(v); z = posAttr.getZ(v);
+            }
+
+            outPos[outPi]     = m0 * x + m4 * y + m8  * z + m12;
+            outPos[outPi + 1] = m1 * x + m5 * y + m9  * z + m13;
+            outPos[outPi + 2] = m2 * x + m6 * y + m10 * z + m14;
+
+            if (outNor) {
+                let nx, ny, nz;
+
+                if (norArr) {
+                const ni = v * 3;
+                nx = norArr[ni]; ny = norArr[ni + 1]; nz = norArr[ni + 2];
+                } else {
+                nx = norAttr.getX(v); ny = norAttr.getY(v); nz = norAttr.getZ(v);
+                }
+
+                let nnx = n0m * nx + n3m * ny + n6m * nz;
+                let nny = n1m * nx + n4m * ny + n7m * nz;
+                let nnz = n2m * nx + n5m * ny + n8m * nz;
+                const len = Math.hypot(nnx, nny, nnz) || 1;
+                nnx /= len; nny /= len; nnz /= len;
+
+                outNor[outPi]     = nnx;
+                outNor[outPi + 1] = nny;
+                outNor[outPi + 2] = nnz;
+            }
+
+            if (outUv) {
+                let u, vv;
+                if (uvArr) {
+                const ui = v * 2;
+                u = uvArr[ui]; vv = uvArr[ui + 1];
+                } else {
+                u = uvAttr.getX(v); vv = uvAttr.getY(v);
+                }
+                outUv[outUi] = u;
+                outUv[outUi + 1] = vv;
+                outUi += 2;
+            }
+
+            outPi += 3;
+            }
+
+            // --- indices ---
+            if (hasIndex) {
+            if (canUseIdxArray) {
+                for (let k = 0; k < baseIndexCount; k++) outIdx[iOff + k] = idxArrRaw[k] + vOff;
+            } else if (typeof idxAttr.getX === "function") {
+                for (let k = 0; k < baseIndexCount; k++) outIdx[iOff + k] = (idxAttr.getX(k) | 0) + vOff;
+            } else {
+                // cannot read index at all in this build
+                return null;
+            }
+            iOff += baseIndexCount;
+            } else {
+            for (let k = 0; k < baseVertCount; k++) outIdx[iOff + k] = vOff + k;
+            iOff += baseVertCount;
+            }
+
+            vOff += baseVertCount;
+        }
+
+        const outGeo = new Zt();
+        outGeo.setIndex(Array.from(outIdx));
+        outGeo.setAttribute("position", new Tt(outPos, 3));
+        if (outNor) outGeo.setAttribute("normal", new Tt(outNor, 3));
+        if (outUv)  outGeo.setAttribute("uv", new Tt(outUv, 2));
+        outGeo.computeBoundingSphere?.();
+        outGeo.computeBoundingBox?.();
+
+        return outGeo;
+    }
+    _mergeGeometriesRaw(geos) {
+        if (!geos || !geos.length) return null;
+
+        const arrOf = (attr) => (attr && (attr.array || (attr.data && attr.data.array))) || null;
+
+        let totalVerts = 0;
+        let totalIdx = 0;
+        let hasUv = !0;
+
+        // pre-pass totals
+        for (let i = 0; i < geos.length; i++) {
+            const g = geos[i];
+            const pos = g.getAttribute("position");
+            if (!pos) return null;
+
+            totalVerts += pos.count;
+
+            const idxAttr = g.index || null;
+            const idxArr = arrOf(idxAttr);
+            const idxCount = idxAttr ? (idxAttr.count ?? (idxArr ? idxArr.length : 0)) : pos.count;
+            if (idxAttr && !idxCount) return null;
+
+            totalIdx += idxCount;
+
+            if (!g.getAttribute("uv")) hasUv = !1;
+        }
+
+        const outPos = new Float32Array(totalVerts * 3);
+        const outNor = new Float32Array(totalVerts * 3);
+        const outUv  = hasUv ? new Float32Array(totalVerts * 2) : null;
+
+        const IndexType = totalVerts > 65535 ? Uint32Array : Uint16Array;
+        const outIdx = new IndexType(totalIdx);
+
+        let vOff = 0;
+        let iOff = 0;
+
+        for (let i = 0; i < geos.length; i++) {
+            const g = geos[i];
+            const posAttr = g.getAttribute("position");
+            const norAttr = g.getAttribute("normal");
+            const uvAttr  = hasUv ? g.getAttribute("uv") : null;
+
+            const posArr = arrOf(posAttr);
+            const norArr = arrOf(norAttr);
+            const uvArr  = uvAttr ? arrOf(uvAttr) : null;
+
+            const vc = posAttr.count;
+
+            // positions/normals/uvs copy (support interleaved)
+            for (let v = 0; v < vc; v++) {
+            const op = (vOff + v) * 3;
+
+            if (posArr) {
+                const bi = v * 3;
+                outPos[op] = posArr[bi];
+                outPos[op + 1] = posArr[bi + 1];
+                outPos[op + 2] = posArr[bi + 2];
+            } else {
+                outPos[op] = posAttr.getX(v);
+                outPos[op + 1] = posAttr.getY(v);
+                outPos[op + 2] = posAttr.getZ(v);
+            }
+
+            if (norAttr) {
+                if (norArr) {
+                const ni = v * 3;
+                outNor[op] = norArr[ni];
+                outNor[op + 1] = norArr[ni + 1];
+                outNor[op + 2] = norArr[ni + 2];
+                } else {
+                outNor[op] = norAttr.getX(v);
+                outNor[op + 1] = norAttr.getY(v);
+                outNor[op + 2] = norAttr.getZ(v);
+                }
+            }
+
+            if (outUv && uvAttr) {
+                const ou = (vOff + v) * 2;
+                if (uvArr) {
+                const ui = v * 2;
+                outUv[ou] = uvArr[ui];
+                outUv[ou + 1] = uvArr[ui + 1];
+                } else {
+                outUv[ou] = uvAttr.getX(v);
+                outUv[ou + 1] = uvAttr.getY(v);
+                }
+            }
+            }
+
+            // indices
+            const idxAttr = g.index || null;
+            const idxArr = arrOf(idxAttr);
+            const idxCount = idxAttr ? (idxAttr.count ?? (idxArr ? idxArr.length : 0)) : vc;
+
+            if (idxAttr) {
+            if (idxArr) {
+                for (let k = 0; k < idxCount; k++) outIdx[iOff + k] = idxArr[k] + vOff;
+            } else if (typeof idxAttr.getX === "function") {
+                for (let k = 0; k < idxCount; k++) outIdx[iOff + k] = (idxAttr.getX(k) | 0) + vOff;
+            } else {
+                return null;
+            }
+            iOff += idxCount;
+            } else {
+            for (let k = 0; k < vc; k++) outIdx[iOff + k] = vOff + k;
+            iOff += vc;
+            }
+
+            vOff += vc;
+        }
+
+        const geo = new Zt();
+        geo.setIndex(Array.from(outIdx));
+        geo.setAttribute("position", new Tt(outPos, 3));
+        geo.setAttribute("normal", new Tt(outNor, 3));
+        if (outUv) geo.setAttribute("uv", new Tt(outUv, 2));
+        geo.computeBoundingSphere?.();
+        geo.computeBoundingBox?.();
+        return geo;
+    }
+    _makeMergedMesh(baseGeo, mat, instances, name) {
+        const merged = this._buildMergedGeometry(baseGeo, instances);
+        if (!merged) return null;
+        const mesh = new Vt(merged, mat);
+        mesh.name = name || "merged";
+        mesh.matrixAutoUpdate = !1;
+        mesh.updateMatrix?.();
+        return mesh;
+    }
     addLeafFall() {
         // Pull latest theme (useful if CSS hot-reloads)
         const theme = this.theme || (this.theme = this.readThemeFromCSS());
