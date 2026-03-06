@@ -29,7 +29,7 @@ const Writeups = k({
       {
         id: "emoji_captcha",
         title: "Emoji CAPTCHA",
-        subtitle: "Bypassing a robot image classification authenticator",
+        subtitle: "srdnlen CTF 2026 · Bypassing a robot image classification authenticator",
         difficulty: "hard",
         category: "misc",
         catColor: "#a855f7", // purple
@@ -1308,7 +1308,7 @@ if __name__ == "__main__":
         id: "eye_on_the_sky",
         title: "Eye on the Sky",
         subtitle:
-          "Finding a flight and a trail with only a picture of a far away fogged mountain",
+          "BKCTF 2026 · Finding a flight and a trail with only a picture of a far away fogged mountain",
         difficulty: "hard",
         category: "osint",
         catColor: "#88d5f9", //light blue for osint
