@@ -349,12 +349,12 @@ footer {
 }
 
 /* =========================================================
-   3D view rotator (index <-> writups)
+   3D view rotator (index <-> writeups)
    ========================================================= */
 
 .scene {
   /*
-    Keep your original depth setup (this is what makes the writups face
+    Keep your original depth setup (this is what makes the writeups face
     actually come into view when rotating).
   */
   --depth: 62vw;
@@ -388,7 +388,7 @@ footer {
   transition: transform 0.85s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-.scene.is-writups .view-rotator {
+.scene.is-writeups .view-rotator {
   transform: rotateY(90deg);
 }
 
@@ -415,19 +415,19 @@ footer {
   transform: rotateY(0deg) translateZ(calc(-1 * var(--depth)));
 }
 
-.writups-view {
+.writeups-view {
   transform: rotateY(-90deg) translateZ(calc(-1 * var(--depth-side)));
 }
 
 /* prevent the hidden face from eating clicks */
-.scene.is-writups .index-view { pointer-events: none; }
-.scene:not(.is-writups) .writups-view { pointer-events: none; }
+.scene.is-writeups .index-view { pointer-events: none; }
+.scene:not(.is-writeups) .writeups-view { pointer-events: none; }
 
 /* =========================================================
-   Writups navigation hint 
+   Writeups navigation hint 
    ========================================================= */
 
-#writups-switch {
+#writeups-switch {
   position: fixed;
   top: 50%;
   right: 1.2rem;
@@ -446,13 +446,13 @@ footer {
   user-select: none;
 }
 
-#writups-switch.hidden {
+#writeups-switch.hidden {
   opacity: 0;
   transform: translateY(-50%) translateX(10px);
   pointer-events: none;
 }
 
-#writups-switch p {
+#writeups-switch p {
   margin: 0;
   letter-spacing: 0.08em;
   text-transform: lowercase;
@@ -460,7 +460,7 @@ footer {
   font-weight: 540;
 }
 
-#writups-arrow {
+#writeups-arrow {
   fill: none;
   stroke: var(--accent);
   stroke-linecap: round;
@@ -499,7 +499,7 @@ footer {
   cursor: pointer;
 }
 
-.scene.is-writups #back-about {
+.scene.is-writeups #back-about {
   opacity: 1;
   pointer-events: auto;
 }
@@ -559,23 +559,23 @@ footer {
 
 .view,
 .index-view,
-.writups-view {
+.writeups-view {
   transform: none !important;
   backface-visibility: visible !important;
 }
 
 /* Only show ONE face at a time (prevents invisible layers stealing clicks) */
-.scene:not(.is-writups) .writups-view {
+.scene:not(.is-writeups) .writeups-view {
   display: none !important;
 }
-.scene.is-writups .index-view {
+.scene.is-writeups .index-view {
   display: none !important;
 }
 
 /* Make sure the visible scroller is interactive */
 .view-scroll,
 #index-scroll,
-#writups-scroll {
+#writeups-scroll {
   pointer-events: auto !important;
 }
 

@@ -16,7 +16,7 @@ import {
   v as x,
 } from "./entry.js";
 
-import Writups from "./writups.js";
+import Writeups from "./writeups.js";
 
 const ce = { class: "prize-container" };
 const le = { class: "card" };
@@ -151,7 +151,7 @@ const SectionsTop = P(
     "<p>I'm currently a freshman in college studying computer science.</p>" +
     "<p>I do a lot of cybersecurity competitions including ccdc, cptc, and lots of ctfs.</p>" +
     "<p>I also like being active, running, and coding in general.</p>" +
-    "<p>If you are interested in reading some of my ctf writups, click to the right.</p>" +
+    "<p>If you are interested in reading some of my ctf writeups, click to the right.</p>" +
     "</div></div>" +
     '<div class="section-heading">' +
     "<h2>Projects</h2>" +
@@ -201,24 +201,24 @@ const Tail = P(
 
 const Qe = 30;
 
-// footer + scroll hint fade + writups view rotator
+// footer + scroll hint fade + writeups view rotator
 const Xe = k({
   __name: "index",
   setup() {
     const initialState = (() => {
       try {
         const sp = new URLSearchParams(window.location.search);
-        const weird = sp.get("") === "writups";
-        const view = sp.get("view") || (weird ? "writups" : null);
+        const weird = sp.get("") === "writeups";
+        const view = sp.get("view") || (weird ? "writeups" : null);
         const w = sp.get("w") || sp.get("writeup");
-        return { view: view || (w ? "writups" : null), w };
+        return { view: view || (w ? "writeups" : null), w };
       } catch (_) {
         return { view: null, w: null };
       }
     })();
 
-    const isWritups = S(initialState.view === "writups");
-    const noAnim = S(initialState.view === "writups");
+    const isWriteups = S(initialState.view === "writeups");
+    const noAnim = S(initialState.view === "writeups");
 
     // wired up in onMounted (D)
     let resetFooterInstant = () => {};
@@ -262,7 +262,7 @@ const Xe = k({
       if (!rot || !scene) return;
 
       scene.classList.add("scene");
-      scene.classList.toggle("is-writups", !!isWritups.value);
+      scene.classList.toggle("is-writeups", !!isWriteups.value);
       scene.classList.toggle("no-anim", !!noAnim.value);
 
       const depthRaw = getComputedStyle(scene).getPropertyValue("--depth").trim() || "50vw";
@@ -274,20 +274,20 @@ const Xe = k({
         else if (depthRaw.endsWith("px")) depthPx = n;
       }
 
-      rot.style.transform = `rotateY(${isWritups.value ? "90deg" : "0deg"})`;
+      rot.style.transform = `rotateY(${isWriteups.value ? "90deg" : "0deg"})`;
     };
 
     const parseUrl = () => {
       const sp = new URLSearchParams(window.location.search);
-      const weird = sp.get("") === "writups";
-      const view = sp.get("view") || (weird ? "writups" : null);
+      const weird = sp.get("") === "writeups";
+      const view = sp.get("view") || (weird ? "writeups" : null);
       const w = sp.get("w") || sp.get("writeup");
-      return { view: view || (w ? "writups" : null), w };
+      return { view: view || (w ? "writeups" : null), w };
     };
 
     const setUrl = (view, w) => {
       const url = new URL(window.location.href);
-      if (view === "writups") url.searchParams.set("view", "writups");
+      if (view === "writeups") url.searchParams.set("view", "writeups");
       else url.searchParams.delete("view");
       if (w) url.searchParams.set("w", w);
       else url.searchParams.delete("w");
@@ -296,18 +296,18 @@ const Xe = k({
 
     const replaceUrl = (view, w) => {
       const url = new URL(window.location.href);
-      if (view === "writups") url.searchParams.set("view", "writups");
+      if (view === "writeups") url.searchParams.set("view", "writeups");
       else url.searchParams.delete("view");
       if (w) url.searchParams.set("w", w);
       else url.searchParams.delete("w");
       history.replaceState({}, "", url);
     };
 
-    // UPDATED: writups button ALWAYS goes to top of writups scroll
-    const goWritups = (w) => {
-      document.getElementById("writups-switch")?.classList.add("hidden");
+    // UPDATED: writeups button ALWAYS goes to top of writeups scroll
+    const goWriteups = (w) => {
+      document.getElementById("writeups-switch")?.classList.add("hidden");
 
-      const ws = document.getElementById("writups-scroll");
+      const ws = document.getElementById("writeups-scroll");
       if (ws && typeof ws.scrollTop === "number") {
         ws.scrollTop = 0;
         ws.scrollTo?.({ top: 0, behavior: "auto" });
@@ -318,14 +318,14 @@ const Xe = k({
         });
       }
 
-      isWritups.value = true;
-      setUrl("writups", w);
+      isWriteups.value = true;
+      setUrl("writeups", w);
       applyRotatorFallback();
       requestAnimationFrame(() => applyRotatorFallback());
 
       if (w) {
         requestAnimationFrame(() => {
-          window.dispatchEvent(new CustomEvent("writups:open", { detail: { id: w } }));
+          window.dispatchEvent(new CustomEvent("writeups:open", { detail: { id: w } }));
         });
       }
     };
@@ -337,9 +337,9 @@ const Xe = k({
       suppressScrollHint(1600);
 
       // close any open writeup card
-      window.dispatchEvent(new CustomEvent("writups:close"));
+      window.dispatchEvent(new CustomEvent("writeups:close"));
 
-      isWritups.value = false;
+      isWriteups.value = false;
       replaceUrl(null, null);
       applyRotatorFallback();
       requestAnimationFrame(() => applyRotatorFallback());
@@ -359,7 +359,7 @@ const Xe = k({
       const indexScroller = document.getElementById("index-scroll");
       const hint = document.getElementById("scroll-text");
       const footer = document.getElementById("site-footer");
-      const writupsSwitch = document.getElementById("writups-switch");
+      const writeupsSwitch = document.getElementById("writeups-switch");
       const aboutMe = document.getElementById("about-me");
 
       const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
@@ -476,23 +476,23 @@ const Xe = k({
           }
         }
 
-        if (writupsSwitch) {
+        if (writeupsSwitch) {
           const ok =
-            !isWritups.value &&
+            !isWriteups.value &&
             (nearAbout || (!("IntersectionObserver" in window) && fallbackNearAbout()));
-          if (ok) writupsSwitch.classList.remove("hidden");
-          else writupsSwitch.classList.add("hidden");
+          if (ok) writeupsSwitch.classList.remove("hidden");
+          else writeupsSwitch.classList.add("hidden");
         }
       };
 
       const initial = initialState;
-      if (initial.view === "writups") {
+      if (initial.view === "writeups") {
         applyRotatorFallback();
         requestAnimationFrame(() => {
           noAnim.value = false;
           applyRotatorFallback();
           if (initial.w) {
-            window.dispatchEvent(new CustomEvent("writups:open", { detail: { id: initial.w } }));
+            window.dispatchEvent(new CustomEvent("writeups:open", { detail: { id: initial.w } }));
           }
         });
       } else {
@@ -506,19 +506,19 @@ const Xe = k({
 
       window.addEventListener("popstate", () => {
         const s = parseUrl();
-        isWritups.value = s.view === "writups";
+        isWriteups.value = s.view === "writeups";
         requestAnimationFrame(() => applyRotatorFallback());
 
-        if (isWritups.value && s.w) {
+        if (isWriteups.value && s.w) {
           requestAnimationFrame(() => {
-            window.dispatchEvent(new CustomEvent("writups:open", { detail: { id: s.w } }));
+            window.dispatchEvent(new CustomEvent("writeups:open", { detail: { id: s.w } }));
           });
         }
 
-        if (!isWritups.value) {
-          // also avoid footer flash + ensure writups are closed on back nav
+        if (!isWriteups.value) {
+          // also avoid footer flash + ensure writeups are closed on back nav
           resetFooterInstant();
-          window.dispatchEvent(new CustomEvent("writups:close"));
+          window.dispatchEvent(new CustomEvent("writeups:close"));
 
           requestAnimationFrame(() => {
             scrollIndexTop();
@@ -545,7 +545,7 @@ const Xe = k({
       const Academic = ve;
 
       const sceneClass =
-        "scene" + (isWritups.value ? " is-writups" : "") + (noAnim.value ? " no-anim" : "");
+        "scene" + (isWriteups.value ? " is-writeups" : "") + (noAnim.value ? " no-anim" : "");
 
       return (
         m(),
@@ -563,20 +563,20 @@ const Xe = k({
                 ]),
               ]),
             ]),
-            l("section", { class: "view writups-view" }, [
-              l("div", { id: "writups-scroll", class: "view-scroll" }, [x(Writups)]),
+            l("section", { class: "view writeups-view" }, [
+              l("div", { id: "writeups-scroll", class: "view-scroll" }, [x(Writeups)]),
             ]),
           ]),
 
           l(
             "div",
             {
-              id: "writups-switch",
+              id: "writeups-switch",
               class: "hidden",
-              onClick: () => goWritups(),
+              onClick: () => goWriteups(),
             },
             [
-              l("p", null, "writups"),
+              l("p", null, "writeups"),
               l(
                 "svg",
                 {
@@ -584,7 +584,7 @@ const Xe = k({
                   height: "100%",
                   viewBox: "0 0 10 10",
                   xmlns: "http://www.w3.org/2000/svg",
-                  id: "writups-arrow",
+                  id: "writeups-arrow",
                 },
                 [l("path", { d: "M5,2 L8,5 L5,8" })]
               ),

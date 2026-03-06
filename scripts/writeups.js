@@ -1,4 +1,4 @@
-// writups.js (full file, patched: deterministic offset scroll + robust direct-link + badges + measured-height + close button + code expand/collapse arrows)
+// writeups.js (full file, patched: deterministic offset scroll + robust direct-link + badges + measured-height + close button + code expand/collapse arrows)
 
 import {
   m,
@@ -13,15 +13,15 @@ import {
   o as D,
 } from "./entry.js";
 
-const Root = { class: "page-container writups-container" };
+const Root = { class: "page-container writeups-container" };
 const Spacer = { class: "three-animation" };
 const Main = { class: "main-block" };
 const Text = { class: "text-block" };
 const Heading = { class: "section-heading" };
-const List = { class: "writups-list" };
+const List = { class: "writeups-list" };
 
-const Writups = k({
-  __name: "Writups",
+const Writeups = k({
+  __name: "Writeups",
   setup() {
     const diffColorOf = (d) => (d === "hard" ? "#b91c1c" : "#22c55e"); // hard darker than #ef4444
 
@@ -52,23 +52,23 @@ const Writups = k({
 
           <p>When we first connect the server, we are prompted with a nice banner and a menu.</p>
 
-          <img class="writeup-img" src="/images/writups/Emoji_CAPTCHA/header.png" alt="Server header" width="800">
+          <img class="writeup-img" src="/images/writeups/Emoji_CAPTCHA/header.png" alt="Server header" width="800">
 
           <p>We learn more about the challenge when we look at the About page:</p>
 
-          <img class="writeup-img" src="/images/writups/Emoji_CAPTCHA/about.png" alt="Server about page" width="800">
+          <img class="writeup-img" src="/images/writeups/Emoji_CAPTCHA/about.png" alt="Server about page" width="800">
           <p>Note, this is an updated About page, the earlier page did not include that the images were created through pillow.</p>
 
           <p>Reading through these two pages, we learn how this challenge works. We are given a base64 encoded image with rotated emojis in it, and it's our job to respond to each base64 chunk with the unicode codepoints of each emoji. Looking at the sample image makes this a lot clearer.</p>
 
-          <img class="writeup-img" src="/images/writups/Emoji_CAPTCHA/example.png" alt="Challenge Image example one" width="800">
-          <img class="writeup-img" src="/images/writups/Emoji_CAPTCHA/exampleOutput.png" alt="Example Image Output" width="800">
+          <img class="writeup-img" src="/images/writeups/Emoji_CAPTCHA/example.png" alt="Challenge Image example one" width="800">
+          <img class="writeup-img" src="/images/writeups/Emoji_CAPTCHA/exampleOutput.png" alt="Example Image Output" width="800">
 
           <p>With this, we see the intended user input is the emoji unicode from left to right, then the next row left to right.
 I was curious for more patterns, so I queried to start the challenge to gather a couple more example images. From these, a pattern emerges:</p>
 
-          <img class="writeup-img" src="/images/writups/Emoji_CAPTCHA/example2.png" alt="Challenge Image example two" width="800">
-          <img class="writeup-img" src="/images/writups/Emoji_CAPTCHA/example3.png" alt="Challenge Image example three" width="800">
+          <img class="writeup-img" src="/images/writeups/Emoji_CAPTCHA/example2.png" alt="Challenge Image example two" width="800">
+          <img class="writeup-img" src="/images/writeups/Emoji_CAPTCHA/example3.png" alt="Challenge Image example three" width="800">
 
           <p>In every image sent out, we are given a 4x2 array of rotated emojis. This, as we will see later, will significantly simplify the work we need to do.</p>
 
@@ -839,7 +839,7 @@ if __name__ == "__main__":
 
           <p>Lastly, we need a way to take in base64 images and output the unicode answer after the <code>&gt;&gt;&gt;</code> line. </p>
 
-          <img class="writeup-img" src="/images/writups/Emoji_CAPTCHA/format.png" alt="Input Format" width="800">
+          <img class="writeup-img" src="/images/writeups/Emoji_CAPTCHA/format.png" alt="Input Format" width="800">
 
           <p>To do this, I used this code:</p>
 
@@ -1296,11 +1296,11 @@ if __name__ == "__main__":
 
           <p>after running solve.py, it took a couple minutes but I do get successful run as seen here:</p>
 
-          <img class="writeup-img" src="/images/writups/Emoji_CAPTCHA/flag.png" alt="The Flag!" width="800">
+          <img class="writeup-img" src="/images/writeups/Emoji_CAPTCHA/flag.png" alt="The Flag!" width="800">
 
           <p>Flag: <code>srdnlen{0P3nCV_1S_f4St3R_tH4n_Y0uR_3y3S_36E19205F8AFDE9D}</code></p>
 
-          <img class="writeup-img" src="/images/writups/Emoji_CAPTCHA/firstblood.png" alt="First Blood message" width="800">
+          <img class="writeup-img" src="/images/writeups/Emoji_CAPTCHA/firstblood.png" alt="First Blood message" width="800">
         `,
       },
 
@@ -1310,11 +1310,11 @@ if __name__ == "__main__":
         subtitle:
           "Finding a flight and a trail with only a picture of a far away fogged mountain",
         difficulty: "hard",
-        category: "rev",
-        catColor: "#9ca3af", // gray
+        category: "osint",
+        catColor: "#88d5f9", //light blue for osint
         body: `
           <p class="writeup-meta">
-            <strong>Category:</strong> <span class="pill">rev</span>
+            <strong>Category:</strong> <span class="pill">osint</span>
           </p>
 
           <p class="writeup-meta">
@@ -1337,24 +1337,24 @@ if __name__ == "__main__":
 
           <p>I'll start by explaining how I found the location for part 2.</p>
 
-          <img class="writeup-img" src="/images/writups/Eye_on_the_Sky/chall2.jpg" alt="Challenge 1 Image" width="500">
+          <img class="writeup-img" src="/images/writeups/Eye_on_the_Sky/chall2.jpg" alt="Challenge 1 Image" width="500">
 
           <p>From several google sources and AI overviews, it is easy to conclude that the mountain in this image is Mount Rainier.</p>
 
-          <img class="writeup-img" src="/images/writups/Eye_on_the_Sky/google.png" alt="Mount Rainier" width="800">
+          <img class="writeup-img" src="/images/writeups/Eye_on_the_Sky/google.png" alt="Mount Rainier" width="800">
 
           <p>Although every source I went to said this was Mount Rainier, I double checked in Google earth. It's also good to note that bkctf was hosted in Washington, so this mountain had a higher liklihood of being the one in the image.</p>
 
-          <img class="writeup-img" src="/images/writups/Eye_on_the_Sky/googleearth1.png" alt="Mount Rainier" width="800">
+          <img class="writeup-img" src="/images/writeups/Eye_on_the_Sky/googleearth1.png" alt="Mount Rainier" width="800">
 
           <p>Now that we know this picture is of Mount Rainier, we need to find the locate where this image was taken from. Going back to google earth, if you look at this mountain from the north, you get the same lows and highs as seen from the picture:</p>
 
-          <img class="writeup-img" src="/images/writups/Eye_on_the_Sky/googleearth2.png" alt="Mount Rainier" width="800">
+          <img class="writeup-img" src="/images/writeups/Eye_on_the_Sky/googleearth2.png" alt="Mount Rainier" width="800">
 
           <p>After fiddling around in google earth a bit more, I was acurately able to find the approximate location the image was taken from.</p>
 
-          <img class="writeup-img" src="/images/writups/Eye_on_the_Sky/googleearth3.png" alt="Location" width="800">
-          <img class="writeup-img" src="/images/writups/Eye_on_the_Sky/googleearth4.png" alt="Comparison" width="800">
+          <img class="writeup-img" src="/images/writeups/Eye_on_the_Sky/googleearth3.png" alt="Location" width="800">
+          <img class="writeup-img" src="/images/writeups/Eye_on_the_Sky/googleearth4.png" alt="Comparison" width="800">
 
           <p>After taking this longitude and latitude and plugging it into google maps, the closest location to my google earth coordinates was "Poo Poo Point". Thus, the flag I submitted (and the one that was right) was <code>bkctf{poopoopoint}</code></p>
 
@@ -1362,7 +1362,7 @@ if __name__ == "__main__":
 
           <p>Now that we have the location of part 2, we can be more accurate in our flight decision for part 1.</p>
 
-          <img class="writeup-img" src="/images/writups/Eye_on_the_Sky/chall1.jpg" alt="Challenge 1 Image" width="500">
+          <img class="writeup-img" src="/images/writeups/Eye_on_the_Sky/chall1.jpg" alt="Challenge 1 Image" width="500">
 
           <p>The metadata of this image reveals when this photo was taken:</p>
 
@@ -1370,26 +1370,24 @@ if __name__ == "__main__":
 
           <p>Since this photo was taken from the west coast of the US, this time is given in PST. By adding 8 hours we get 17.18.43 UTC. By going to https://globe.adsbexchange.com, you can view all recent flights for free without a trial. By clicking the bottom replay button and plugging in the time 17:18:40 UTC (image is from a little after so we can see its path), we find no planes directly on top of poo poo point, but there was a plane really close to it and on route to get even closer.</p>
 
-          <img class="writeup-img" src="/images/writups/Eye_on_the_Sky/map.png" alt="The Plane" width="500">
+          <img class="writeup-img" src="/images/writeups/Eye_on_the_Sky/map.png" alt="The Plane" width="500">
 
           <p>If we assume that this is our plane, we need to now form the flag. As a reminder, the flag is made up of both the flight number and baggage carousel number of the given flight. To find this information, we need to gather information about the flight. On adsbexchange, we can gather this information:</p>
 
-          <img class="writeup-img" src="/images/writups/Eye_on_the_Sky/plane.png" alt="Plane Information" width="500">
+          <img class="writeup-img" src="/images/writeups/Eye_on_the_Sky/plane.png" alt="Plane Information" width="500">
 
           <p>We now know the ICAO flight identifier is ASA265. A quick google search shows that the code for the flight number is the AITA airline code + flight number. Since ASA is the ICAO code for Alaska Airlines, and 265 is the flight code, we get the flight number of <code>AS265</code>.</p>
 
           <p>We can then plug this information into Alaska Airline's check flight status portal at https://www.alaskaair.com/flightstatus to get the baggage claim carousel. Because Alaska Airlines only stores flight status for the current and previous day, we can use the Wayback Machine to look for archives of the flight. Conviniently, there is an archive of the day we are looking for.</p>
 
-          <img class="writeup-img" src="/images/writups/Eye_on_the_Sky/wayback.png" alt="Plane Information" width="500">
+          <img class="writeup-img" src="/images/writeups/Eye_on_the_Sky/wayback.png" alt="Plane Information" width="500">
 
-          <img class="writeup-img" src="/images/writups/Eye_on_the_Sky/alaska.png" alt="Plane Information" width="500">
+          <img class="writeup-img" src="/images/writeups/Eye_on_the_Sky/alaska.png" alt="Plane Information" width="500">
 
           <p>From there, we see the Carousel number is 23T2.</p>
 
           <p>This gives us the completed flag:
           <code>bkctf{AS265-23T2}</code></p>
-
-          <p>Note: I would normally be unsure about rating this a hard challenge, but for how hard it was for me to get both flags first try, I label it as hard.</p>
         `,
       },
 
@@ -1419,15 +1417,15 @@ if __name__ == "__main__":
 
           <p>For this flag, we are given the game files for a game called Kaizo Brackeys. Going through the directories, we can see that there is a file called UnityCrashHandler.exe. This tells us that this game was made with Unity. My first idea was to just run the Kaizo Brackeys.exe file. Running it brings up a menu where you can start the game.</p>
 
-          <img class="writeup-img" src="/images/writups/Kaizo_Brackeys/kaizo_brackeys_menu.png" alt="Kaizo Brackeys Menu" width="800">
+          <img class="writeup-img" src="/images/writeups/Kaizo_Brackeys/kaizo_brackeys_menu.png" alt="Kaizo Brackeys Menu" width="800">
 
           <p>Upon starting the game, you are placed into a game where you must avoid obstacles in order to reach the end. </p>
 
-          <img class="writeup-img" src="/images/writups/Kaizo_Brackeys/kaizo_brackeys_game.png" alt="Kaizo Brackeys Running" width="800">
+          <img class="writeup-img" src="/images/writeups/Kaizo_Brackeys/kaizo_brackeys_game.png" alt="Kaizo Brackeys Running" width="800">
 
           <p>The first level is completable by going to the right. Once a level has been beaten, this screen comes up.</p>
 
-          <img class="writeup-img" src="/images/writups/Kaizo_Brackeys/kaizo_brackeys_complete.png" alt="Kaizo Brackeys Level Change" width="800">
+          <img class="writeup-img" src="/images/writeups/Kaizo_Brackeys/kaizo_brackeys_complete.png" alt="Kaizo Brackeys Level Change" width="800">
 
           <p>We are then brought to the next level, which is impractical to beat without cheats. Doing all of this helps us understand how this game works. If you reach the end of a level, you are brought to the next level. With this in mind, it is viable (<em>but not true, more on that later</em>) to believe that once we beat the game, we get the flag.</p>
 
@@ -1534,7 +1532,7 @@ public class PlayerMovement : MonoBehaviour
 
           <p>With that, you can now run the kaizo_brackeys.exe file again and breeze through all of the levels until you get to this screen: </p>
 
-          <img class="writeup-img" src="/images/writups/Kaizo_Brackeys/kaizo_brackeys_credits.png" alt="Kaizo Brackeys Menu" width="800">
+          <img class="writeup-img" src="/images/writeups/Kaizo_Brackeys/kaizo_brackeys_credits.png" alt="Kaizo Brackeys Menu" width="800">
 
           <p>By pressing the exit button, all that happens is the game closes. It seems our previous assumption of the flag being in the credits was wrong. Our best bet now is to find more information about the game, and a good way of doing that is through a software called <a href="https://assetripper.github.io/AssetRipper/articles/Downloads.html" target="_blank" rel="noopener">Asset Ripper</a>.</p>
 
@@ -1549,11 +1547,11 @@ I should note, Asset Ripper only gathers assets, so the full game will not be ru
 
           <p>Once I got the file open in Unity, The first thing I did was look for the credits scene to see if I was missing something. What I saw in the scenes file was interesting.</p>
 
-          <img class="writeup-img" src="/images/writups/Kaizo_Brackeys/kaizo_brackeys_scenes.png" alt="Kaizo Brackeys Scenes" width="800">
+          <img class="writeup-img" src="/images/writeups/Kaizo_Brackeys/kaizo_brackeys_scenes.png" alt="Kaizo Brackeys Scenes" width="800">
 
           <p>As I remembered, the game did not seem like it was 6 levels long. We can confirm this by looking at the scene list (<code>File</code> &gt;&gt; <code>Build Profiles</code>). From there, we can see that the scenes are organised as such:</p>
 
-          <img class="writeup-img" src="/images/writups/Kaizo_Brackeys/kaizo_brackeys_scene_list.png" alt="Kaizo Brackeys Scene List" width="800">
+          <img class="writeup-img" src="/images/writeups/Kaizo_Brackeys/kaizo_brackeys_scene_list.png" alt="Kaizo Brackeys Scene List" width="800">
 
           <p>As we can see, the credits scene is executed early, not allowing us to get to the last two scenes. If we go back to our DnSpy application, we can get around this by simply skipping the credits scene in the <code>LevelComplete</code> script we looked at earlier.</p>
 
@@ -1579,13 +1577,13 @@ public class LevelComplete : MonoBehaviour
           <p>Once we save this code, we can run the program, and it successfully skips the credits scene and lets us go on to level 5 and 6. Level 5 you can complete normally, but if you take a close look at Level 6's format, you can tell that after the only 2 block tall obstacle, it spells out the flag:</p>
 
           <p><em>View of the 2 block tall obstacle</em></p>
-          <img class="writeup-img" src="/images/writups/Kaizo_Brackeys/kaizo_brackeys_flag_one.png" alt="Kaizo Brackeys Flag Block" width="800">
+          <img class="writeup-img" src="/images/writeups/Kaizo_Brackeys/kaizo_brackeys_flag_one.png" alt="Kaizo Brackeys Flag Block" width="800">
 
           <p><em>View of "LIT..." from the right.</em></p>
-          <img class="writeup-img" src="/images/writups/Kaizo_Brackeys/kaizo_brackeys_flag_two.png" alt="Kaizo Brackeys Flag Part 1" width="800">
+          <img class="writeup-img" src="/images/writeups/Kaizo_Brackeys/kaizo_brackeys_flag_two.png" alt="Kaizo Brackeys Flag Part 1" width="800">
 
           <p><em>View of "LIT..." from above.</em></p>
-          <img class="writeup-img" src="/images/writups/Kaizo_Brackeys/kaizo_brackeys_flag_three.png" alt="Kaizo Brackeys Flag Part 2" width="800">
+          <img class="writeup-img" src="/images/writeups/Kaizo_Brackeys/kaizo_brackeys_flag_three.png" alt="Kaizo Brackeys Flag Part 2" width="800">
 
           <p>By slowly moving forward and writing down each character, you spell the flag:</p>
 
@@ -2160,8 +2158,8 @@ The code that divides the flag simplifies down to the line <code>os._exit(2)</co
       // direct-link support
       openFromUrl(false);
 
-      // cross-view event support (index -> writups)
-      window.addEventListener("writups:open", (e) => {
+      // cross-view event support (index -> writeups)
+      window.addEventListener("writeups:open", (e) => {
         const id = e?.detail?.id;
         if (!id) return;
 
@@ -2178,7 +2176,7 @@ The code that divides the flag simplifies down to the line <code>os._exit(2)</co
       });
 
       // close any open card when index switches back to "about me"
-      window.addEventListener("writups:close", () => {
+      window.addEventListener("writeups:close", () => {
         closeAll();
       });
 
@@ -2197,7 +2195,7 @@ The code that divides the flag simplifies down to the line <code>os._exit(2)</co
             l(
               "p",
               null,
-              "Here are a couple of ctf writups I've written. I plan to post more of these here as time goes on."
+              "Here are a couple of ctf writeups I've written. I plan to post more of these here as time goes on. I won't post AI slop here, all of it is written by me."
             ),
           ]),
         ]),
@@ -2305,4 +2303,4 @@ The code that divides the flag simplifies down to the line <code>os._exit(2)</co
   },
 });
 
-export { Writups as default };
+export { Writeups as default };

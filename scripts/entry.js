@@ -32196,8 +32196,8 @@ class ThreeScene {
 
         // internal perf helpers
         Ye(this, "_sceneRootEl", null);
-        Ye(this, "_inWritups", !1);
-        Ye(this, "_writupsObserver", null);
+        Ye(this, "_inWriteups", !1);
+        Ye(this, "_writeupsObserver", null);
         Ye(this, "_tmpMat4", new Float32Array(16));
         Ye(this, "_tmpNMat3", new Float32Array(9));
 
@@ -32288,8 +32288,8 @@ class ThreeScene {
         };
         requestAnimationFrame(rebind);
 
-        // perf: observe writups mode instead of querying every frame
-        this._setupWritupsObserver();
+        // perf: observe writeups mode instead of querying every frame
+        this._setupWriteupsObserver();
 
         this.updateSizes();
         this.updateScroll();
@@ -32321,10 +32321,10 @@ class ThreeScene {
             this.cameraGroup.position.y = 13;
         }
 
-        // perf: no querySelector in hot loop (observer keeps this._inWritups updated)
+        // perf: no querySelector in hot loop (observer keeps this._inWriteups updated)
         let t = this.cameraGroup.position.z; // default: hold current z (freeze)
 
-        if (!this._inWritups) {
+        if (!this._inWriteups) {
             if (this.currentPage < ls) {
             t =
                 this.cameraStartPos +
@@ -32347,8 +32347,8 @@ class ThreeScene {
         if (this.isDemo) this.stats.update();
     }
     updateScroll() {
-        // Don't let writups scrolling affect camera travel
-        if (this._inWritups) return;
+        // Don't let writeups scrolling affect camera travel
+        if (this._inWriteups) return;
 
         const el = this.scrollElement;
 
@@ -33305,22 +33305,22 @@ class ThreeScene {
         const dpr = window.devicePixelRatio || 1;
         return Math.min(dpr, 2);
     }
-    _setupWritupsObserver() {
+    _setupWriteupsObserver() {
         const tryFind = () => document.querySelector(".scene") || null;
 
         this._sceneRootEl = tryFind();
-        this._inWritups = !!(this._sceneRootEl && this._sceneRootEl.classList.contains("is-writups"));
+        this._inWriteups = !!(this._sceneRootEl && this._sceneRootEl.classList.contains("is-writeups"));
 
-        if (this._writupsObserver) {
-            try { this._writupsObserver.disconnect(); } catch (_) {}
-            this._writupsObserver = null;
+        if (this._writeupsObserver) {
+            try { this._writeupsObserver.disconnect(); } catch (_) {}
+            this._writeupsObserver = null;
         }
 
         if (this._sceneRootEl && "MutationObserver" in window) {
-            this._writupsObserver = new MutationObserver(() => {
-            this._inWritups = this._sceneRootEl.classList.contains("is-writups");
+            this._writeupsObserver = new MutationObserver(() => {
+            this._inWriteups = this._sceneRootEl.classList.contains("is-writeups");
             });
-            this._writupsObserver.observe(this._sceneRootEl, { attributes: !0, attributeFilter: ["class"] });
+            this._writeupsObserver.observe(this._sceneRootEl, { attributes: !0, attributeFilter: ["class"] });
             return;
         }
 
@@ -33329,12 +33329,12 @@ class ThreeScene {
             if (this._sceneRootEl) return;
             this._sceneRootEl = tryFind();
             if (this._sceneRootEl) {
-            this._inWritups = this._sceneRootEl.classList.contains("is-writups");
+            this._inWriteups = this._sceneRootEl.classList.contains("is-writeups");
             if ("MutationObserver" in window) {
-                this._writupsObserver = new MutationObserver(() => {
-                this._inWritups = this._sceneRootEl.classList.contains("is-writups");
+                this._writeupsObserver = new MutationObserver(() => {
+                this._inWriteups = this._sceneRootEl.classList.contains("is-writeups");
                 });
-                this._writupsObserver.observe(this._sceneRootEl, { attributes: !0, attributeFilter: ["class"] });
+                this._writeupsObserver.observe(this._sceneRootEl, { attributes: !0, attributeFilter: ["class"] });
             }
             return;
             }

@@ -1,7 +1,7 @@
-/* writups.css */
-/* Writups-only layout bits (theme uses your existing :root vars in index.css) */
+/* writeups.css */
+/* Writeups-only layout bits (theme uses your existing :root vars in index.css) */
 
-.writups-container {
+.writeups-container {
   width: 77%;
   margin: auto;
 
@@ -22,7 +22,7 @@
 }
 
 /* =========================================================
-   GAP / CENTERING FIX (scoped to writups page)
+   GAP / CENTERING FIX (scoped to writeups page)
    index.css sets:
      .main-block { min-height: 100dvh; padding-block: 5rem; justify-content:center; }
    That makes the intro consume a full viewport and pushes the list far down.
@@ -32,7 +32,7 @@
    - add responsive top padding so the intro "starts around the middle"
    - keep bottom padding small so the list is closer
    ========================================================= */
-.writups-container .main-block {
+.writeups-container .main-block {
   min-height: auto !important;
 
   /* approximate vertical centering without consuming a whole screen */
@@ -48,12 +48,12 @@
 }
 
 /* remove default bottom margin on the intro paragraph */
-.writups-container .text-block p {
+.writeups-container .text-block p {
   margin-bottom: 0;
 }
 
 /* List of cards */
-.writups-list {
+.writeups-list {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;

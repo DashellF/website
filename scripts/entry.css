@@ -135,13 +135,13 @@ ul li::marker {
    Force the inactive face AND ALL descendants to be non-interactive
    ========================================================= */
 
-.scene:not(.is-writups) .writups-view,
-.scene:not(.is-writups) .writups-view * {
+.scene:not(.is-writeups) .writeups-view,
+.scene:not(.is-writeups) .writeups-view * {
   pointer-events: none !important;
 }
 
-.scene.is-writups .index-view,
-.scene.is-writups .index-view * {
+.scene.is-writeups .index-view,
+.scene.is-writeups .index-view * {
   pointer-events: none !important;
 }
 
