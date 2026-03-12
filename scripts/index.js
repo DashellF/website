@@ -164,7 +164,7 @@ const SectionsBottom = P(
     "<h2>Experience</h2>" +
     "<p>I was on my high school's cyber competition team my senior year, participating in many ctfs and Cyberpatriot.</p>" +
     "<p>I did/am doing cptc and ccdc my freshman year at SDSU.</p>" +
-    "<p>I've also been doing ctfs every week for about a year now (currently 5th in the US on <a class=\"link\" href=\"https://ctftime.org/team/419145\" target=\"_blank\" rel=\"noopener noreferrer\">CTFTime</a>).</p>" +
+    "<p>I've also been doing ctfs every week for about a year now (currently 9th in the US on <a class=\"link\" href=\"https://ctftime.org/team/419145\" target=\"_blank\" rel=\"noopener noreferrer\">CTFTime</a>).</p>" +
     "</div></div>" +
     '<div class="main-block"><div class="text-block">' +
     "<h2>Skills</h2>" +
