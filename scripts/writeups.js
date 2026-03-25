@@ -1870,12 +1870,12 @@ def replace_obfuscated_select_constants(file_path):
 
 )</code></pre>
 
-          <p>once that is done, you get this file:</p>
+          <p>From here, we can just continue to run the scripts mentioned above. After that has been done, you get this file:</p>
 
           <pre><code class="language-python">import collections
 print('L'+'I'+'T'+'C'+'T'+'F'+'{'+'h'+'0'+'w'+'_'+'c'+'0'+'n'+'v'+'o'+'l'+'u'+'7'+'e'+'d'+'_'+'c'+'4'+'n'+'_'+'i'+'7'+'_'+'g'+__builtins__['__import__']('types').FunctionType(__builtins__['__import__']('marshal').loads(__builtins__['bytes'].fromhex('630000000000000000000000000300000000000000f3300000009700640064016c005a00020065006a020000000000000000000000000000000000006402ab01000000000000010079012903e9000000004ee9010000002902da026f73da055f65786974a900f300000000fa033c783efa083c6d6f64756c653e7208000000010000007314000000f003010101db0009883888328f38893890418d3b7206000000')), {'os': __builtins__['__import__']('os')})()+'3'+'7'+'_'+'f'+'0'+'r'+'_'+'0'+'n'+'3'+'_'+'s'+'1'+'m'+'p'+'l'+'3'+'_'+'w'+'0'+'r'+'k'+'4'+'r'+'o'+'u'+'n'+'d'+'?'+'?'+'}')</code></pre>
 
-          <p>If we skip the middle statement, we can read the full flag:
+          <p>If we simplify once more and skip the middle statement, we can read the full flag:
           <code>LITCTF{h0w_c0nvolu7ed_c4n_i7_g37_f0r_0n3_s1mpl3_w0rk4round??}</code></p>
 
           <p>If we continue to simplify this code, we can see what was crashing the code.

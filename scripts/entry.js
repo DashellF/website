@@ -32184,6 +32184,7 @@ class ThreeScene {
         Ye(this, "renderer");
         Ye(this, "clock", new CA());
         Ye(this, "plane");
+        Ye(this, "cabinScale", 1.1);
         Ye(this, "mousePos", { x: 0, y: 0 });
         Ye(this, "textDownPosition", 3);
         Ye(this, "textUpPosition", 8);
@@ -32418,6 +32419,7 @@ class ThreeScene {
         this.addForest();
         this.addGrassPatches();
         this.addTallGrassPatches();
+        this.addLogCabin();
         this.leafFall = this.addLeafFall()
 
     }
@@ -33770,6 +33772,686 @@ class ThreeScene {
         pts.renderOrder = 2;
         this.scene.add(pts);
         return pts;
+    }
+    addLogCabin() {
+        if (this.logCabin) this._disposeObject(this.logCabin);
+
+        const prof = this.pathProfile;
+        if (!prof) return;
+
+        const houseScale = this.cabinScale ?? 1.2;
+        const S = (v) => v * houseScale;
+
+        const makeBoxGeometry = (w, h, d) => {
+            const hx = w * 0.5, hy = h * 0.5, hz = d * 0.5;
+            const positions = [];
+            const normals = [];
+            const uvs = [];
+            const indices = [];
+            let v = 0;
+
+            const pushFace = (verts, nx, ny, nz) => {
+                for (let i = 0; i < 4; i++) {
+                    positions.push(verts[i][0], verts[i][1], verts[i][2]);
+                    normals.push(nx, ny, nz);
+                }
+                uvs.push(0, 0, 1, 0, 1, 1, 0, 1);
+                indices.push(v, v + 1, v + 2, v, v + 2, v + 3);
+                v += 4;
+            };
+
+            pushFace([[-hx,-hy, hz],[ hx,-hy, hz],[ hx, hy, hz],[-hx, hy, hz]], 0,0,1);
+            pushFace([[ hx,-hy,-hz],[-hx,-hy,-hz],[-hx, hy,-hz],[ hx, hy,-hz]], 0,0,-1);
+            pushFace([[ hx,-hy, hz],[ hx,-hy,-hz],[ hx, hy,-hz],[ hx, hy, hz]], 1,0,0);
+            pushFace([[-hx,-hy,-hz],[-hx,-hy, hz],[-hx, hy, hz],[-hx, hy,-hz]], -1,0,0);
+            pushFace([[-hx, hy, hz],[ hx, hy, hz],[ hx, hy,-hz],[-hx, hy,-hz]], 0,1,0);
+            pushFace([[-hx,-hy,-hz],[ hx,-hy,-hz],[ hx,-hy, hz],[-hx,-hy, hz]], 0,-1,0);
+
+            const geo = new Zt();
+            geo.setIndex(indices);
+            geo.setAttribute("position", new Tt(new Float32Array(positions), 3));
+            geo.setAttribute("normal", new Tt(new Float32Array(normals), 3));
+            geo.setAttribute("uv", new Tt(new Float32Array(uvs), 2));
+            geo.computeBoundingBox?.();
+            geo.computeBoundingSphere?.();
+            return geo;
+        };
+
+        const makePrismLogGeometry = (length, radius, axis = "x", sides = 14) => {
+            const positions = [];
+            const normals = [];
+            const uvs = [];
+            const indices = [];
+
+            const ringA = [];
+            const ringB = [];
+
+            for (let i = 0; i < sides; i++) {
+                const a = (i / sides) * Math.PI * 2;
+                const cy = Math.cos(a) * radius;
+                const cz = Math.sin(a) * radius;
+
+                if (axis === "x") {
+                    ringA.push([-length * 0.5, cy, cz]);
+                    ringB.push([ length * 0.5, cy, cz]);
+                } else {
+                    ringA.push([cy, cz, -length * 0.5]);
+                    ringB.push([cy, cz,  length * 0.5]);
+                }
+            }
+
+            let v = 0;
+
+            for (let i = 0; i < sides; i++) {
+                const j = (i + 1) % sides;
+
+                const a0 = ringA[i];
+                const a1 = ringA[j];
+                const b1 = ringB[j];
+                const b0 = ringB[i];
+
+                const ang0 = (i / sides) * Math.PI * 2;
+                const ang1 = (j / sides) * Math.PI * 2;
+
+                const n0 = axis === "x"
+                    ? [0, Math.cos(ang0), Math.sin(ang0)]
+                    : [Math.cos(ang0), Math.sin(ang0), 0];
+
+                const n1 = axis === "x"
+                    ? [0, Math.cos(ang1), Math.sin(ang1)]
+                    : [Math.cos(ang1), Math.sin(ang1), 0];
+
+                positions.push(
+                    a0[0], a0[1], a0[2],
+                    a1[0], a1[1], a1[2],
+                    b1[0], b1[1], b1[2],
+                    b0[0], b0[1], b0[2]
+                );
+
+                normals.push(
+                    n0[0], n0[1], n0[2],
+                    n1[0], n1[1], n1[2],
+                    n1[0], n1[1], n1[2],
+                    n0[0], n0[1], n0[2]
+                );
+
+                uvs.push(0, 0, 1, 0, 1, 1, 0, 1);
+                indices.push(v, v + 1, v + 2, v, v + 2, v + 3);
+                v += 4;
+            }
+
+            const pushCap = (ring, sign) => {
+                const center = axis === "x"
+                    ? [sign * length * 0.5, 0, 0]
+                    : [0, 0, sign * length * 0.5];
+
+                const base = v;
+                positions.push(center[0], center[1], center[2]);
+                normals.push(axis === "x" ? sign : 0, 0, axis === "z" ? sign : 0);
+                uvs.push(0.5, 0.5);
+                v += 1;
+
+                for (let i = 0; i < sides; i++) {
+                    const p = ring[i];
+                    positions.push(p[0], p[1], p[2]);
+                    normals.push(axis === "x" ? sign : 0, 0, axis === "z" ? sign : 0);
+
+                    const ux = axis === "x" ? p[2] : p[0];
+                    const uy = p[1];
+                    uvs.push(0.5 + ux / (radius * 2), 0.5 + uy / (radius * 2));
+                    v += 1;
+                }
+
+                for (let i = 0; i < sides; i++) {
+                    const j = (i + 1) % sides;
+                    if (sign > 0) indices.push(base, base + 1 + i, base + 1 + j);
+                    else indices.push(base, base + 1 + j, base + 1 + i);
+                }
+            };
+
+            pushCap(ringA, -1);
+            pushCap(ringB, 1);
+
+            const geo = new Zt();
+            geo.setIndex(indices);
+            geo.setAttribute("position", new Tt(new Float32Array(positions), 3));
+            geo.setAttribute("normal", new Tt(new Float32Array(normals), 3));
+            geo.setAttribute("uv", new Tt(new Float32Array(uvs), 2));
+            geo.computeBoundingBox?.();
+            geo.computeBoundingSphere?.();
+            return geo;
+        };
+
+        const makeRingGeometry = (innerR, outerR, axis = "x", sides = 28) => {
+            const positions = [];
+            const normals = [];
+            const uvs = [];
+            const indices = [];
+            let v = 0;
+
+            for (let i = 0; i < sides; i++) {
+                const a0 = (i / sides) * Math.PI * 2;
+                const a1 = ((i + 1) / sides) * Math.PI * 2;
+
+                const c0 = Math.cos(a0), s0 = Math.sin(a0);
+                const c1 = Math.cos(a1), s1 = Math.sin(a1);
+
+                let p0, p1, p2, p3, nx, ny, nz;
+
+                if (axis === "x") {
+                    p0 = [0, c0 * innerR, s0 * innerR];
+                    p1 = [0, c1 * innerR, s1 * innerR];
+                    p2 = [0, c1 * outerR, s1 * outerR];
+                    p3 = [0, c0 * outerR, s0 * outerR];
+                    nx = 1; ny = 0; nz = 0;
+                } else {
+                    p0 = [c0 * innerR, s0 * innerR, 0];
+                    p1 = [c1 * innerR, s1 * innerR, 0];
+                    p2 = [c1 * outerR, s1 * outerR, 0];
+                    p3 = [c0 * outerR, s0 * outerR, 0];
+                    nx = 0; ny = 0; nz = 1;
+                }
+
+                positions.push(
+                    p0[0], p0[1], p0[2],
+                    p1[0], p1[1], p1[2],
+                    p2[0], p2[1], p2[2],
+                    p3[0], p3[1], p3[2]
+                );
+
+                normals.push(nx, ny, nz, nx, ny, nz, nx, ny, nz, nx, ny, nz);
+                uvs.push(0, 0, 1, 0, 1, 1, 0, 1);
+                indices.push(v, v + 1, v + 2, v, v + 2, v + 3);
+                v += 4;
+            }
+
+            const geo = new Zt();
+            geo.setIndex(indices);
+            geo.setAttribute("position", new Tt(new Float32Array(positions), 3));
+            geo.setAttribute("normal", new Tt(new Float32Array(normals), 3));
+            geo.setAttribute("uv", new Tt(new Float32Array(uvs), 2));
+            geo.computeBoundingBox?.();
+            geo.computeBoundingSphere?.();
+            return geo;
+        };
+
+        const addMesh = (parent, geo, mat, x, y, z, rx = 0, ry = 0, rz = 0, name = "") => {
+            const m = new Vt(geo, mat);
+            if (name) m.name = name;
+            m.position.set(x, y, z);
+            m.rotation.set(rx, ry, rz);
+            parent.add(m);
+            return m;
+        };
+
+        const addBox = (parent, w, h, d, mat, x, y, z, rx = 0, ry = 0, rz = 0, name = "") =>
+            addMesh(parent, makeBoxGeometry(w, h, d), mat, x, y, z, rx, ry, rz, name);
+
+        const addLogMesh = (parent, length, radius, axis, mat, x, y, z, rx = 0, ry = 0, rz = 0, name = "") =>
+            addMesh(parent, makePrismLogGeometry(length, radius, axis), mat, x, y, z, rx, ry, rz, name);
+
+        const addRing = (parent, innerR, outerR, axis, mat, x, y, z, rx = 0, ry = 0, rz = 0) =>
+            addMesh(parent, makeRingGeometry(innerR, outerR, axis), mat, x, y, z, rx, ry, rz);
+
+        const subtractIntervals = (segments, cutMin, cutMax) => {
+            const out = [];
+            for (let i = 0; i < segments.length; i++) {
+                const a = segments[i][0];
+                const b = segments[i][1];
+                if (cutMax <= a || cutMin >= b) {
+                    out.push([a, b]);
+                    continue;
+                }
+                if (cutMin > a) out.push([a, cutMin]);
+                if (cutMax < b) out.push([cutMax, b]);
+            }
+            return out;
+        };
+
+        const hash01 = (a, b = 0, c = 0, d = 0) => {
+            let x =
+                (((a + 1) * 374761393) ^
+                ((b + 1) * 668265263) ^
+                ((c + 1) * 2147483647) ^
+                ((d + 1) * 1274126177)) >>> 0;
+            x ^= x >>> 13;
+            x = Math.imul(x, 1274126177) >>> 0;
+            x ^= x >>> 16;
+            return x / 4294967295;
+        };
+
+        const forward = Math.sign(prof.zEnd - prof.zStart) || -1;
+        const frontDirZ = -forward;
+        const cabinRotationY = frontDirZ > 0 ? 0 : Math.PI;
+
+        const pathEndX = prof.centers[prof.centers.length - 1] ?? 0;
+        const pathEndZ = prof.zEnd;
+
+        const cabinW = S(21.5);
+        const cabinD = S(15.8);
+        const cabinH = S(12.9);
+
+        const patioW = S(12.0);
+        const patioD = S(6.0);
+        const patioT = S(0.36);
+
+        const groundY = -10;
+        const pathY = -9.88;
+        const patioTopY = -8.55;
+        const floorY = patioTopY + S(0.20);
+        const wallTopY = floorY + cabinH;
+
+        const stairCount = 4;
+        const stairRun = S(0.72);
+        const stairW = S(5.9);
+
+        const outerReach = cabinD * 0.5 + patioD + stairCount * stairRun;
+
+        const cabin = new Gt();
+        cabin.name = "logCabin";
+        cabin.position.set(
+            pathEndX,
+            0,
+            pathEndZ + forward * (outerReach - S(0.2))
+        );
+        cabin.rotation.y = cabinRotationY;
+
+        const logMat = new Td({ color: 0x6f4528, flatShading: !0 });
+        const logDarkStreakMat = new Td({ color: 0x4a2a18, flatShading: !0 });
+        const logEndRingMat = new Td({ color: 0x452615, flatShading: !0, side: Wt });
+
+        const patioMat = new Td({ color: 0x56402d, flatShading: !0 });
+        const patioLightMat = new Td({ color: 0x6a4c35, flatShading: !0 });
+
+        const foundationMat = new Td({ color: 0x625349, flatShading: !0 });
+
+        const doorMat = new Td({ color: 0x3c2517, flatShading: !0 });
+        const doorLightMat = new Td({ color: 0x69422a, flatShading: !0 });
+        const metalMat = new Td({ color: 0xcdd2d8, flatShading: !0 });
+
+        const recessMat = new Td({ color: 0x2a1a12, flatShading: !0 });
+        const windowFrameMat = new Td({ color: 0x4b2d1a, flatShading: !0 });
+        const windowPaneMat = new Td({ color: 0x93d3ff, flatShading: !0, side: Wt });
+        windowPaneMat.polygonOffset = true;
+        windowPaneMat.polygonOffsetFactor = -2;
+        windowPaneMat.polygonOffsetUnits = -2;
+
+        const roofBaseMat = new Td({ color: 0x44291b, flatShading: !0 });
+        const roofTileMat = new Td({ color: 0x553424, flatShading: !0 });
+        const roofTileDarkMat = new Td({ color: 0x3a2218, flatShading: !0 });
+
+        const chimneyMat = new Td({ color: 0xa7a29c, flatShading: !0 });
+        const chimneyCapMat = new Td({ color: 0x4b4742, flatShading: !0 });
+
+        addBox(cabin, cabinW + S(0.9), S(1.10), cabinD + S(0.9), foundationMat, 0, floorY - S(0.60), 0);
+
+        const patioCenterZ = cabinD * 0.5 + patioD * 0.5;
+        addBox(cabin, patioW, patioT, patioD, patioMat, 0, patioTopY - patioT * 0.5, patioCenterZ, 0, 0, 0, "cabinPatio");
+
+        for (let i = 0; i < 8; i++) {
+            const x = -patioW * 0.5 + (i + 0.5) * (patioW / 8);
+            addBox(cabin, patioW / 8 - S(0.06), S(0.035), patioD - S(0.16), patioLightMat, x, patioTopY + S(0.02), patioCenterZ);
+        }
+
+        const postH = patioTopY - groundY;
+        const postY = groundY + postH * 0.5;
+        const postX = patioW * 0.5 - S(0.55);
+        const postZ0 = cabinD * 0.5 + S(0.70);
+        const postZ1 = cabinD * 0.5 + patioD - S(0.70);
+
+        addBox(cabin, S(0.32), postH, S(0.32), foundationMat, -postX, postY, postZ0);
+        addBox(cabin, S(0.32), postH, S(0.32), foundationMat,  postX, postY, postZ0);
+        addBox(cabin, S(0.32), postH, S(0.32), foundationMat, -postX, postY, postZ1);
+        addBox(cabin, S(0.32), postH, S(0.32), foundationMat,  postX, postY, postZ1);
+
+        const rise = (patioTopY - pathY) / stairCount;
+        const patioOuterFront = cabinD * 0.5 + patioD;
+
+        for (let i = 0; i < stairCount; i++) {
+            const treadTop = pathY + rise * (stairCount - i);
+            const stepH = S(0.24) + (stairCount - 1 - i) * S(0.02);
+            const y = treadTop - stepH * 0.5;
+            const z = patioOuterFront + (i + 0.5) * stairRun;
+
+            addBox(cabin, stairW, stepH, stairRun + S(0.02), patioMat, 0, y, z);
+            addBox(cabin, stairW - S(0.14), S(0.03), stairRun - S(0.08), patioLightMat, 0, treadTop + S(0.01), z);
+        }
+
+        addBox(cabin, S(0.30), patioTopY - groundY, stairCount * stairRun + S(0.16), foundationMat,
+            -stairW * 0.5 + S(0.18),
+            groundY + (patioTopY - groundY) * 0.5,
+            patioOuterFront + stairCount * stairRun * 0.5
+        );
+        addBox(cabin, S(0.30), patioTopY - groundY, stairCount * stairRun + S(0.16), foundationMat,
+            stairW * 0.5 - S(0.18),
+            groundY + (patioTopY - groundY) * 0.5,
+            patioOuterFront + stairCount * stairRun * 0.5
+        );
+
+        const logR = S(0.62);
+        const rowPitch = S(1.00);
+
+        const doorW = S(3.25);
+        const doorH = S(6.8);
+        const doorY = floorY + doorH * 0.5 + S(0.04);
+
+        const windowSize = S(2.55);
+        const windowY = floorY + S(4.75);
+        const windowOffsetX = S(5.95);
+
+        const frontZ = cabinD * 0.5;
+        const backZ = -cabinD * 0.5;
+        const sideX = cabinW * 0.5;
+
+        const doorOpen = {
+            minX: -doorW * 0.5 - S(0.12),
+            maxX:  doorW * 0.5 + S(0.12),
+            minY: floorY + S(0.02),
+            maxY: floorY + doorH + S(0.14)
+        };
+
+        const leftWinOpen = {
+            minX: -windowOffsetX - windowSize * 0.5 - S(0.10),
+            maxX: -windowOffsetX + windowSize * 0.5 + S(0.10),
+            minY: windowY - windowSize * 0.5 - S(0.10),
+            maxY: windowY + windowSize * 0.5 + S(0.10)
+        };
+
+        const rightWinOpen = {
+            minX: windowOffsetX - windowSize * 0.5 - S(0.10),
+            maxX: windowOffsetX + windowSize * 0.5 + S(0.10),
+            minY: windowY - windowSize * 0.5 - S(0.10),
+            maxY: windowY + windowSize * 0.5 + S(0.10)
+        };
+
+        const openings = [doorOpen, leftWinOpen, rightWinOpen];
+
+        const addLogEndRings = (axis, x, y, z, length, radius, showA, showB) => {
+            const eps = S(0.02);
+
+            if (axis === "x") {
+                if (showA) {
+                    addRing(cabin, radius * 0.24, radius * 0.29, "x", logEndRingMat, x - length * 0.5 - eps, y, z, 0, Math.PI, 0);
+                    addRing(cabin, radius * 0.54, radius * 0.59, "x", logEndRingMat, x - length * 0.5 - eps, y, z, 0, Math.PI, 0);
+                }
+                if (showB) {
+                    addRing(cabin, radius * 0.24, radius * 0.29, "x", logEndRingMat, x + length * 0.5 + eps, y, z);
+                    addRing(cabin, radius * 0.54, radius * 0.59, "x", logEndRingMat, x + length * 0.5 + eps, y, z);
+                }
+            } else {
+                if (showA) {
+                    addRing(cabin, radius * 0.24, radius * 0.29, "z", logEndRingMat, x, y, z - length * 0.5 - eps, 0, Math.PI, 0);
+                    addRing(cabin, radius * 0.54, radius * 0.59, "z", logEndRingMat, x, y, z - length * 0.5 - eps, 0, Math.PI, 0);
+                }
+                if (showB) {
+                    addRing(cabin, radius * 0.24, radius * 0.29, "z", logEndRingMat, x, y, z + length * 0.5 + eps);
+                    addRing(cabin, radius * 0.54, radius * 0.59, "z", logEndRingMat, x, y, z + length * 0.5 + eps);
+                }
+            }
+        };
+
+        const addLogSurfaceStreaks = (axis, x, y, z, length, radius, row, seg, faceKind) => {
+            const streakCount = 2 + Math.floor(hash01(row, seg, faceKind, 1) * 4);
+
+            for (let i = 0; i < streakCount; i++) {
+                const w = length * (0.15 + hash01(row, seg, faceKind, 10 + i) * 0.22);
+                const offMain = (hash01(row, seg, faceKind, 20 + i) - 0.5) * (length * 0.60);
+                const offCross = (hash01(row, seg, faceKind, 30 + i) - 0.5) * (radius * 0.48);
+                const t = S(0.04);
+
+                if (axis === "x") {
+                    addBox(
+                        cabin,
+                        w,
+                        t,
+                        t,
+                        logDarkStreakMat,
+                        x + offMain,
+                        y + offCross,
+                        z + (faceKind > 0 ? radius * 0.98 : -radius * 0.98)
+                    );
+                } else {
+                    addBox(
+                        cabin,
+                        t,
+                        t,
+                        w,
+                        logDarkStreakMat,
+                        x + (faceKind > 0 ? radius * 0.98 : -radius * 0.98),
+                        y + offCross,
+                        z + offMain
+                    );
+                }
+            }
+        };
+
+        const addDetailedLog = (length, radius, axis, x, y, z, row, seg, faceKind, showEndA = true, showEndB = true) => {
+            addLogMesh(cabin, length, radius, axis, logMat, x, y, z);
+            addLogSurfaceStreaks(axis, x, y, z, length, radius, row, seg, faceKind);
+            addLogEndRings(axis, x, y, z, length, radius, showEndA, showEndB);
+        };
+
+        const roofRun = cabinW * 0.5 + S(1.65);
+        const roofRise = S(5.15);
+        const roofLen = Math.sqrt(roofRun * roofRun + roofRise * roofRise);
+        const roofAngle = Math.atan2(roofRise, roofRun);
+        const roofDepth = cabinD + S(2.5);
+        const roofT = S(0.34);
+        const eaveY = wallTopY + S(0.38);
+        const ridgeY = eaveY + roofRise;
+
+        const rows = Math.floor((cabinH + S(1.5)) / rowPitch);
+
+        const addFrontRow = (y, rowIndex) => {
+            const xDominant = (rowIndex % 2) === 0;
+            const inset = xDominant ? 0 : logR * 1.05;
+            let segments = [[-cabinW * 0.5 + inset, cabinW * 0.5 - inset]];
+
+            for (let i = 0; i < openings.length; i++) {
+                const o = openings[i];
+                const rowMin = y - logR * 0.92;
+                const rowMax = y + logR * 0.92;
+                if (rowMax > o.minY && rowMin < o.maxY) {
+                    segments = subtractIntervals(segments, o.minX, o.maxX);
+                }
+            }
+
+            const overhang = xDominant ? S(1.10) : 0;
+
+            for (let i = 0; i < segments.length; i++) {
+                const a = segments[i][0];
+                const b = segments[i][1];
+                if (b - a < S(0.28)) continue;
+
+                const atLeftEdge = Math.abs(a - (-cabinW * 0.5 + inset)) < S(0.03);
+                const atRightEdge = Math.abs(b - (cabinW * 0.5 - inset)) < S(0.03);
+
+                const extraA = xDominant && atLeftEdge ? overhang * 0.5 : 0;
+                const extraB = xDominant && atRightEdge ? overhang * 0.5 : 0;
+
+                const len = (b - a) + extraA + extraB;
+                const cx = (a + b) * 0.5 + (extraB - extraA) * 0.5;
+
+                addDetailedLog(len, logR, "x", cx, y, frontZ, rowIndex, i + 100, +1, xDominant && atLeftEdge, xDominant && atRightEdge);
+            }
+        };
+
+        const addBackRow = (y, rowIndex) => {
+            const xDominant = (rowIndex % 2) === 0;
+            const inset = xDominant ? 0 : logR * 1.05;
+            const overhang = xDominant ? S(1.10) : 0;
+            const len = cabinW - inset * 2 + overhang;
+            addDetailedLog(len, logR, "x", 0, y, backZ, rowIndex, 2000 + rowIndex, -1, xDominant, xDominant);
+        };
+
+        const addSideRow = (y, rowIndex, sign) => {
+            const zDominant = (rowIndex % 2) === 1;
+            const overhang = zDominant ? S(1.10) : 0;
+            const inset = zDominant ? 0 : logR * 1.05;
+            const len = cabinD - inset * 2 + overhang;
+            addDetailedLog(len, logR, "z", sign * sideX, y, 0, rowIndex, sign > 0 ? 3000 : 4000, sign, zDominant, zDominant);
+        };
+
+        for (let row = 0; row < rows; row++) {
+            const y = floorY + logR + row * rowPitch;
+            if (y > wallTopY) break;
+
+            addFrontRow(y, row);
+            addBackRow(y, row);
+            addSideRow(y, row, -1);
+            addSideRow(y, row,  1);
+        }
+
+        const gableRows = 7;
+        for (let i = 0; i < gableRows; i++) {
+            const y = wallTopY + S(0.25) + i * (roofRise - S(0.80)) / (gableRows - 1);
+            const t = Math.max(0, Math.min(1, (y - eaveY) / roofRise));
+            const halfAvail = Math.max(S(0.65), roofRun * (1 - t) - S(0.72));
+            const width = halfAvail * 2;
+
+            addDetailedLog(width, logR * 0.88, "x", 0, y, frontZ - S(0.02), 5000 + i, 1, +1, false, false);
+            addDetailedLog(width, logR * 0.88, "x", 0, y, backZ + S(0.02), 6000 + i, 1, -1, false, false);
+        }
+
+        // sloped fillers so the roof sits cleanly on the top logs
+        addBox(cabin, roofLen - S(0.18), logR * 1.05, logR * 1.25, logMat,
+            -roofRun * 0.5, (eaveY + ridgeY) * 0.5 - S(0.02), frontZ - S(0.04), 0, 0, roofAngle);
+        addBox(cabin, roofLen - S(0.18), logR * 1.05, logR * 1.25, logMat,
+            roofRun * 0.5, (eaveY + ridgeY) * 0.5 - S(0.02), frontZ - S(0.04), 0, 0, -roofAngle);
+
+        addBox(cabin, roofLen - S(0.18), logR * 1.05, logR * 1.25, logMat,
+            -roofRun * 0.5, (eaveY + ridgeY) * 0.5 - S(0.02), backZ + S(0.04), 0, 0, roofAngle);
+        addBox(cabin, roofLen - S(0.18), logR * 1.05, logR * 1.25, logMat,
+            roofRun * 0.5, (eaveY + ridgeY) * 0.5 - S(0.02), backZ + S(0.04), 0, 0, -roofAngle);
+
+        addBox(cabin, doorW + S(0.14), doorH + S(0.12), S(0.72), recessMat, 0, doorY, frontZ - S(0.06));
+        addBox(cabin, doorW, doorH, S(0.22), doorMat, 0, doorY, frontZ + logR * 0.36, 0, 0, 0, "cabinDoor");
+
+        for (let i = 0; i < 4; i++) {
+            const x = -doorW * 0.5 + (i + 0.5) * (doorW / 4);
+            addBox(cabin, doorW / 4 - S(0.05), doorH - S(0.12), S(0.03), doorLightMat, x, doorY, frontZ + logR * 0.48);
+        }
+
+        addBox(cabin, doorW - S(0.18), S(0.16), S(0.03), doorLightMat, 0, doorY + doorH * 0.32, frontZ + logR * 0.49);
+        addBox(cabin, doorW - S(0.18), S(0.16), S(0.03), doorLightMat, 0, doorY - doorH * 0.18, frontZ + logR * 0.49);
+
+        addBox(cabin, doorW + S(0.34), S(0.20), S(0.16), doorLightMat, 0, floorY + S(0.02), frontZ + logR * 0.22);
+        addBox(cabin, S(0.18), doorH + S(0.24), S(0.16), doorLightMat, -doorW * 0.5 - S(0.08), doorY, frontZ + logR * 0.22);
+        addBox(cabin, S(0.18), doorH + S(0.24), S(0.16), doorLightMat,  doorW * 0.5 + S(0.08), doorY, frontZ + logR * 0.22);
+        addBox(cabin, doorW + S(0.34), S(0.20), S(0.16), doorLightMat, 0, floorY + doorH + S(0.12), frontZ + logR * 0.22);
+
+        addBox(cabin, S(0.18), S(0.44), S(0.03), metalMat, doorW * 0.31, doorY - S(0.12), frontZ + logR * 0.50);
+        const knob = addLogMesh(cabin, S(0.16), S(0.24), "z", metalMat, doorW * 0.31, doorY - S(0.12), frontZ + logR * 0.72);
+        knob.renderOrder = 8;
+
+        const addInsetWindow = (x, idxBase) => {
+            addBox(cabin, windowSize + S(0.16), windowSize + S(0.16), S(0.82), recessMat, x, windowY, frontZ - S(0.04));
+
+            // small filler log above each window so there is no open strip
+            addDetailedLog(windowSize + S(0.48), S(0.22), "x", x, windowY + windowSize * 0.5 + S(0.24), frontZ, idxBase, 0, +1, false, false);
+
+            const frameZ = frontZ + logR + S(0.06);
+            const paneZ  = frontZ + logR + S(0.14);
+
+            const outerW = windowSize + S(0.26);
+            const outerH = windowSize + S(0.26);
+            const frameT = S(0.16);
+
+            addBox(cabin, outerW, frameT, S(0.16), windowFrameMat, x, windowY + outerH * 0.5 - frameT * 0.5, frameZ);
+            addBox(cabin, outerW, frameT, S(0.16), windowFrameMat, x, windowY - outerH * 0.5 + frameT * 0.5, frameZ);
+            addBox(cabin, frameT, outerH, S(0.16), windowFrameMat, x - outerW * 0.5 + frameT * 0.5, windowY, frameZ);
+            addBox(cabin, frameT, outerH, S(0.16), windowFrameMat, x + outerW * 0.5 - frameT * 0.5, windowY, frameZ);
+
+            const innerW = windowSize - S(0.18);
+            const innerH = windowSize - S(0.18);
+            const halfW = innerW * 0.5;
+            const halfH = innerH * 0.5;
+            const mull = S(0.12);
+
+            const paneW = halfW - mull * 0.75;
+            const paneH = halfH - mull * 0.75;
+
+            const panes = [
+                [-paneW * 0.5 - mull * 0.45,  paneH * 0.5 + mull * 0.45],
+                [ paneW * 0.5 + mull * 0.45,  paneH * 0.5 + mull * 0.45],
+                [-paneW * 0.5 - mull * 0.45, -paneH * 0.5 - mull * 0.45],
+                [ paneW * 0.5 + mull * 0.45, -paneH * 0.5 - mull * 0.45]
+            ];
+
+            for (let i = 0; i < panes.length; i++) {
+                const p = addBox(cabin, paneW, paneH, S(0.12), windowPaneMat, x + panes[i][0], windowY + panes[i][1], paneZ);
+                p.renderOrder = 10;
+            }
+
+            const mullV = addBox(cabin, mull, innerH, S(0.06), windowFrameMat, x, windowY, paneZ + S(0.04));
+            const mullH = addBox(cabin, innerW, mull, S(0.06), windowFrameMat, x, windowY, paneZ + S(0.04));
+            mullV.renderOrder = 11;
+            mullH.renderOrder = 11;
+        };
+
+        addInsetWindow(-windowOffsetX, 7000);
+        addInsetWindow(windowOffsetX, 7100);
+
+        const roofLeft = new Gt();
+        roofLeft.position.set(-roofRun * 0.5, (eaveY + ridgeY) * 0.5, 0);
+        roofLeft.rotation.z = roofAngle;
+        cabin.add(roofLeft);
+
+        const roofRight = new Gt();
+        roofRight.position.set(roofRun * 0.5, (eaveY + ridgeY) * 0.5, 0);
+        roofRight.rotation.z = -roofAngle;
+        cabin.add(roofRight);
+
+        addBox(roofLeft, roofLen, roofT, roofDepth, roofBaseMat, 0, 0, 0);
+        addBox(roofRight, roofLen, roofT, roofDepth, roofBaseMat, 0, 0, 0);
+
+        const shingleRows = 11;
+        const shingleCols = Math.max(6, Math.floor(roofDepth / S(1.9)));
+        const tileAlong = roofLen / shingleRows;
+        const tileDepth = roofDepth / shingleCols;
+
+        const addShingles = (roofGroup) => {
+            for (let row = 0; row < shingleRows; row++) {
+                const x = -roofLen * 0.5 + tileAlong * 0.5 + row * tileAlong * 0.66;
+                const zOffset = (row % 2 === 0) ? 0 : tileDepth * 0.34;
+
+                for (let col = -Math.ceil(shingleCols * 0.5); col <= Math.ceil(shingleCols * 0.5); col++) {
+                    const z = col * tileDepth + zOffset;
+                    const mat = ((row + col) & 1) === 0 ? roofTileMat : roofTileDarkMat;
+
+                    addBox(
+                        roofGroup,
+                        tileAlong * 0.98,
+                        S(0.16),
+                        tileDepth * 0.92,
+                        mat,
+                        x,
+                        roofT * 0.80 + S(0.05),
+                        z
+                    );
+                }
+            }
+        };
+
+        addShingles(roofLeft);
+        addShingles(roofRight);
+
+        addBox(cabin, S(0.34), S(0.30), roofDepth - S(0.20), roofTileDarkMat, 0, ridgeY, 0);
+
+        const chimneyW = S(1.48);
+        const chimneyD = S(1.48);
+        const chimneyH = S(4.75);
+
+        const chimneyX = cabinW * 0.31;
+        const chimneyZ = -cabinD * 0.20;
+        const chimneyY = ridgeY - S(0.10);
+
+        addBox(cabin, chimneyW, chimneyH, chimneyD, chimneyMat, chimneyX, chimneyY, chimneyZ);
+        addBox(cabin, chimneyW + S(0.24), S(0.16), chimneyD + S(0.24), chimneyCapMat, chimneyX, chimneyY + chimneyH * 0.5 + S(0.10), chimneyZ);
+        addBox(cabin, chimneyW - S(0.26), S(0.12), chimneyD - S(0.26), chimneyCapMat, chimneyX, chimneyY + chimneyH * 0.5 + S(0.26), chimneyZ);
+
+        this.scene.add(cabin);
+        this.logCabin = cabin;
     }
 }
 const pR = {

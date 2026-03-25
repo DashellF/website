@@ -128,7 +128,7 @@ const Hero = P(
   '<div class="hero-block">' +
     '<div class="text-block">' +
     "<h2>Hi there!</h2>" +
-    "<p>Hi, my name is Dashell Finn and I am aspiring for a career in cybersecurity/software engineering!</p>" +
+    "<p>Hi, my name is Dashell and I am aspiring for a career in cybersecurity/software engineering!</p>" +
     "</div>" +
     "</div>",
   1
@@ -164,11 +164,11 @@ const SectionsBottom = P(
     "<h2>Experience</h2>" +
     "<p>I was on my high school's cyber competition team my senior year, participating in many ctfs and Cyberpatriot.</p>" +
     "<p>I did/am doing cptc and ccdc my freshman year at SDSU.</p>" +
-    "<p>I've also been doing ctfs every week for about a year now (currently 5th in the US on <a class=\"link\" href=\"https://ctftime.org/team/419145\" target=\"_blank\" rel=\"noopener noreferrer\">CTFTime</a>).</p>" +
+    "<p>I've also been doing ctfs every week for about a year now (My solo account is <a class=\"link\" href=\"https://ctftime.org/team/419145\" target=\"_blank\" rel=\"noopener noreferrer\">JAGIC</a>), and I sometimes do ctfs with <a class=\"link\" href=\"https://ctftime.org/team/220336\" target=\"_blank\" rel=\"noopener noreferrer\">L3ak</a>.</p>" +
     "</div></div>" +
     '<div class="main-block"><div class="text-block">' +
     "<h2>Skills</h2>" +
-    "<p>For ctfs, I usually do really well in <strong>rev</strong>, <strong>osint</strong>, and <strong>crypto</strong>. I usually play solo, so I've still gotten pretty good at web, misc, android, and forensics challs.</p>" +
+    "<p>For ctfs, I usually do really well in <strong>rev</strong>, <strong>osint</strong>, and <strong>crypto</strong>. I've just started competing with L3ak, but I used to only do them solo.</p>" +
     "<p>I really enjoy tweaking, hardening, and breaking into windows machines. Hardening scripts are also fun to make, and are decent in competitions.</p>" +
     "<p>I am affluent with many developer tools such as git, expo go, React, MongoDB, ngrok, Godot, Raspberry Pis, and GDB.</p>" +
     "<p>Here is my <a class=\"link\" href=\"/resume.pdf\">resume</a>, including a lot of this and more!</p>" +
