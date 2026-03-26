@@ -24,7 +24,7 @@ Note: Leaf count is by far the biggest contributer to lag...
 
 
 
-the code format:
+the code format (needs to be updated):
 
 - index.html: combines everything into one page, no viewable text is made here.
 - images/:

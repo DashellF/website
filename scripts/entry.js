@@ -32250,19 +32250,22 @@ class ThreeScene {
 
         if (this.isDemo) {
             this.gui.add(this.camera, "fov", 10, 150, 1).onChange(() => {
-            this.camera.updateProjectionMatrix();
+                this.camera.updateProjectionMatrix();
             });
             this.gui.add(this.cameraGroup.position, "z", 70, 100, 1);
         }
 
         this.scene.add(this.cameraGroup);
 
-        // perf: cap DPR
+        // renderer must exist before updateSizes()
         this.renderer = new tg({ antialias: !0, powerPreference: "high-performance" });
         this.renderer.setSize(this.sizes.width, this.sizes.height);
         this.renderer.setPixelRatio(this._getPixelRatio());
         e.appendChild(this.renderer.domElement);
 
+        // IMPORTANT: set camera/layout-dependent values first,
+        // then build geometry that depends on them (path/cabin/etc)
+        this.updateSizes();
         this.addObjects();
 
         window.addEventListener("resize", () => this.updateSizes());
@@ -32279,11 +32282,11 @@ class ThreeScene {
         const rebind = () => {
             const idx = document.getElementById("index-scroll");
             if (idx && this.scrollElement !== idx) {
-            this.scrollElement?.removeEventListener("scroll", this._onScroll);
-            this.scrollElement = idx;
-            this.scrollElement.addEventListener("scroll", this._onScroll, { passive: true });
-            this.updateScroll();
-            return;
+                this.scrollElement?.removeEventListener("scroll", this._onScroll);
+                this.scrollElement = idx;
+                this.scrollElement.addEventListener("scroll", this._onScroll, { passive: true });
+                this.updateScroll();
+                return;
             }
             if (++tries < 60) requestAnimationFrame(rebind);
         };
@@ -32292,7 +32295,6 @@ class ThreeScene {
         // perf: observe writeups mode instead of querying every frame
         this._setupWriteupsObserver();
 
-        this.updateSizes();
         this.updateScroll();
         this.animate();
     }
@@ -32423,7 +32425,64 @@ class ThreeScene {
         this.leafFall = this.addLeafFall()
 
     }
-    
+    _getCabinFootprint() {
+        const prof = this.pathProfile;
+        if (!prof) return null;
+
+        const houseScale = this.cabinScale ?? 1.2;
+        const S = (v) => v * houseScale;
+
+        const forward = Math.sign(prof.zEnd - prof.zStart) || -1;
+        const frontDirZ = -forward;
+
+        const baseRotationY = frontDirZ > 0 ? 0 : Math.PI;
+        const rotateDeg = 20 * Math.PI / 180;
+        const yawOffset = frontDirZ > 0 ? -rotateDeg : rotateDeg;
+        const rotationY = baseRotationY + yawOffset;
+
+        const pathEndX = prof.centers[prof.centers.length - 1] ?? 0;
+        const pathEndZ = prof.zEnd;
+
+        const cabinW = S(21.5);
+        const cabinD = S(15.8);
+        const patioD = S(6.0);
+        const stairCount = 4;
+        const stairRun = S(0.72);
+        const cabinShiftRight = S(6.2);
+
+        const outerReach = cabinD * 0.5 + patioD + stairCount * stairRun;
+
+        // Expand the blocked area around the cabin so trees can't spawn
+        // inside it or right up against it.
+        const sidePadding = S(5.5);
+        const backPadding = S(4.0);
+        const frontPadding = S(9.5); // porch + stairs side
+        const extraRightBias = S(1.5); // cabin is visually shifted right
+
+        return {
+            x: pathEndX + cabinShiftRight + extraRightBias,
+            z: pathEndZ + forward * (outerReach - S(0.2) - (frontPadding - backPadding) * 0.5),
+            cos: Math.cos(rotationY),
+            sin: Math.sin(rotationY),
+            halfW: cabinW * 0.5 + sidePadding,
+            halfD: cabinD * 0.5 + ((frontPadding + backPadding) * 0.5) + patioD + stairCount * stairRun,
+        };
+    }
+
+    _isInsideFootprint(x, z, fp, extraMargin = 0) {
+        if (!fp) return false;
+
+        const dx = x - fp.x;
+        const dz = z - fp.z;
+
+        const lx = dx * fp.cos - dz * fp.sin;
+        const lz = dx * fp.sin + dz * fp.cos;
+
+        return (
+            Math.abs(lx) < fp.halfW + extraMargin &&
+            Math.abs(lz) < fp.halfD + extraMargin
+        );
+    }
     // shared “avoid the main dirt path corridor” check
     _isNearPath(x, z, extraMargin = 0) {
         const prof = this.pathProfile;
@@ -32863,22 +32922,24 @@ class ThreeScene {
         return false;
     }
     addDirtPath() {
-        // Random each page reload.
+        if (this.dirtPath) this._disposeObject(this.dirtPath);
+        if (this.rocksGroup) this._disposeObject(this.rocksGroup);
+
         const rand = Math.random;
 
-        // Path spans the camera travel range.
+        // path span follows current camera travel range
         const zStart = this.cameraStartPos + 10;
         const zEnd = this.cameraEndPos - 20;
         const segments = 90;
 
         const baseWidth = 1.5;
-        const bermWidth = 2.4;
-        const bermHeight = 0.65;
+        const shoulderWidth = 2.4;
 
-        let x = 0;
+        const groundY = -10;
+        const pathY = groundY + 0.14; // flat, but high enough to avoid z-fighting
+
         const maxX = 6;
-
-        const yBase = -9.88;
+        let x = 0;
 
         const centers = [];
         const widths = [];
@@ -32895,64 +32956,93 @@ class ThreeScene {
             x *= 0.88;
             x = Math.max(-maxX, Math.min(maxX, x));
 
-            const w = baseWidth + (rand() - 0.5) * 1.5;
+            const w = Math.max(1.15, baseWidth + (rand() - 0.5) * 1.35);
 
             centers.push(x);
             widths.push(w);
 
             const leftInner = x - w * 0.5;
             const rightInner = x + w * 0.5;
-            const leftOuter = leftInner - bermWidth;
-            const rightOuter = rightInner + bermWidth;
+            const leftOuter = leftInner - shoulderWidth;
+            const rightOuter = rightInner + shoulderWidth;
 
-            const yCenter = yBase + (rand() - 0.5) * 0.04;
-            const yBerm = yBase + bermHeight + (rand() - 0.5) * 0.15;
-
+            // 4 verts per row: left shoulder edge, left path edge, right path edge, right shoulder edge
             positions.push(
-            leftOuter, yBerm, z,
-            leftInner, yCenter, z,
-            rightInner, yCenter, z,
-            rightOuter, yBerm, z
+                leftOuter,  pathY, z,
+                leftInner,  pathY, z,
+                rightInner, pathY, z,
+                rightOuter, pathY, z
             );
 
-            uvs.push(0, t, 0.25, t, 0.75, t, 1, t);
+            uvs.push(
+                0.00, t,
+                0.22, t,
+                0.78, t,
+                1.00, t
+            );
 
             if (i < segments) {
-            const a = 4 * i;
-            const b = a + 4;
+                const a = i * 4;
+                const b = a + 4;
 
-            indices.push(a, a + 1, b + 1, a, b + 1, b);
-            indices.push(a + 1, a + 2, b + 2, a + 1, b + 2, b + 1);
-            indices.push(a + 2, a + 3, b + 3, a + 2, b + 3, b + 2);
+                // IMPORTANT: upward-facing winding
+                // left shoulder strip
+                indices.push(a, b, a + 1);
+                indices.push(a + 1, b, b + 1);
+
+                // center strip
+                indices.push(a + 1, b + 1, a + 2);
+                indices.push(a + 2, b + 1, b + 2);
+
+                // right shoulder strip
+                indices.push(a + 2, b + 2, a + 3);
+                indices.push(a + 3, b + 2, b + 3);
             }
         }
 
-        this.pathProfile = { zStart, zEnd, segments, centers, widths, bermWidth };
+        this.pathProfile = {
+            zStart,
+            zEnd,
+            segments,
+            centers,
+            widths,
+            bermWidth: shoulderWidth,
+            surfaceY: pathY
+        };
 
         const geo = new Zt();
         geo.setIndex(indices);
-        geo.setAttribute("position", new Tt(positions, 3));
-        geo.setAttribute("uv", new Tt(uvs, 2));
+        geo.setAttribute("position", new Tt(new Float32Array(positions), 3));
+        geo.setAttribute("uv", new Tt(new Float32Array(uvs), 2));
         geo.computeVertexNormals();
+        geo.computeBoundingSphere?.();
+        geo.computeBoundingBox?.();
 
         const theme = this.theme || (this.theme = this.readThemeFromCSS());
-        const mat = new Td({ color: theme.dirtPath });
+        const mat = new Td({
+            color: theme.dirtPath,
+            flatShading: !0,
+            side: Wt
+        });
+
+        // keep it visually above the ground surface
+        mat.polygonOffset = true;
+        mat.polygonOffsetFactor = -2;
+        mat.polygonOffsetUnits = -2;
 
         const mesh = new Vt(geo, mat);
         mesh.name = "dirtPath";
-        mesh.renderOrder = 0;
+        mesh.renderOrder = 2;
 
         this.scene.add(mesh);
         this.dirtPath = mesh;
 
-        // --- Rocks (merged into ONE mesh) ---
+        // --- rocks along path edge ---
         const randRock = Math.random;
-
         const rockGeo = new Tu(0.22, 5, 4);
-        const rockMat = new Td({ color: 5987163 });
+        const rockMat = new Td({ color: 5987163, flatShading: !0 });
 
         const rockCount = 750;
-
         const rockInstances = [];
 
         for (let k = 0; k < rockCount; k++) {
@@ -32968,15 +33058,20 @@ class ThreeScene {
             const w  = widths[idx]  * (1 - a) + widths[idx + 1]  * a;
 
             const edgeBias = randRock() < 0.75;
-            const clear = (w * 0.5) + 0.45;
+            const clear = (w * 0.5) + shoulderWidth + 0.35;
 
-            let rx;
             const side = randRock() < 0.5 ? -1 : 1;
+            let rx;
 
-            if (edgeBias) rx = cx + side * (clear + 0.9 + randRock() * 3.5) + (randRock() - 0.5) * 0.6;
-            else rx = cx + side * (clear + randRock() * 4.5);
+            if (edgeBias) {
+                rx = cx + side * (clear + 0.8 + randRock() * 3.5) + (randRock() - 0.5) * 0.6;
+            } else {
+                rx = cx + side * (clear + randRock() * 4.5);
+            }
 
-            const ry = edgeBias ? (-9.82 + randRock() * 0.18) : (-9.92 + randRock() * 0.12);
+            const ry = edgeBias
+                ? (groundY + 0.08 + randRock() * 0.08)
+                : (groundY + 0.02 + randRock() * 0.06);
 
             const s = 0.18 + randRock() * 0.94;
             const scx = s * (0.7 + randRock() * 0.7);
@@ -32984,19 +33079,17 @@ class ThreeScene {
             const scz = s * (0.7 + randRock() * 0.7);
 
             rockInstances.push({
-            px: rx,
-            py: ry,
-            pz: z + (randRock() - 0.5) * 1.2,
-            rx: randRock() * Math.PI,
-            ry: randRock() * Math.PI,
-            rz: randRock() * Math.PI,
-            sx: scx,
-            sy: scy,
-            sz: scz,
+                px: rx,
+                py: ry,
+                pz: z + (randRock() - 0.5) * 1.2,
+                rx: randRock() * Math.PI,
+                ry: randRock() * Math.PI,
+                rz: randRock() * Math.PI,
+                sx: scx,
+                sy: scy,
+                sz: scz,
             });
         }
-
-        if (this.rocksGroup) this._disposeObject(this.rocksGroup);
 
         const rocksMesh = this._makeMergedMesh(rockGeo, rockMat, rockInstances, "rocks");
         rockGeo.dispose?.();
@@ -33069,7 +33162,7 @@ class ThreeScene {
             dirtPatch: this._cssVarInt("--dirt-patch-color", 0x4d3620),
         };
     }
-    addForest() {
+        addForest() {
         if (this.forest) this._disposeObject(this.forest);
 
         const forestGroup = new Gt();
@@ -33127,7 +33220,6 @@ class ThreeScene {
         const layer2Geo = new bu([new xe(3.4 * LEAF_RADIUS_SCALE, 0), new xe(0, 5.4)], leafSegs);
         const layer3Geo = new bu([new xe(2.6 * LEAF_RADIUS_SCALE, 0), new xe(0, 4.6)], leafSegs);
 
-        // pre-combine leaf layers into a single base geometry
         const l1 = layer1Geo.clone();
         const l2 = layer2Geo.clone();
         const l3 = layer3Geo.clone();
@@ -33143,8 +33235,13 @@ class ThreeScene {
         const l = Math.floor(BASE_DENSITY * (2 * c) * (2 * u) * TREE_MULT);
 
         const BOULDER_CLEAR = 3.5;
+        const TRUNK_CLEARANCE = 0.45;
+        const CABIN_CLEARANCE = 0.20;
+        const trunkBaseRadius = 0.70 * TRUNK_RADIUS_SCALE;
 
-        // merged: 1 trunk mesh + 4 leaf meshes
+        const cabinFootprint = this._getCabinFootprint();
+        const placedTrunks = [];
+
         const trunkInstances = [];
         const leafInstances0 = [];
         const leafInstances1 = [];
@@ -33152,37 +33249,59 @@ class ThreeScene {
         const leafInstances3 = [];
 
         for (let h = 0; h < l; h++) {
-            let x = 0, m = 0, placedOK = !1;
+            let inst = null;
+            let leafIdx = 0;
+            let trunkR = 0;
 
-            for (let tries = 0; tries < 16; tries++) {
-            x = (rand() - 0.5) * 2 * c;
-            m = (rand() - 0.5) * 2 * u;
+            for (let tries = 0; tries < 32; tries++) {
+                let x = (rand() - 0.5) * 2 * c;
+                let m = (rand() - 0.5) * 2 * u;
 
-            if (Math.abs(x) < 12) x += x < 0 ? -12 : 12;
-            if (this._isNearBoulder?.(x, m, BOULDER_CLEAR)) continue;
+                if (Math.abs(x) < 12) x += x < 0 ? -12 : 12;
+                if (this._isNearBoulder?.(x, m, BOULDER_CLEAR)) continue;
 
-            placedOK = !0;
-            break;
+                const rotY = rand() * Math.PI * 2;
+
+                const s  = 1 + rand() * 0.9;
+                const sx = s * TREE_XZ_SLENDER;
+                const sy = s;
+                const sz = s * TREE_XZ_SLENDER;
+
+                trunkR = trunkBaseRadius * Math.max(sx, sz);
+
+                if (cabinFootprint && this._isInsideFootprint(x, m, cabinFootprint, trunkR + CABIN_CLEARANCE)) continue;
+
+                let overlapsTree = false;
+                for (let i = 0; i < placedTrunks.length; i++) {
+                    const t = placedTrunks[i];
+                    const dx = x - t.x;
+                    const dz = m - t.z;
+                    const rr = trunkR + t.r + TRUNK_CLEARANCE;
+
+                    if (dx * dx + dz * dz < rr * rr) {
+                        overlapsTree = true;
+                        break;
+                    }
+                }
+                if (overlapsTree) continue;
+
+                inst = { px: x, py: -10, pz: m, rx: 0, ry: rotY, rz: 0, sx, sy, sz };
+                leafIdx = pickLeafIdx();
+                placedTrunks.push({ x, z: m, r: trunkR });
+                break;
             }
 
-            if (!placedOK) continue;
+            if (!inst) continue;
 
-            const rotY = rand() * Math.PI * 2;
-
-            const s  = 1 + rand() * 0.9;
-            const sx = s * TREE_XZ_SLENDER;
-            const sy = s;
-            const sz = s * TREE_XZ_SLENDER;
-
-            const inst = { px: x, py: -10, pz: m, rx: 0, ry: rotY, rz: 0, sx, sy, sz };
             trunkInstances.push(inst);
 
-            const leafIdx = pickLeafIdx();
             if (leafIdx === 0) leafInstances0.push(inst);
             else if (leafIdx === 1) leafInstances1.push(inst);
             else if (leafIdx === 2) leafInstances2.push(inst);
             else leafInstances3.push(inst);
         }
+
+        this.treeTrunkBounds = placedTrunks;
 
         const trunkMesh = this._makeMergedMesh(trunkGeo, trunkMat, trunkInstances, "forestTrunks");
         const leafMesh0 = this._makeMergedMesh(leafCombinedGeo, leafMatGreen,  leafInstances0, "forestLeavesGreen");
@@ -33775,6 +33894,7 @@ class ThreeScene {
     }
     addLogCabin() {
         if (this.logCabin) this._disposeObject(this.logCabin);
+        if (this.cabinPathSpur) this._disposeObject(this.cabinPathSpur);
 
         const prof = this.pathProfile;
         if (!prof) return;
@@ -34022,21 +34142,28 @@ class ThreeScene {
 
         const forward = Math.sign(prof.zEnd - prof.zStart) || -1;
         const frontDirZ = -forward;
-        const cabinRotationY = frontDirZ > 0 ? 0 : Math.PI;
+
+        const baseRotationY = frontDirZ > 0 ? 0 : Math.PI;
+        const rotateDeg = 20 * Math.PI / 180;
+        const yawOffset = frontDirZ > 0 ? -rotateDeg : rotateDeg;
+        const cabinRotationY = baseRotationY + yawOffset;
 
         const pathEndX = prof.centers[prof.centers.length - 1] ?? 0;
         const pathEndZ = prof.zEnd;
 
+        const rowPitch = S(1.00);
+        const removedLogRows = 3;
+
         const cabinW = S(21.5);
         const cabinD = S(15.8);
-        const cabinH = S(12.9);
+        const cabinH = Math.max(S(7.5), S(12.9) - removedLogRows * rowPitch);
 
         const patioW = S(12.0);
         const patioD = S(6.0);
         const patioT = S(0.36);
 
         const groundY = -10;
-        const pathY = -9.88;
+        const pathY = prof.surfaceY ?? (groundY + 0.04);
         const patioTopY = -8.55;
         const floorY = patioTopY + S(0.20);
         const wallTopY = floorY + cabinH;
@@ -34049,12 +34176,33 @@ class ThreeScene {
 
         const cabin = new Gt();
         cabin.name = "logCabin";
+
+        const cabinShiftRight = S(6.2);
+
         cabin.position.set(
-            pathEndX,
+            pathEndX + cabinShiftRight,
             0,
             pathEndZ + forward * (outerReach - S(0.2))
         );
         cabin.rotation.y = cabinRotationY;
+
+        const localToWorldXZ = (lx, lz) => {
+            const c = Math.cos(cabin.rotation.y);
+            const s = Math.sin(cabin.rotation.y);
+            return {
+                x: cabin.position.x + lx * c + lz * s,
+                z: cabin.position.z - lx * s + lz * c
+            };
+        };
+
+        const localDirToWorldXZ = (lx, lz) => {
+            const c = Math.cos(cabin.rotation.y);
+            const s = Math.sin(cabin.rotation.y);
+            return {
+                x: lx * c + lz * s,
+                z: -lx * s + lz * c
+            };
+        };
 
         const logMat = new Td({ color: 0x6f4528, flatShading: !0 });
         const logDarkStreakMat = new Td({ color: 0x4a2a18, flatShading: !0 });
@@ -34071,7 +34219,8 @@ class ThreeScene {
 
         const recessMat = new Td({ color: 0x2a1a12, flatShading: !0 });
         const windowFrameMat = new Td({ color: 0x4b2d1a, flatShading: !0 });
-        const windowPaneMat = new Td({ color: 0x93d3ff, flatShading: !0, side: Wt });
+
+        const windowPaneMat = new Td({ color: 0x63b7ff, flatShading: !0, side: Wt });
         windowPaneMat.polygonOffset = true;
         windowPaneMat.polygonOffsetFactor = -2;
         windowPaneMat.polygonOffsetUnits = -2;
@@ -34080,8 +34229,8 @@ class ThreeScene {
         const roofTileMat = new Td({ color: 0x553424, flatShading: !0 });
         const roofTileDarkMat = new Td({ color: 0x3a2218, flatShading: !0 });
 
-        const chimneyMat = new Td({ color: 0xa7a29c, flatShading: !0 });
-        const chimneyCapMat = new Td({ color: 0x4b4742, flatShading: !0 });
+        const chimneyMat = new Td({ color: 0x908a84, flatShading: !0 });
+        const chimneyCapMat = new Td({ color: 0x3f3b36, flatShading: !0 });
 
         addBox(cabin, cabinW + S(0.9), S(1.10), cabinD + S(0.9), foundationMat, 0, floorY - S(0.60), 0);
 
@@ -34129,7 +34278,6 @@ class ThreeScene {
         );
 
         const logR = S(0.62);
-        const rowPitch = S(1.00);
 
         const doorW = S(3.25);
         const doorH = S(6.8);
@@ -34150,18 +34298,21 @@ class ThreeScene {
             maxY: floorY + doorH + S(0.14)
         };
 
+        const winOpenHalfW = windowSize * 0.5 + S(0.02);
+        const winOpenHalfH = windowSize * 0.5 - S(0.12);
+
         const leftWinOpen = {
-            minX: -windowOffsetX - windowSize * 0.5 - S(0.10),
-            maxX: -windowOffsetX + windowSize * 0.5 + S(0.10),
-            minY: windowY - windowSize * 0.5 - S(0.10),
-            maxY: windowY + windowSize * 0.5 + S(0.10)
+            minX: -windowOffsetX - winOpenHalfW,
+            maxX: -windowOffsetX + winOpenHalfW,
+            minY: windowY - winOpenHalfH,
+            maxY: windowY + winOpenHalfH
         };
 
         const rightWinOpen = {
-            minX: windowOffsetX - windowSize * 0.5 - S(0.10),
-            maxX: windowOffsetX + windowSize * 0.5 + S(0.10),
-            minY: windowY - windowSize * 0.5 - S(0.10),
-            maxY: windowY + windowSize * 0.5 + S(0.10)
+            minX: windowOffsetX - winOpenHalfW,
+            maxX: windowOffsetX + winOpenHalfW,
+            minY: windowY - winOpenHalfH,
+            maxY: windowY + winOpenHalfH
         };
 
         const openings = [doorOpen, leftWinOpen, rightWinOpen];
@@ -34241,6 +34392,7 @@ class ThreeScene {
         const ridgeY = eaveY + roofRise;
 
         const rows = Math.floor((cabinH + S(1.5)) / rowPitch);
+        const cornerLogOverhang = S(1.26);
 
         const addFrontRow = (y, rowIndex) => {
             const xDominant = (rowIndex % 2) === 0;
@@ -34256,7 +34408,7 @@ class ThreeScene {
                 }
             }
 
-            const overhang = xDominant ? S(1.10) : 0;
+            const overhang = xDominant ? cornerLogOverhang : 0;
 
             for (let i = 0; i < segments.length; i++) {
                 const a = segments[i][0];
@@ -34279,14 +34431,14 @@ class ThreeScene {
         const addBackRow = (y, rowIndex) => {
             const xDominant = (rowIndex % 2) === 0;
             const inset = xDominant ? 0 : logR * 1.05;
-            const overhang = xDominant ? S(1.10) : 0;
+            const overhang = xDominant ? cornerLogOverhang : 0;
             const len = cabinW - inset * 2 + overhang;
             addDetailedLog(len, logR, "x", 0, y, backZ, rowIndex, 2000 + rowIndex, -1, xDominant, xDominant);
         };
 
         const addSideRow = (y, rowIndex, sign) => {
             const zDominant = (rowIndex % 2) === 1;
-            const overhang = zDominant ? S(1.10) : 0;
+            const overhang = zDominant ? cornerLogOverhang : 0;
             const inset = zDominant ? 0 : logR * 1.05;
             const len = cabinD - inset * 2 + overhang;
             addDetailedLog(len, logR, "z", sign * sideX, y, 0, rowIndex, sign > 0 ? 3000 : 4000, sign, zDominant, zDominant);
@@ -34313,7 +34465,6 @@ class ThreeScene {
             addDetailedLog(width, logR * 0.88, "x", 0, y, backZ + S(0.02), 6000 + i, 1, -1, false, false);
         }
 
-        // sloped fillers so the roof sits cleanly on the top logs
         addBox(cabin, roofLen - S(0.18), logR * 1.05, logR * 1.25, logMat,
             -roofRun * 0.5, (eaveY + ridgeY) * 0.5 - S(0.02), frontZ - S(0.04), 0, 0, roofAngle);
         addBox(cabin, roofLen - S(0.18), logR * 1.05, logR * 1.25, logMat,
@@ -34345,17 +34496,16 @@ class ThreeScene {
         knob.renderOrder = 8;
 
         const addInsetWindow = (x, idxBase) => {
-            addBox(cabin, windowSize + S(0.16), windowSize + S(0.16), S(0.82), recessMat, x, windowY, frontZ - S(0.04));
-
-            // small filler log above each window so there is no open strip
-            addDetailedLog(windowSize + S(0.48), S(0.22), "x", x, windowY + windowSize * 0.5 + S(0.24), frontZ, idxBase, 0, +1, false, false);
-
-            const frameZ = frontZ + logR + S(0.06);
-            const paneZ  = frontZ + logR + S(0.14);
-
             const outerW = windowSize + S(0.26);
             const outerH = windowSize + S(0.26);
             const frameT = S(0.16);
+
+            addBox(cabin, outerW - S(0.04), outerH - S(0.04), S(0.58), recessMat, x, windowY, frontZ - S(0.02));
+            addBox(cabin, outerW - S(0.10), S(0.34), S(0.18), logMat, x, windowY + outerH * 0.5 + S(0.08), frontZ + logR - S(0.22));
+            addDetailedLog(windowSize + S(0.78), S(0.28), "x", x, windowY + windowSize * 0.5 + S(0.28), frontZ + S(0.01), idxBase, 0, +1, false, false);
+
+            const frameZ = frontZ + logR + S(0.02);
+            const paneZ  = frontZ + logR - S(0.20);
 
             addBox(cabin, outerW, frameT, S(0.16), windowFrameMat, x, windowY + outerH * 0.5 - frameT * 0.5, frameZ);
             addBox(cabin, outerW, frameT, S(0.16), windowFrameMat, x, windowY - outerH * 0.5 + frameT * 0.5, frameZ);
@@ -34379,12 +34529,12 @@ class ThreeScene {
             ];
 
             for (let i = 0; i < panes.length; i++) {
-                const p = addBox(cabin, paneW, paneH, S(0.12), windowPaneMat, x + panes[i][0], windowY + panes[i][1], paneZ);
+                const p = addBox(cabin, paneW, paneH, S(0.10), windowPaneMat, x + panes[i][0], windowY + panes[i][1], paneZ);
                 p.renderOrder = 10;
             }
 
-            const mullV = addBox(cabin, mull, innerH, S(0.06), windowFrameMat, x, windowY, paneZ + S(0.04));
-            const mullH = addBox(cabin, innerW, mull, S(0.06), windowFrameMat, x, windowY, paneZ + S(0.04));
+            const mullV = addBox(cabin, mull, innerH, S(0.06), windowFrameMat, x, windowY, paneZ + S(0.03));
+            const mullH = addBox(cabin, innerW, mull, S(0.06), windowFrameMat, x, windowY, paneZ + S(0.03));
             mullV.renderOrder = 11;
             mullH.renderOrder = 11;
         };
@@ -34438,20 +34588,179 @@ class ThreeScene {
 
         addBox(cabin, S(0.34), S(0.30), roofDepth - S(0.20), roofTileDarkMat, 0, ridgeY, 0);
 
-        const chimneyW = S(1.48);
-        const chimneyD = S(1.48);
-        const chimneyH = S(4.75);
+        const chimneyW = S(1.72);
+        const chimneyD = S(1.72);
+        const chimneyH = S(5.25);
 
         const chimneyX = cabinW * 0.31;
         const chimneyZ = -cabinD * 0.20;
-        const chimneyY = ridgeY - S(0.10);
+        const chimneyY = ridgeY - S(0.06);
 
         addBox(cabin, chimneyW, chimneyH, chimneyD, chimneyMat, chimneyX, chimneyY, chimneyZ);
-        addBox(cabin, chimneyW + S(0.24), S(0.16), chimneyD + S(0.24), chimneyCapMat, chimneyX, chimneyY + chimneyH * 0.5 + S(0.10), chimneyZ);
-        addBox(cabin, chimneyW - S(0.26), S(0.12), chimneyD - S(0.26), chimneyCapMat, chimneyX, chimneyY + chimneyH * 0.5 + S(0.26), chimneyZ);
+        addBox(cabin, chimneyW + S(0.28), S(0.18), chimneyD + S(0.28), chimneyCapMat, chimneyX, chimneyY + chimneyH * 0.5 + S(0.10), chimneyZ);
+        addBox(cabin, chimneyW - S(0.22), S(0.12), chimneyD - S(0.22), chimneyCapMat, chimneyX, chimneyY + chimneyH * 0.5 + S(0.28), chimneyZ);
 
         this.scene.add(cabin);
         this.logCabin = cabin;
+
+        const normalizeXZ = (v) => {
+            const len = Math.hypot(v.x, v.z) || 1;
+            return { x: v.x / len, z: v.z / len };
+        };
+
+        const lerp = (a, b, t) => a + (b - a) * t;
+
+        const smooth = (t) => t * t * (3 - 2 * t);
+
+        const bezierPoint = (p0, p1, p2, p3, t) => {
+            const it = 1 - t;
+            const b0 = it * it * it;
+            const b1 = 3 * it * it * t;
+            const b2 = 3 * it * t * t;
+            const b3 = t * t * t;
+            return {
+                x: p0.x * b0 + p1.x * b1 + p2.x * b2 + p3.x * b3,
+                z: p0.z * b0 + p1.z * b1 + p2.z * b2 + p3.z * b3
+            };
+        };
+
+        const bezierTangent = (p0, p1, p2, p3, t) => {
+            const it = 1 - t;
+            return {
+                x:
+                    3 * it * it * (p1.x - p0.x) +
+                    6 * it * t * (p2.x - p1.x) +
+                    3 * t * t * (p3.x - p2.x),
+                z:
+                    3 * it * it * (p1.z - p0.z) +
+                    6 * it * t * (p2.z - p1.z) +
+                    3 * t * t * (p3.z - p2.z)
+            };
+        };
+
+        const makePathSpur = (p0, p1, p2, p3, startWidth, endWidth, y) => {
+            const samples = 16;
+            const positions = [];
+            const uvs = [];
+            const indices = [];
+
+            for (let i = 0; i <= samples; i++) {
+                const t = i / samples;
+                const pt = bezierPoint(p0, p1, p2, p3, t);
+                const tan = normalizeXZ(bezierTangent(p0, p1, p2, p3, t));
+
+                const nx = -tan.z;
+                const nz = tan.x;
+
+                const hw = lerp(startWidth * 0.5, endWidth * 0.5, smooth(t));
+
+                positions.push(
+                    pt.x - nx * hw, y, pt.z - nz * hw,
+                    pt.x + nx * hw, y, pt.z + nz * hw
+                );
+
+                uvs.push(0, t, 1, t);
+
+                if (i < samples) {
+                    const a = i * 2;
+                    const b = a + 1;
+                    const c = a + 2;
+                    const d = a + 3;
+
+                    // upward-facing winding
+                    indices.push(a, b, c);
+                    indices.push(b, d, c);
+                }
+            }
+
+            const geo = new Zt();
+            geo.setIndex(indices);
+            geo.setAttribute("position", new Tt(new Float32Array(positions), 3));
+            geo.setAttribute("uv", new Tt(new Float32Array(uvs), 2));
+            geo.computeVertexNormals();
+            geo.computeBoundingSphere?.();
+            geo.computeBoundingBox?.();
+
+            const theme = this.theme || (this.theme = this.readThemeFromCSS());
+            const mat = new Td({
+                color: theme.dirtPath,
+                flatShading: !0,
+                side: Wt
+            });
+
+            mat.polygonOffset = true;
+            mat.polygonOffsetFactor = -2;
+            mat.polygonOffsetUnits = -2;
+
+            const mesh = new Vt(geo, mat);
+            mesh.name = "cabinPathSpur";
+            mesh.renderOrder = 3;
+            return mesh;
+        };
+
+        const pathPrevIdx = Math.max(0, prof.centers.length - 2);
+        const pathPrevX = prof.centers[pathPrevIdx] ?? pathEndX;
+        const pathPrevZ = prof.zStart + (prof.zEnd - prof.zStart) * (pathPrevIdx / prof.segments);
+
+        const pathDir = normalizeXZ({
+            x: pathEndX - pathPrevX,
+            z: pathEndZ - pathPrevZ
+        });
+
+        const stairOutDir = normalizeXZ(localDirToWorldXZ(0, 1));
+
+        const stairFrontWorld = localToWorldXZ(
+            0,
+            patioOuterFront + stairCount * stairRun + S(0.01)
+        );
+
+        // Pull the spur slightly under the bottom step so it visually becomes the stairs
+        const stairUnderWorld = {
+            x: stairFrontWorld.x - stairOutDir.x * S(0.46),
+            z: stairFrontWorld.z - stairOutDir.z * S(0.46)
+        };
+
+        const start = { x: pathEndX, z: pathEndZ };
+        const end = stairUnderWorld;
+
+        const span = Math.hypot(end.x - start.x, end.z - start.z) || 1;
+        const startHandleLen = Math.min(S(3.2), span * 0.40);
+        const endHandleLen = Math.min(S(2.2), span * 0.32);
+
+        const c1 = {
+            x: start.x + pathDir.x * startHandleLen,
+            z: start.z + pathDir.z * startHandleLen
+        };
+
+        // End tangent points toward the cabin / under the stair, not outward
+        const c2 = {
+            x: end.x + stairOutDir.x * endHandleLen,
+            z: end.z + stairOutDir.z * endHandleLen
+        };
+
+        const pathEndWidth = Math.max(
+            S(2.8),
+            (prof.widths[prof.widths.length - 1] ?? 1.6) + (prof.bermWidth ?? 0) * 2
+        );
+
+        const stairApproachWidth = Math.min(stairW * 0.96, S(6.1));
+
+        const spur = makePathSpur(
+            start,
+            c1,
+            c2,
+            end,
+            pathEndWidth,
+            stairApproachWidth,
+            pathY + 0.01
+        );
+
+        if (spur) {
+            this.scene.add(spur);
+            this.cabinPathSpur = spur;
+        } else {
+            this.cabinPathSpur = null;
+        }
     }
 }
 const pR = {
