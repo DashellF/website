@@ -1,7 +1,7 @@
 # Website
 ---
 
-This website is viewable at: ___ (will update soon!).
+This website is viewable at: https://dashellfinn.me.
 
 If you make your own website from this source code, a small "inspired by" note at the bottom would be nice :)
  

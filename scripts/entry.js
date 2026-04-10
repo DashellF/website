@@ -33425,6 +33425,32 @@ class ThreeScene {
         const trunkBaseRadius = 0.70 * TRUNK_RADIUS_SCALE;
 
         const cabinFootprint = this._getCabinFootprint();
+
+        const houseScale = this.cabinScale ?? 1.1;
+        const S = (v) => v * houseScale;
+
+        const shouldThinBehindCabin = (x, z) => {
+            if (!cabinFootprint) return false;
+
+            const dx = x - cabinFootprint.x;
+            const dz = z - cabinFootprint.z;
+
+            // convert world point into cabin-local space
+            const lx = dx * cabinFootprint.cos - dz * cabinFootprint.sin;
+            const lz = dx * cabinFootprint.sin + dz * cabinFootprint.cos;
+
+            const thinBandHalfWidth = S(8);
+            const thinStartGap = S(6);
+
+            return (
+                Math.abs(lx) < thinBandHalfWidth &&
+                lz < -(cabinFootprint.halfD + thinStartGap)
+            );
+        };
+
+        const placement = this._getCabinPlacement();
+        const centerLineBlockUntilZ = placement?.pathApproachWorld?.z ?? Infinity;
+
         const placedTrunks = [];
 
         const trunkInstances = [];
@@ -33442,7 +33468,14 @@ class ThreeScene {
                 let x = (rand() - 0.5) * 2 * c;
                 let m = (rand() - 0.5) * 2 * u;
 
-                if (Math.abs(x) < 12) x += x < 0 ? -12 : 12;
+                // keep center line clear only before the cabin
+                if (m > centerLineBlockUntilZ && Math.abs(x) < 12) {
+                    x += x < 0 ? -12 : 12;
+                }
+
+                // thin only in the narrow strip behind the cabin
+                if (shouldThinBehindCabin(x, m) && rand() > 0.1) continue;
+
                 if (this._isNearBoulder?.(x, m, BOULDER_CLEAR)) continue;
 
                 const rotY = rand() * Math.PI * 2;
@@ -34358,6 +34391,9 @@ class ThreeScene {
 
         const logMat = new Td({ color: 0x6f4528, flatShading: !0 });
         const logDarkStreakMat = new Td({ color: 0x4a2a18, flatShading: !0 });
+        logDarkStreakMat.polygonOffset = true;
+        logDarkStreakMat.polygonOffsetFactor = -1;
+        logDarkStreakMat.polygonOffsetUnits = -1;
         const logEndRingMat = new Td({ color: 0x452615, flatShading: !0, side: Wt });
 
         const patioMat = new Td({ color: 0x56402d, flatShading: !0 });
@@ -34493,40 +34529,103 @@ class ThreeScene {
             }
         };
 
+
+                        
         const addLogSurfaceStreaks = (axis, x, y, z, length, radius, row, seg, faceKind) => {
-            const streakCount = 2 + Math.floor(hash01(row, seg, faceKind, 1) * 4);
+            const streakH = S(0.05);   // you said this looked good
+            const streakD = S(0.006);  // thinner so it can sit near the surface without floating
+            const inset = S(0.0005);   // tiny embed into the wood
+            const endMargin = S(0.18);
 
-            for (let i = 0; i < streakCount; i++) {
-                const w = length * (0.15 + hash01(row, seg, faceKind, 10 + i) * 0.22);
-                const offMain = (hash01(row, seg, faceKind, 20 + i) - 0.5) * (length * 0.60);
-                const offCross = (hash01(row, seg, faceKind, 30 + i) - 0.5) * (radius * 0.48);
-                const t = S(0.04);
+            const targetCount = 2 + Math.floor(hash01(row, seg, faceKind, 1) * 2); // 2..3 streaks
+            const maxAttempts = 24;
 
+            const placed = [];
+
+            for (let attempt = 0; attempt < maxAttempts && placed.length < targetCount; attempt++) {
+                const halfH = streakH * 0.5;
+                const halfD = streakD * 0.5;
+
+                const rawW = length * (0.24 + hash01(row, seg, faceKind, 10 + attempt) * 0.30);
+                const w = Math.min(rawW, Math.max(S(0.22), length - endMargin * 2));
+                if (w <= S(0.02)) continue;
+
+                const halfW = w * 0.5;
+
+                const maxCenter = Math.max(0, length * 0.5 - endMargin - halfW);
+                const offMain = (hash01(row, seg, faceKind, 20 + attempt) - 0.5) * 2 * maxCenter;
+
+                // Allow streaks across most of the log height.
+                const usableRadius = radius * 0.985;
+                const band = Math.max(0, usableRadius * 0.78 - halfH);
+                if (band <= 0) continue;
+
+                const offCross = (hash01(row, seg, faceKind, 30 + attempt) - 0.5) * 2 * band;
+
+                // Keep streaks from spawning right next to each other.
+                const minGapMain = S(0.55);
+                const minGapCross = S(0.12);
+
+                let tooClose = false;
+                for (let j = 0; j < placed.length; j++) {
+                    const p = placed[j];
+                    const closeMain = Math.abs(offMain - p.offMain) < (halfW + p.halfW + minGapMain);
+                    const closeCross = Math.abs(offCross - p.offCross) < (halfH + p.halfH + minGapCross);
+                    if (closeMain && closeCross) {
+                        tooClose = true;
+                        break;
+                    }
+                }
+                if (tooClose) continue;
+
+                // Use the top/bottom edges of the streak to determine safe depth.
+                const y0 = offCross - halfH;
+                const y1 = offCross + halfH;
+
+                if (Math.abs(y0) >= usableRadius || Math.abs(y1) >= usableRadius) continue;
+
+                const depth0 = Math.sqrt(Math.max(0, usableRadius * usableRadius - y0 * y0));
+                const depth1 = Math.sqrt(Math.max(0, usableRadius * usableRadius - y1 * y1));
+                const minDepth = Math.min(depth0, depth1);
+
+                // Place the streak so its OUTER face stays inside the log silhouette.
+                const faceDepth = minDepth - halfD - inset;
+                if (!Number.isFinite(faceDepth) || faceDepth <= 0) continue;
+
+                if (Math.abs(offMain) + halfW > length * 0.5 - endMargin) continue;
+
+                let m;
                 if (axis === "x") {
-                    addBox(
+                    m = addBox(
                         cabin,
                         w,
-                        t,
-                        t,
+                        streakH,
+                        streakD,
                         logDarkStreakMat,
                         x + offMain,
                         y + offCross,
-                        z + (faceKind > 0 ? radius * 0.98 : -radius * 0.98)
+                        z + (faceKind > 0 ? faceDepth : -faceDepth)
                     );
                 } else {
-                    addBox(
+                    m = addBox(
                         cabin,
-                        t,
-                        t,
+                        streakD,
+                        streakH,
                         w,
                         logDarkStreakMat,
-                        x + (faceKind > 0 ? radius * 0.98 : -radius * 0.98),
+                        x + (faceKind > 0 ? faceDepth : -faceDepth),
                         y + offCross,
                         z + offMain
                     );
                 }
+
+                if (m) {
+                    m.renderOrder = 12;
+                    placed.push({ offMain, offCross, halfW, halfH });
+                }
             }
         };
+
 
         const addDetailedLog = (length, radius, axis, x, y, z, row, seg, faceKind, showEndA = true, showEndB = true) => {
             addLogMesh(cabin, length, radius, axis, logMat, x, y, z);
@@ -34694,6 +34793,7 @@ class ThreeScene {
         addInsetWindow(-windowOffsetX, 7000);
         addInsetWindow(windowOffsetX, 7100);
 
+
         const roofLeft = new Gt();
         roofLeft.position.set(-roofRun * 0.5, (eaveY + ridgeY) * 0.5, 0);
         roofLeft.rotation.z = roofAngle;
@@ -34707,38 +34807,266 @@ class ThreeScene {
         addBox(roofLeft, roofLen, roofT, roofDepth, roofBaseMat, 0, 0, 0);
         addBox(roofRight, roofLen, roofT, roofDepth, roofBaseMat, 0, 0, 0);
 
-        const shingleRows = 11;
-        const shingleCols = Math.max(6, Math.floor(roofDepth / S(1.9)));
-        const tileAlong = roofLen / shingleRows;
-        const tileDepth = roofDepth / shingleCols;
+        const makeProfilePrismGeometry = (profile, depth) => {
+            const positions = [];
+            const normals = [];
+            const uvs = [];
+            const indices = [];
+            let v = 0;
 
-        const addShingles = (roofGroup) => {
-            for (let row = 0; row < shingleRows; row++) {
-                const x = -roofLen * 0.5 + tileAlong * 0.5 + row * tileAlong * 0.66;
-                const zOffset = (row % 2 === 0) ? 0 : tileDepth * 0.34;
+            const pushQuad = (a, b, c, d) => {
+                const ux = b[0] - a[0], uy = b[1] - a[1], uz = b[2] - a[2];
+                const vx = d[0] - a[0], vy = d[1] - a[1], vz = d[2] - a[2];
 
-                for (let col = -Math.ceil(shingleCols * 0.5); col <= Math.ceil(shingleCols * 0.5); col++) {
-                    const z = col * tileDepth + zOffset;
-                    const mat = ((row + col) & 1) === 0 ? roofTileMat : roofTileDarkMat;
+                let nx = uy * vz - uz * vy;
+                let ny = uz * vx - ux * vz;
+                let nz = ux * vy - uy * vx;
+                const nl = Math.hypot(nx, ny, nz) || 1;
+                nx /= nl; ny /= nl; nz /= nl;
 
-                    addBox(
-                        roofGroup,
-                        tileAlong * 0.98,
-                        S(0.16),
-                        tileDepth * 0.92,
-                        mat,
-                        x,
-                        roofT * 0.80 + S(0.05),
-                        z
+                positions.push(
+                    a[0], a[1], a[2],
+                    b[0], b[1], b[2],
+                    c[0], c[1], c[2],
+                    d[0], d[1], d[2]
+                );
+
+                normals.push(
+                    nx, ny, nz,
+                    nx, ny, nz,
+                    nx, ny, nz,
+                    nx, ny, nz
+                );
+
+                uvs.push(0, 0, 1, 0, 1, 1, 0, 1);
+                indices.push(v, v + 1, v + 2, v, v + 2, v + 3);
+                v += 4;
+            };
+
+            const hz = depth * 0.5;
+
+            for (let i = 0; i < profile.length; i++) {
+                const j = (i + 1) % profile.length;
+
+                const a = [profile[i][0], profile[i][1], -hz];
+                const b = [profile[j][0], profile[j][1], -hz];
+                const c = [profile[j][0], profile[j][1],  hz];
+                const d = [profile[i][0], profile[i][1],  hz];
+
+                pushQuad(a, b, c, d);
+            }
+
+            const pushCap = (sign) => {
+                const z = sign * hz;
+
+                let cx = 0, cy = 0;
+                let minX = Infinity, maxX = -Infinity;
+                let minY = Infinity, maxY = -Infinity;
+
+                for (let i = 0; i < profile.length; i++) {
+                    const p = profile[i];
+                    cx += p[0];
+                    cy += p[1];
+                    if (p[0] < minX) minX = p[0];
+                    if (p[0] > maxX) maxX = p[0];
+                    if (p[1] < minY) minY = p[1];
+                    if (p[1] > maxY) maxY = p[1];
+                }
+
+                cx /= profile.length;
+                cy /= profile.length;
+
+                const spanX = Math.max(1e-6, maxX - minX);
+                const spanY = Math.max(1e-6, maxY - minY);
+
+                const base = v;
+                positions.push(cx, cy, z);
+                normals.push(0, 0, sign);
+                uvs.push((cx - minX) / spanX, (cy - minY) / spanY);
+                v += 1;
+
+                for (let i = 0; i < profile.length; i++) {
+                    const p = profile[i];
+                    positions.push(p[0], p[1], z);
+                    normals.push(0, 0, sign);
+                    uvs.push((p[0] - minX) / spanX, (p[1] - minY) / spanY);
+                    v += 1;
+                }
+
+                for (let i = 0; i < profile.length; i++) {
+                    const j = (i + 1) % profile.length;
+                    if (sign > 0) indices.push(base, base + 1 + i, base + 1 + j);
+                    else indices.push(base, base + 1 + j, base + 1 + i);
+                }
+            };
+
+            pushCap(1);
+            pushCap(-1);
+
+            const geo = new Zt();
+            geo.setIndex(indices);
+            geo.setAttribute("position", new Tt(new Float32Array(positions), 3));
+            geo.setAttribute("normal", new Tt(new Float32Array(normals), 3));
+            geo.setAttribute("uv", new Tt(new Float32Array(uvs), 2));
+            geo.computeBoundingBox?.();
+            geo.computeBoundingSphere?.();
+            return geo;
+        };
+
+        // --- WOOD SHAKES (patched) ---
+        // Replace your current wood-shake block with this whole section.
+
+        const shakeReveal  = S(1.10);
+        const shakeLen     = shakeReveal * 2.20;
+        const shakeButt    = S(0.35);
+        const shakeTop     = S(0.02);
+        const eaveOverhang = S(0.35);
+
+        const makeShakeMat = (hex) => new Td({
+            color: hex,
+            flatShading: !0,
+            side: Wt, // keep double-sided for now so bad backface/cull behavior cannot show as broken tiles
+        });
+
+        const shakeMats = [
+            makeShakeMat(0x5a341c),
+            makeShakeMat(0x683c21),
+            makeShakeMat(0x4f2f1a),
+            makeShakeMat(0x613820),
+            makeShakeMat(0x57361f),
+            makeShakeMat(0x5d3920),
+        ];
+
+        const shakeHash = (a, b, c = 0) => {
+            let x = (
+                ((a + 1) * 374761393) ^
+                ((b + 1) * 668265263) ^
+                ((c + 1) * 1274126177)
+            ) >>> 0;
+            x ^= x >>> 13;
+            x = Math.imul(x, 1274126177) >>> 0;
+            x ^= x >>> 16;
+            return x / 4294967295;
+        };
+
+        const clampIndex = (i, len) => Math.max(0, Math.min(len - 1, i));
+
+        const makeShakeGeoLeft = (shakeWidth) => makeProfilePrismGeometry([
+            [ 0,         0         ],
+            [ shakeLen,  0         ],
+            [ shakeLen,  shakeTop  ],
+            [ S(0.04),   shakeButt ],
+        ], shakeWidth);
+
+        const makeShakeGeoRight = (shakeWidth) => makeProfilePrismGeometry([
+            [ 0,          0         ],
+            [ -shakeLen,  0         ],
+            [ -shakeLen,  shakeTop  ],
+            [ -S(0.04),   shakeButt ],
+        ], shakeWidth);
+
+        const addShakes = (roofGroup, side) => {
+            const dir    = side === "left" ? 1 : -1;
+            const eaveX  = dir * (-roofLen * 0.5);
+            const ridgeX = dir * ( roofLen * 0.5);
+
+            const startX   = eaveX - dir * eaveOverhang;
+            const stopX    = ridgeX - dir * shakeLen * 1.00;
+            const totalRun = Math.abs(stopX - startX);
+            const numRows  = Math.floor(totalRun / shakeReveal) + 1;
+
+            const coverDepth = roofDepth + S(0.70);
+            const startZ     = -coverDepth * 0.5;
+            const endZ       =  coverDepth * 0.5;
+
+            const makeGeo = side === "right" ? makeShakeGeoRight : makeShakeGeoLeft;
+
+            for (let row = 0; row < numRows; row++) {
+                const buttX = startX + dir * row * shakeReveal;
+
+                if (side === "left"  && buttX > stopX) break;
+                if (side === "right" && buttX < stopX) break;
+
+                const deckY = roofT * 0.5 + shakeButt * 0.5 + row * shakeTop;
+
+                let z = startZ;
+                let col = 0;
+
+                while (z < endZ - S(0.01)) {
+                    const remaining = endZ - z;
+
+                    const minW = S(0.55);
+                    const maxW = S(1.45);
+                    let w;
+
+                    if (remaining <= maxW) {
+                        w = remaining;
+                    } else {
+                        const r = shakeHash(row, col, side === "left" ? 0 : 1);
+                        w = minW + r * (maxW - minW);
+                        if (remaining - w < minW) w = remaining;
+                    }
+
+                    const h = shakeHash(row + 7, col + 3, side === "left" ? 2 : 5);
+                    const matIdx = clampIndex(Math.floor(h * shakeMats.length), shakeMats.length);
+                    const mat = shakeMats[matIdx] || shakeMats[0];
+
+                    const geo = makeGeo(w);
+                    const tile = new Vt(geo, mat);
+
+                    const shakeSink = S(0.1); // increase a little if needed
+
+                    tile.position.set(
+                        buttX,
+                        deckY - S(0.18) - shakeSink,
+                        z + w * 0.5
                     );
+
+                    // IMPORTANT: do not mirror with negative scale
+                    // if (side === "right") tile.scale.x = -1;
+
+                    tile.renderOrder = 6 + row;
+                    roofGroup.add(tile);
+
+                    z += w;
+                    col++;
                 }
             }
         };
 
-        addShingles(roofLeft);
-        addShingles(roofRight);
+        addShakes(roofLeft,  "left");
+        addShakes(roofRight, "right");
 
-        addBox(cabin, S(0.34), S(0.30), roofDepth - S(0.20), roofTileDarkMat, 0, ridgeY, 0);
+
+        // Single-piece ridge cap with one true pointed peak.
+        // This removes the double-bump look from the old overlapping boxes.
+        const ridgeCapHalfW = S(0.96);
+        const ridgeCapT = S(0.22);
+        const ridgeCapPeakH = S(0.58);
+        const ridgeCapDepth = roofDepth + S(0.42);
+        const ridgeCapInset = S(0.18);
+
+        const ridgeCapGeo = makeProfilePrismGeometry([
+            [-ridgeCapHalfW + ridgeCapInset, -ridgeCapT],
+            [ ridgeCapHalfW - ridgeCapInset, -ridgeCapT],
+            [ ridgeCapHalfW, 0],
+            [ 0, ridgeCapPeakH],
+            [-ridgeCapHalfW, 0]
+        ], ridgeCapDepth);
+
+        // Lower than before so the cap overlaps the top flat shingles.
+        const ridgeCapY = ridgeY + roofT * 0.34 + shakeButt * 0.38;
+
+        const ridgeCap = addMesh(
+            cabin,
+            ridgeCapGeo,
+            roofTileDarkMat,
+            0,
+            ridgeCapY,
+            0
+        );
+        ridgeCap.name = "ridgeCap";
+        ridgeCap.renderOrder = 20;
 
         const chimneyW = S(1.72);
         const chimneyD = S(1.72);
