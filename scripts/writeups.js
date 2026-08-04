@@ -45,10 +45,13 @@ const Writeups = k({
           <p class="desc-label"><strong>Description:</strong></p>
           <blockquote class="desc-area">
             <p>CAPTCHAs were invented to keep robots out and let humans in. We decided to reverse the rules.</p>
-            <p>This is a remote challenge, you can connect to the service with: <code>nc emoji.challs.srdnlen.it 1717</code></p>
+            <p>This is a remote challenge, you can connect to the service with:</p>
+            <p><code>nc emoji.challs.srdnlen.it 1717</code></p>
           </blockquote>
 
           <hr />
+
+          <p>As a preface to this writeup, AI was used to generate the scripts below. The ideas used were still very human, otherwise this challenge would not have had only 3 solves.</p>
 
           <p>When we first connect the server, we are prompted with a nice banner and a menu.</p>
 
@@ -1541,7 +1544,7 @@ public class PlayerMovement : MonoBehaviour
           <p>One you have the Unity project exported, you can open that file through <a href="https://unity.com/download" target="_blank" rel="noopener">Unity</a>.</p>
 
           <blockquote>
-            <p>[!IMPORTANT]
+            <p>
 I should note, Asset Ripper only gathers assets, so the full game will not be runnable at this current state. The reason we are doing this is to see files and file structure that is not included in the written scripts.</p>
           </blockquote>
 
@@ -1799,7 +1802,7 @@ def simplify_builtins_expressions(file_path):
     simplified_content, count = re.subn(pattern, '__builtins__', content)
     return simplified_content, count</code></pre>
 
-          <p>that makes things much more readable,</p>
+          <p>That makes things much more readable.</p>
 
           <pre><code class="language-python">import collections
 print(__builtins__[__builtins__['chr'](__builtins__['__import__']('subprocess').select.POLLIN^__builtins__['__import__']('subprocess').select.POLLPRI^__builtins__['__import__']('subprocess').select.POLLNVAL^__builtins__['__import__']('subprocess').select.POLLRDNORM)+__builtins__['chr'](__builtins__['__import__']('subprocess').select.POLLERR^__builtins__['__import__']

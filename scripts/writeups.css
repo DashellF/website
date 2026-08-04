@@ -246,6 +246,11 @@
   text-align: left;
 }
 
+.writeup-body blockquote.desc-area p {
+  width: 100%;
+  text-align: left;
+}
+
 /* Meta row: keep it in the same centered flow, but left-align its text */
 .writeup-body .writeup-meta {
   max-width: 900px;

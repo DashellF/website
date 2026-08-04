@@ -61,7 +61,7 @@ const fe = k({
         ],
       },
       {
-        name: "Windows Hardening Script",
+        name: "Domain Hardening Script",
         items: [
           "dc script that secures the whole network",
           "uses pingcastle and hardeningkitty for further safety",
@@ -163,12 +163,12 @@ const SectionsBottom = P(
   '<div class="main-block"><div class="text-block">' +
     "<h2>Experience</h2>" +
     "<p>I was on my high school's cyber competition team my senior year, participating in many ctfs and Cyberpatriot.</p>" +
-    "<p>I did/am doing cptc and ccdc my freshman year at SDSU.</p>" +
-    "<p>I've also been doing ctfs every week for about a year now (My solo account is <a class=\"link\" href=\"https://ctftime.org/team/419145\" target=\"_blank\" rel=\"noopener noreferrer\">JAGIC</a>), and I like doing ctfs with <a class=\"link\" href=\"https://ctftime.org/team/220336\" target=\"_blank\" rel=\"noopener noreferrer\">L3ak</a>.</p>" +
+    "<p>I did cptc and ccdc my freshman year at SDSU. I'm now the competition lead for the SDSU Cyber Defense Team.</p>" +
+    "<p>I've also been doing ctfs every week for about a year now (My solo account is <a class=\"link\" href=\"https://ctftime.org/team/419145\" target=\"_blank\" rel=\"noopener noreferrer\">JAGIC</a> and I do ctfs with <a class=\"link\" href=\"https://ctftime.org/team/220336\" target=\"_blank\" rel=\"noopener noreferrer\">L3ak</a>.)</p>" +
     "</div></div>" +
     '<div class="main-block"><div class="text-block">' +
     "<h2>Skills</h2>" +
-    "<p>For ctfs, I usually do really well in <strong>rev</strong>, <strong>osint</strong>, and <strong>crypto</strong>. I've just started competing with L3ak, but I used to only do them solo.</p>" +
+    "<p>For ctfs, I usually do really well in <strong>misc</strong>, <strong>rev</strong>, and <strong>osint</strong>. I've just started competing with L3ak, but I used to only do them solo.</p>" +
     "<p>I really enjoy tweaking, hardening, and breaking into windows machines. Hardening scripts are also fun to make, and are decent in competitions.</p>" +
     "<p>I am affluent with many developer tools such as git, expo go, React, MongoDB, ngrok, Godot, Raspberry Pis, and GDB.</p>" +
     "<p>Here is my <a class=\"link\" href=\"/resume.pdf\">resume</a>, including a lot of this and more!</p>" +
