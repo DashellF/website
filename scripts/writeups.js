@@ -51,7 +51,7 @@ const Writeups = k({
 
           <hr />
 
-          <p>As a preface to this writeup, AI was used to generate the scripts below. The ideas used were still very human, otherwise this challenge would not have had only 3 solves.</p>
+          <p>As a preface to this writeup, AI was used to generate the scripts below, and was allowed per this CTF's rules. The ideas used were still very human, otherwise this challenge would not have had only 3 solves in 48 hours 😊.</p>
 
           <p>When we first connect the server, we are prompted with a nice banner and a menu.</p>
 
@@ -1617,7 +1617,9 @@ public class LevelComplete : MonoBehaviour
 
           <hr />
 
-          <p>At first, this challenge looks like a simple 'find the error' challenge. We are given a python file with two lines, an import line and an <strong><em>11 megabite</em></strong> long print statement.</p>
+          <p>I should preface by saying the scripts in this writeup were AI generated, but this was allowed as per this CTF's rules. This AI had no access to the challenge files, and was only used to write specific scripts I had asked it exactly to write (I wasn't very good at coding at the time 😭).
+
+          <p>At first, this challenge looks like a simple 'find the error' challenge. We are given a python file with two lines, an import line and an <strong><em>11 megabyte</em></strong> long print statement.</p>
 
           <pre><code class="language-python">import collections
 print({}.__class__.__subclasses__()[2].copy.__builtins__[{}.__class__.__subclasses__()[2].copy.__builtins__[chr(1^2^32^64)+chr(8^32^64)+chr(2^16^32^64)]({}.__class__.__subclasses__()[2].copy.__builtins__[chr(1^2^4^8^16^64)+chr(1^2^4^8^16^64)+chr(1^8^32^64)+chr(1^4^8^32^64)+chr(16^32^64)+chr(1^2^4^8^32^64)+chr(2^16^32^64)+chr(4^16^32^64)+chr(1^2^4^8^16^64)
