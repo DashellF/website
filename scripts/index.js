@@ -49,7 +49,7 @@ const fe = k({
         items: [
           "godot game engine",
           "runs as an app on android and on any computer",
-          "Includes a rocket orbit/travel simulator impementing Hauffman Transfers",
+          "Includes a rocket orbit/travel simulator impementing Hohmann Transfers",
         ],
       },
       {
