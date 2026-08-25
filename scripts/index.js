@@ -148,7 +148,7 @@ const SectionsTop = P(
   '<div class="three-animation"></div>' +
     '<div class="main-block" id="about-me"><div class="text-block">' +
     "<h2>About Me</h2>" +
-    "<p>I'm currently a freshman in college studying computer science.</p>" +
+    "<p>I'm currently a sophmore in college studying computer science.</p>" +
     "<p>I do a lot of cybersecurity competitions including ccdc, cptc, and lots of ctfs.</p>" +
     "<p>I also like being active, running, and coding in general.</p>" +
     "<p>If you are interested in reading some of my ctf writeups, click to the right.</p>" +
