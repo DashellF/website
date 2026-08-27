@@ -1,5 +1,3 @@
-// writeups.js (full file, patched: deterministic offset scroll + robust direct-link + badges + measured-height + close button + code expand/collapse arrows)
-
 import {
     m,
     q as g,
@@ -35,11 +33,11 @@ const Writeups = k({
         const writeups = S([{
                 id: "emoji_captcha",
                 title: "Emoji CAPTCHA",
-                subtitle: "srdnlen CTF 2026 · Bypassing a robot image classification authenticator",
+                subtitle: "srdnlen CTF 2026 - Bypassing a robot image classification authenticator",
                 difficulty: "brutal",
                 category: "misc",
                 firstBlood: true,
-                catColor: "#a855f7", // purple
+                catColor: "#a855f7",
                 body: String.raw `
           <p class="writeup-meta">
             <strong>Category:</strong> <span class="pill">misc</span>
@@ -1317,10 +1315,10 @@ if __name__ == "__main__":
             {
                 id: "eye_on_the_sky",
                 title: "Eye on the Sky",
-                subtitle: "BKCTF 2026 · Finding a flight and a trail with only a picture of a far away fogged mountain",
+                subtitle: "BKCTF 2026 - Finding a flight and a trail with only a picture of a far away fogged mountain",
                 difficulty: "hard",
                 category: "osint",
-                catColor: "#88d5f9", //light blue for osint
+                catColor: "#88d5f9",
                 body: `
           <p class="writeup-meta">
             <strong>Category:</strong> <span class="pill">osint</span>
@@ -1407,10 +1405,10 @@ if __name__ == "__main__":
             {
                 id: "kaizo_brackeys",
                 title: "Kaizo Brackeys",
-                subtitle: "LITCTF 2025 · Hacking a unity game to reveal hidden scenes and assets",
+                subtitle: "LITCTF 2025 - Hacking a unity game to reveal hidden scenes and assets",
                 difficulty: "medium",
                 category: "rev",
-                catColor: "#9ca3af", // gray
+                catColor: "#9ca3af",
                 body: `
           <p class="writeup-meta">
             <strong>Category:</strong> <span class="pill">rev</span>
@@ -1607,7 +1605,7 @@ public class LevelComplete : MonoBehaviour
             {
                 id: "drippy_adventures",
                 title: "Drippy Adventures",
-                subtitle: "L3AK CTF 2026 · Further hacking a unity game for all it has to offer",
+                subtitle: "L3AK CTF 2026 - Further hacking a unity game for all it has to offer",
                 difficulty: "hard",
                 category: "rev",
                 catColor: "#9ca3af",
@@ -1723,7 +1721,7 @@ public class LevelComplete : MonoBehaviour
             {
                 id: "you_scanned_what_and_how",
                 title: "You Scanned WHAT?!? and HOW?!?!?",
-                subtitle: "L3AK CTF 2026 · Reconstructing CT scan data from projection measurements",
+                subtitle: "L3AK CTF 2026 - Reconstructing CT scan data from projection measurements",
                 difficulty: "hard",
                 category: "forensics",
                 catColor: "#3b82f6",
@@ -2028,7 +2026,7 @@ public class LevelComplete : MonoBehaviour
             {
                 id: "software_and_hardware_are_a_scam",
                 title: "Software + Hardware is a scam",
-                subtitle: "L3AK CTF 2026 · Simplifying hardware logic to recover the flag",
+                subtitle: "L3AK CTF 2026 - Reverse engineering password circuits",
                 difficulty: "hard",
                 category: "hardware",
                 catColor: "#e5e7eb",
@@ -2526,8 +2524,6 @@ public class LevelComplete : MonoBehaviour
             (a, b) => (l3akOrder.get(a.id) ?? 3) - (l3akOrder.get(b.id) ?? 3)
         );
 
-        // Keep collapsed writeups lightweight. Images are decoded asynchronously,
-        // and a writeup body is only mounted after that card is opened once.
         const keepOriginalImage = new Set([
             "/images/writeups/Drippy_Adventures/dnSpyfiles.png",
             "/images/writeups/Emoji_CAPTCHA/exampleOutput.png",
@@ -2536,14 +2532,37 @@ public class LevelComplete : MonoBehaviour
             "/images/writeups/You_Scanned_WHAT_and_HOW/sinogram_example.png",
         ]);
 
+        const normalizeCodeBlockIndentation = (html) =>
+            html.replace(
+                /(<pre><code[^>]*>)([\s\S]*?)(<\/code><\/pre>)/gi,
+                (_match, openingTag, code, closingTag) => {
+                    const lines = code.replace(/\r\n?/g, "\n").split("\n");
+                    const start = lines[0].trim() ? 1 : 0;
+                    const contentLines = lines.slice(start).filter((line) => line.trim());
+
+                    if (contentLines.length) {
+                        const sharedIndent = Math.min(
+                            ...contentLines.map((line) => (line.match(/^ */) || [""])[0].length)
+                        );
+
+                        if (sharedIndent > 0) {
+                            for (let index = start; index < lines.length; index += 1) {
+                                lines[index] = lines[index].slice(sharedIndent);
+                            }
+                        }
+                    }
+
+                    while (lines.length > 1 && !lines[lines.length - 1].trim()) lines.pop();
+                    return openingTag + lines.join("\n") + closingTag;
+                }
+            );
+
         writeups.value.forEach((writeup) => {
-            writeup.body = writeup.body
+            writeup.body = normalizeCodeBlockIndentation(writeup.body)
                 .replace(
                     /<img(?![^>]*\bloading=)/g,
                     '<img loading="lazy" decoding="async"'
                 )
-                // These two source files are byte-for-byte identical; reuse one URL so
-                // the browser can share a single download and decoded image.
                 .replace(
                     /\/images\/writeups\/Eye_on_the_Sky\/chall2\.jpg/g,
                     "/images/writeups/Eye_on_the_Sky/chall1.jpg"
@@ -2561,13 +2580,6 @@ public class LevelComplete : MonoBehaviour
 
         const openId = S(null);
 
-        // ---------------------------------------------------------
-        // CODE TOGGLES (CSS-only chevron) FOR LONG <pre> BLOCKS
-        // - only adds toggle if code has > 10 lines
-        // - collapsed: 10 lines (scrollable)
-        // - expanded: 25 lines (scrollable)
-        // - button is OUTSIDE the <pre> so scrolling doesn't move it
-        // ---------------------------------------------------------
         const setupCodeToggles = (id) => {
             const body = document.querySelector(`#writeup-${id} .writeup-body`);
             if (!body) return;
@@ -2589,16 +2601,13 @@ public class LevelComplete : MonoBehaviour
                     pre.dataset.codeToggle = "1";
                 } catch (e) {}
 
-                // Don't add a toggle for short code blocks (10 lines or less)
                 if (lineCount <= 10) return;
 
-                // Wrap so the button can be anchored outside the scrollable <pre>
                 const wrap = document.createElement("div");
                 wrap.className = "code-wrap";
                 pre.parentNode.insertBefore(wrap, pre);
                 wrap.appendChild(pre);
 
-                // Default collapsed
                 pre.classList.add("code-toggle");
                 pre.classList.add("code-collapsed");
                 pre.classList.remove("code-open");
@@ -2628,7 +2637,6 @@ public class LevelComplete : MonoBehaviour
                         btn.setAttribute("aria-label", "Collapse code");
                     }
 
-                    // keep measured-height accurate
                     if (openId.value === id) {
                         requestAnimationFrame(() => {
                             setBodyHeight(id);
@@ -2640,32 +2648,23 @@ public class LevelComplete : MonoBehaviour
             });
         };
 
-        // ---------------------------------------------------------
-        // MEASURED HEIGHT SUPPORT (fixes "slow then snap" max-height)
-        // Sets CSS var --body-h to the body's scrollHeight while open.
-        // Keeps it updated if images load / content reflows.
-        // ---------------------------------------------------------
         let bodyRO = null;
 
         const setBodyHeight = (id) => {
-            // ensure code blocks are processed BEFORE measuring
             setupCodeToggles(id);
 
             const body = document.querySelector(`#writeup-${id} .writeup-body`);
             if (!body) return;
 
             const apply = () => {
-                // scrollHeight includes padding; ensure we measure when open padding is applied
                 body.style.setProperty("--body-h", body.scrollHeight + "px");
             };
 
-            // Apply now + after layout settles a bit
             requestAnimationFrame(() => {
                 apply();
                 requestAnimationFrame(apply);
             });
 
-            // Keep it correct while open (images, fonts, etc.)
             try {
                 bodyRO?.disconnect();
                 bodyRO = new ResizeObserver(() => {
@@ -2673,7 +2672,6 @@ public class LevelComplete : MonoBehaviour
                 });
                 bodyRO.observe(body);
             } catch (e) {
-                // Fallback if ResizeObserver isn't available
                 setTimeout(apply, 350);
             }
         };
@@ -2685,11 +2683,9 @@ public class LevelComplete : MonoBehaviour
             bodyRO = null;
         };
 
-        // robust, deterministic offset scroll (beats scroll restoration + late layout shifts)
         const scrollToWriteup = (id, smooth, tries = 0, rescrolls = 0) => {
             const el = document.getElementById(`writeup-${id}`);
 
-            // retry a few frames on initial load / view transitions
             if (!el) {
                 if (tries < 48)
                     requestAnimationFrame(() =>
@@ -2716,12 +2712,11 @@ public class LevelComplete : MonoBehaviour
                 return document.scrollingElement || document.documentElement;
             };
 
-            const offset = 90; // matches scroll-margin-top / desired header offset
+            const offset = 90;
 
             const scrollOnce = (useSmooth) => {
                 const scroller = findScrollParent(el);
 
-                // window/document scroller
                 if (
                     scroller === document.scrollingElement ||
                     scroller === document.documentElement ||
@@ -2733,7 +2728,6 @@ public class LevelComplete : MonoBehaviour
                     return;
                 }
 
-                // nested scroller
                 const scRect = scroller.getBoundingClientRect();
                 const elRect = el.getBoundingClientRect();
                 const y = elRect.top - scRect.top + scroller.scrollTop;
@@ -2747,7 +2741,6 @@ public class LevelComplete : MonoBehaviour
             };
 
             const verifyAndRescroll = () => {
-                // if late layout shifts push it away, re-apply a couple times
                 const delta = el.getBoundingClientRect().top - offset;
                 if (Math.abs(delta) > 26 && rescrolls < 3) {
                     scrollOnce(false);
@@ -2758,11 +2751,9 @@ public class LevelComplete : MonoBehaviour
                 }
             };
 
-            // wait 2 frames so layout (and .open max-height var) is applied before measuring
             requestAnimationFrame(() => {
                 requestAnimationFrame(() => {
                     scrollOnce(!!smooth);
-                    // longer settle because your open animation is now slower
                     setTimeout(verifyAndRescroll, smooth ? 700 : 220);
                 });
             });
@@ -2770,7 +2761,6 @@ public class LevelComplete : MonoBehaviour
 
         const updateUrl = (idOrNull) => {
             const url = new URL(window.location.href);
-            // Only manage the writeup id here. index.js owns the "view" param.
             if (idOrNull) url.searchParams.set("w", idOrNull);
             else url.searchParams.delete("w");
 
@@ -2786,7 +2776,6 @@ public class LevelComplete : MonoBehaviour
         const toggle = (id) => {
             const next = openId.value === id ? null : id;
 
-            // switching cards: stop observing the old one first
             clearBodyObserver();
 
             if (next) loadedWriteups.add(next);
@@ -2794,7 +2783,6 @@ public class LevelComplete : MonoBehaviour
             updateUrl(openId.value);
 
             if (openId.value) {
-                // let DOM apply .open first, then measure height and scroll
                 requestAnimationFrame(() => {
                     setBodyHeight(openId.value);
                     scrollToWriteup(openId.value, true);
@@ -2810,7 +2798,6 @@ public class LevelComplete : MonoBehaviour
             const exists = writeups.value.find((w) => w.id === id);
             if (!exists) return;
 
-            // prevent browser scroll restoration from overriding our direct-link scroll
             try {
                 if ("scrollRestoration" in history) history.scrollRestoration = "manual";
             } catch (e) {}
@@ -2824,7 +2811,6 @@ public class LevelComplete : MonoBehaviour
                 scrollToWriteup(id, !!smooth);
             });
 
-            // one extra settle pass for late-loading assets / dvh changes
             setTimeout(() => {
                 setBodyHeight(id);
                 scrollToWriteup(id, false);
@@ -2832,10 +2818,8 @@ public class LevelComplete : MonoBehaviour
         };
 
         D(() => {
-            // direct-link support
             openFromUrl(false);
 
-            // cross-view event support (index -> writeups)
             window.addEventListener("writeups:open", (e) => {
                 const id = e?.detail?.id;
                 if (!id) return;
@@ -2853,12 +2837,10 @@ public class LevelComplete : MonoBehaviour
                 });
             });
 
-            // close any open card when index switches back to "about me"
             window.addEventListener("writeups:close", () => {
                 closeAll();
             });
 
-            // if page is restored from bfcache, re-apply direct-link scroll
             window.addEventListener("pageshow", (e) => {
                 if (e.persisted) openFromUrl(false);
             });
@@ -2891,7 +2873,6 @@ public class LevelComplete : MonoBehaviour
                                         id: `writeup-${w.id}`,
                                         class: "writeup-card" + (openId.value === w.id ? " open" : ""),
                                     }, [
-                                        /* left tiles */
                                         l("div", { class: "writeup-badges-left" }, [
                                             l(
                                                 "div", {
@@ -2915,7 +2896,6 @@ public class LevelComplete : MonoBehaviour
                                             ),
                                         ]),
 
-                                        /* right tiles: challenge distinctions */
                                         l(
                                             "div", {
                                                 class: "writeup-badges-right",
@@ -2923,21 +2903,18 @@ public class LevelComplete : MonoBehaviour
                                                     display: w.firstBlood || w.author ? "" : "none",
                                                 },
                                             },
-                                            w.firstBlood ?
-                                            [
+                                            w.firstBlood ? [
                                                 l(
                                                     "div", { class: "writeup-badge writeup-firstblood" },
                                                     "🩸First Blood🩸"
                                                 ),
                                             ] :
-                                            w.author ?
-                                            [
+                                            w.author ? [
                                                 l(
                                                     "div", { class: "writeup-badge writeup-author" },
                                                     "✏️Author✏️"
                                                 ),
-                                            ] :
-                                            []
+                                            ] : []
                                         ),
 
                                         l(
@@ -2956,7 +2933,6 @@ public class LevelComplete : MonoBehaviour
                                             8, ["innerHTML"]
                                         ),
 
-                                        // bottom-right close button (only visible when .open)
                                         l(
                                             "button", {
                                                 type: "button",
