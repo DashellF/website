@@ -16,8 +16,6 @@ import {
     v as x,
 } from "./entry.js";
 
-import Writeups from "./writeups.js";
-
 const ce = { class: "prize-container" };
 const le = { class: "card" };
 const ue = { class: "side front" };
@@ -218,6 +216,27 @@ const Xe = k({
 
         const isWriteups = S(initialState.view === "writeups");
         const noAnim = S(initialState.view === "writeups");
+        const WriteupsComponent = S(null);
+        let writeupsPromise = null;
+
+        const ensureWriteups = () => {
+            if (WriteupsComponent.value) return Promise.resolve(WriteupsComponent.value);
+            if (!writeupsPromise) {
+                writeupsPromise = import("./writeups.js").then((module) => {
+                    WriteupsComponent.value = module.default;
+                    return module.default;
+                });
+            }
+            return writeupsPromise;
+        };
+
+        const WriteupsHost = k({
+            setup() {
+                return () => WriteupsComponent.value ? x(WriteupsComponent.value) : l("div", { style: "display:none" });
+            },
+        });
+
+        if (initialState.view === "writeups") ensureWriteups();
 
         // wired up in onMounted (D)
         let resetFooterInstant = () => {};
@@ -304,6 +323,7 @@ const Xe = k({
 
         // UPDATED: writeups button ALWAYS goes to top of writeups scroll
         const goWriteups = (w) => {
+            ensureWriteups();
             const writeupsSwitchButton = document.getElementById("writeups-switch");
             if (writeupsSwitchButton) writeupsSwitchButton.classList.add("hidden");
 
@@ -561,7 +581,9 @@ const Xe = k({
                             ]),
                         ]),
                         l("section", { class: "view writeups-view" }, [
-                            l("div", { id: "writeups-scroll", class: "view-scroll" }, [x(Writeups)]),
+                            l("div", { id: "writeups-scroll", class: "view-scroll" }, [
+                                x(WriteupsHost),
+                            ]),
                         ]),
                     ]),
 
@@ -569,6 +591,7 @@ const Xe = k({
                         "div", {
                             id: "writeups-switch",
                             class: "hidden",
+                            onMouseenter: ensureWriteups,
                             onClick: () => goWriteups(),
                         }, [
                             l("p", null, "writeups"),

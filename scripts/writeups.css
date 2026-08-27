@@ -129,7 +129,6 @@
 
   text-align: center;
   transform: translateY(0);
-  will-change: max-height, opacity, padding;
 }
 
 .writeup-card.open .writeup-body {
@@ -140,6 +139,7 @@
   /* extra bottom space so the close button doesn't cover the last line */
   padding: 0 1.4rem 3.2rem;
   pointer-events: auto;
+  will-change: max-height, opacity, padding;
 
   /* OPEN timing (applies when .open is added) — much slower */
   transition:
@@ -540,6 +540,10 @@
 .writeup-badge.writeup-cat {
   border-color: var(--badge-color, currentColor);
   color: var(--badge-color, currentColor);
+}
+
+.writeup-body .extra-bold {
+  font-weight: 900;
 }
 
 .writeup-badge.writeup-cat-forensics {

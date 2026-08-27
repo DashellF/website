@@ -32201,6 +32201,7 @@ class ThreeScene {
         Ye(this, "_writeupsObserver", null);
         Ye(this, "_tmpMat4", new Float32Array(16));
         Ye(this, "_tmpNMat3", new Float32Array(9));
+        Ye(this, "_resizeRaf", 0);
 
         this.isDemo = t;
         fr = Aa().app.baseURL;
@@ -32268,9 +32269,19 @@ class ThreeScene {
         this.updateSizes();
         this.addObjects();
 
-        window.addEventListener("resize", () => this.updateSizes());
+        const queueResize = () => {
+            if (this._resizeRaf) return;
+            this._resizeRaf = requestAnimationFrame(() => {
+                this._resizeRaf = 0;
+                if (innerWidth !== this.sizes.width || innerHeight !== this.sizes.height) {
+                    this.updateSizes();
+                }
+            });
+        };
+
+        window.addEventListener("resize", queueResize, { passive: !0 });
         window.addEventListener("mousemove", (s) => this.updateMousePosition(s));
-        window.addEventListener("deviceorientation", () => this.updateSizes(), !0);
+        window.addEventListener("orientationchange", queueResize, { passive: !0 });
 
         this._onScroll = () => this.updateScroll();
 
@@ -32608,7 +32619,7 @@ class ThreeScene {
         const Z_HALF = 300;
 
         const baseGeo = new Tu(1.4, 6, 5);
-        const mat = new Td({ color: theme.rock ?? 0x5b5b5b, flatShading: !0 });
+        const mat = new Td({ color: theme.rock ?? 0x5b5b5b });
 
         const rand = Math.random;
         const cabinFootprint = this._getCabinFootprint();
@@ -32781,7 +32792,7 @@ class ThreeScene {
             12
         );
 
-        const mat = new Td({ color: theme.grass, flatShading: !0 });
+        const mat = new Td({ color: theme.grass });
 
         const rand = Math.random;
 
@@ -32982,7 +32993,6 @@ class ThreeScene {
 
         const mat = new Td({
             color: theme.dirtPatch ?? theme.dirt ?? 0x644a1f,
-            flatShading: !0,
             side: Wt,     // DoubleSide (you confirmed this helps)
             fog: false,   // ✅ keeps patch color from going “blackish” in dark fog
         });
@@ -33452,6 +33462,9 @@ class ThreeScene {
         const centerLineBlockUntilZ = placement?.pathApproachWorld?.z ?? Infinity;
 
         const placedTrunks = [];
+        const treeGrid = new Map();
+        const treeGridSize = 3;
+        const treeGridKey = (gx, gz) => gx + ":" + gz;
 
         const trunkInstances = [];
         const leafInstances0 = [];
@@ -33489,23 +33502,41 @@ class ThreeScene {
 
                 if (cabinFootprint && this._isInsideFootprint(x, m, cabinFootprint, trunkR + CABIN_CLEARANCE)) continue;
 
+                const gridX = Math.floor(x / treeGridSize);
+                const gridZ = Math.floor(m / treeGridSize);
                 let overlapsTree = false;
-                for (let i = 0; i < placedTrunks.length; i++) {
-                    const t = placedTrunks[i];
-                    const dx = x - t.x;
-                    const dz = m - t.z;
-                    const rr = trunkR + t.r + TRUNK_CLEARANCE;
 
-                    if (dx * dx + dz * dz < rr * rr) {
-                        overlapsTree = true;
-                        break;
+                for (let ox = -1; ox <= 1 && !overlapsTree; ox++) {
+                    for (let oz = -1; oz <= 1 && !overlapsTree; oz++) {
+                        const nearby = treeGrid.get(treeGridKey(gridX + ox, gridZ + oz));
+                        if (!nearby) continue;
+
+                        for (let i = 0; i < nearby.length; i++) {
+                            const t = nearby[i];
+                            const dx = x - t.x;
+                            const dz = m - t.z;
+                            const rr = trunkR + t.r + TRUNK_CLEARANCE;
+
+                            if (dx * dx + dz * dz < rr * rr) {
+                                overlapsTree = true;
+                                break;
+                            }
+                        }
                     }
                 }
                 if (overlapsTree) continue;
 
                 inst = { px: x, py: -10, pz: m, rx: 0, ry: rotY, rz: 0, sx, sy, sz };
                 leafIdx = pickLeafIdx();
-                placedTrunks.push({ x, z: m, r: trunkR });
+                const placed = { x, z: m, r: trunkR };
+                placedTrunks.push(placed);
+                const ownGridKey = treeGridKey(gridX, gridZ);
+                let ownGrid = treeGrid.get(ownGridKey);
+                if (!ownGrid) {
+                    ownGrid = [];
+                    treeGrid.set(ownGridKey, ownGrid);
+                }
+                ownGrid.push(placed);
                 break;
             }
 
@@ -33521,22 +33552,16 @@ class ThreeScene {
 
         this.treeTrunkBounds = placedTrunks;
 
-        const trunkMesh = this._makeMergedMesh(trunkGeo, trunkMat, trunkInstances, "forestTrunks");
-        const leafMesh0 = this._makeMergedMesh(leafCombinedGeo, leafMatGreen,  leafInstances0, "forestLeavesGreen");
-        const leafMesh1 = this._makeMergedMesh(leafCombinedGeo, leafMatOrange, leafInstances1, "forestLeavesOrange");
-        const leafMesh2 = this._makeMergedMesh(leafCombinedGeo, leafMatRed,    leafInstances2, "forestLeavesRed");
-        const leafMesh3 = this._makeMergedMesh(leafCombinedGeo, leafMatBrown,  leafInstances3, "forestLeavesBrown");
+        this._addMergedChunks(forestGroup, trunkGeo, trunkMat, trunkInstances, "forestTrunks", 180);
+        this._addMergedChunks(forestGroup, leafCombinedGeo, leafMatGreen, leafInstances0, "forestLeavesGreen", 180);
+        this._addMergedChunks(forestGroup, leafCombinedGeo, leafMatOrange, leafInstances1, "forestLeavesOrange", 180);
+        this._addMergedChunks(forestGroup, leafCombinedGeo, leafMatRed, leafInstances2, "forestLeavesRed", 180);
+        this._addMergedChunks(forestGroup, leafCombinedGeo, leafMatBrown, leafInstances3, "forestLeavesBrown", 180);
 
         trunkGeo.dispose?.();
         layer1Geo.dispose?.(); layer2Geo.dispose?.(); layer3Geo.dispose?.();
         l1.dispose?.(); l2.dispose?.(); l3.dispose?.();
         leafCombinedGeo?.dispose?.();
-
-        if (trunkMesh) forestGroup.add(trunkMesh);
-        if (leafMesh0) forestGroup.add(leafMesh0);
-        if (leafMesh1) forestGroup.add(leafMesh1);
-        if (leafMesh2) forestGroup.add(leafMesh2);
-        if (leafMesh3) forestGroup.add(leafMesh3);
 
         this.scene.add(forestGroup);
         this.forest = forestGroup;
@@ -33567,7 +33592,7 @@ class ThreeScene {
         );
 
         const theme = this.theme || (this.theme = this.readThemeFromCSS());
-        const grassMat = new Td({ color: theme.grass, flatShading: !0 });
+        const grassMat = new Td({ color: theme.grass });
 
         const rand = Math.random;
 
@@ -33629,12 +33654,14 @@ class ThreeScene {
             }
         }
 
-        const mesh = this._makeMergedMesh(tuftGeo, grassMat, instances, "grassPatches");
+        const grassGroup = new Gt();
+        grassGroup.name = "grassPatches";
+        this._addMergedChunks(grassGroup, tuftGeo, grassMat, instances, "grassPatches", 180);
         tuftGeo.dispose?.();
 
-        if (mesh) {
-            this.scene.add(mesh);
-            this.grassPatches = mesh;
+        if (grassGroup.children.length) {
+            this.scene.add(grassGroup);
+            this.grassPatches = grassGroup;
         } else {
             grassMat.dispose?.();
             this.grassPatches = null;
@@ -34014,6 +34041,25 @@ class ThreeScene {
         mesh.updateMatrix?.();
         return mesh;
     }
+    _addMergedChunks(parent, baseGeo, mat, instances, name, cellSize) {
+        const chunks = new Map();
+
+        for (let i = 0; i < instances.length; i++) {
+            const instance = instances[i];
+            const key = Math.floor(instance.px / cellSize) + ":" + Math.floor(instance.pz / cellSize);
+            let chunk = chunks.get(key);
+            if (!chunk) {
+                chunk = [];
+                chunks.set(key, chunk);
+            }
+            chunk.push(instance);
+        }
+
+        for (const [key, chunk] of chunks) {
+            const mesh = this._makeMergedMesh(baseGeo, mat, chunk, name + "-" + key);
+            if (mesh) parent.add(mesh);
+        }
+    }
     addLeafFall() {
         // Pull latest theme (useful if CSS hot-reloads)
         const theme = this.theme || (this.theme = this.readThemeFromCSS());
@@ -34389,36 +34435,36 @@ class ThreeScene {
         cabin.position.set(placement.x, 0, placement.z);
         cabin.rotation.y = placement.rotationY;
 
-        const logMat = new Td({ color: 0x6f4528, flatShading: !0 });
-        const logDarkStreakMat = new Td({ color: 0x4a2a18, flatShading: !0 });
+        const logMat = new Td({ color: 0x6f4528 });
+        const logDarkStreakMat = new Td({ color: 0x4a2a18 });
         logDarkStreakMat.polygonOffset = true;
         logDarkStreakMat.polygonOffsetFactor = -1;
         logDarkStreakMat.polygonOffsetUnits = -1;
-        const logEndRingMat = new Td({ color: 0x452615, flatShading: !0, side: Wt });
+        const logEndRingMat = new Td({ color: 0x452615, side: Wt });
 
-        const patioMat = new Td({ color: 0x56402d, flatShading: !0 });
-        const patioLightMat = new Td({ color: 0x6a4c35, flatShading: !0 });
+        const patioMat = new Td({ color: 0x56402d });
+        const patioLightMat = new Td({ color: 0x6a4c35 });
 
-        const foundationMat = new Td({ color: 0x625349, flatShading: !0 });
+        const foundationMat = new Td({ color: 0x625349 });
 
-        const doorMat = new Td({ color: 0x3c2517, flatShading: !0 });
-        const doorLightMat = new Td({ color: 0x69422a, flatShading: !0 });
-        const metalMat = new Td({ color: 0xcdd2d8, flatShading: !0 });
+        const doorMat = new Td({ color: 0x3c2517 });
+        const doorLightMat = new Td({ color: 0x69422a });
+        const metalMat = new Td({ color: 0xcdd2d8 });
 
-        const recessMat = new Td({ color: 0x2a1a12, flatShading: !0 });
-        const windowFrameMat = new Td({ color: 0x4b2d1a, flatShading: !0 });
+        const recessMat = new Td({ color: 0x2a1a12 });
+        const windowFrameMat = new Td({ color: 0x4b2d1a });
 
-        const windowPaneMat = new Td({ color: 0x63b7ff, flatShading: !0, side: Wt });
+        const windowPaneMat = new Td({ color: 0x63b7ff, side: Wt });
         windowPaneMat.polygonOffset = true;
         windowPaneMat.polygonOffsetFactor = -2;
         windowPaneMat.polygonOffsetUnits = -2;
 
-        const roofBaseMat = new Td({ color: 0x44291b, flatShading: !0 });
-        const roofTileMat = new Td({ color: 0x553424, flatShading: !0 });
-        const roofTileDarkMat = new Td({ color: 0x3a2218, flatShading: !0 });
+        const roofBaseMat = new Td({ color: 0x44291b });
+        const roofTileMat = new Td({ color: 0x553424 });
+        const roofTileDarkMat = new Td({ color: 0x3a2218 });
 
-        const chimneyMat = new Td({ color: 0x908a84, flatShading: !0 });
-        const chimneyCapMat = new Td({ color: 0x3f3b36, flatShading: !0 });
+        const chimneyMat = new Td({ color: 0x908a84 });
+        const chimneyCapMat = new Td({ color: 0x3f3b36 });
 
         addBox(cabin, cabinW + S(0.9), S(1.10), cabinD + S(0.9), foundationMat, 0, floorY - S(0.60), 0);
 
@@ -34924,7 +34970,6 @@ class ThreeScene {
 
         const makeShakeMat = (hex) => new Td({
             color: hex,
-            flatShading: !0,
             side: Wt, // keep double-sided for now so bad backface/cull behavior cannot show as broken tiles
         });
 

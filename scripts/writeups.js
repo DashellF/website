@@ -56,7 +56,7 @@ const Writeups = k({
 
           <hr />
 
-          <p>As a preface to this writeup, AI was used to generate the scripts below, and was allowed per this CTF's rules. The ideas used were still very human, otherwise this challenge would not have had only 3 solves in 48 hours 😊.</p>
+          <p>As a preface to this writeup, AI was used to generate the scripts below, and was allowed per this CTF's rules. The ideas used were still very human, otherwise this challenge would not have had only 1 solve in the first 24 hours and only 3 solves throughout the 48 hour CTF 😊.</p>
 
           <p>When we first connect the server, we are prompted with a nice banner and a menu.</p>
 
@@ -2505,7 +2505,7 @@ public class LevelComplete : MonoBehaviour
           solve(&quot;l3ak&quot;)
           solve(&quot;L3AK&quot;)
           </code></pre>
-          <p>From running the code, we find out that there are <em>two</em> passwords that can authenticate via this device.</p>
+          <p>From running the code, we find out that there are <strong class="extra-bold">two</strong> passwords that can authenticate via this device.</p>
           <pre><code>l3ak{Sup3r_53cUr3_p4ssw0rD_r1gH7?}
           L3AK{B4ckd0or_h1dd3N_iN_H4rDw4Re!}
           </code></pre>
