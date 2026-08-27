@@ -2520,9 +2520,8 @@ public class LevelComplete : MonoBehaviour
             ["you_scanned_what_and_how", 1],
             ["software_and_hardware_are_a_scam", 2],
         ]);
-        writeups.value.sort(
-            (a, b) => (l3akOrder.get(a.id) ?? 3) - (l3akOrder.get(b.id) ?? 3)
-        );
+        const l3akPosition = (id) => l3akOrder.has(id) ? l3akOrder.get(id) : 3;
+        writeups.value.sort((a, b) => l3akPosition(a.id) - l3akPosition(b.id));
 
         const keepOriginalImage = new Set([
             "/images/writeups/Drippy_Adventures/dnSpyfiles.png",
@@ -2588,7 +2587,7 @@ public class LevelComplete : MonoBehaviour
             if (!pres || !pres.length) return;
 
             pres.forEach((pre) => {
-                if (!pre || pre.dataset?.codeToggle === "1") return;
+                if (!pre || (pre.dataset && pre.dataset.codeToggle === "1")) return;
 
                 const codeEl = pre.querySelector("code");
                 const raw = (codeEl ? codeEl.textContent : pre.textContent || "").replace(
@@ -2666,7 +2665,7 @@ public class LevelComplete : MonoBehaviour
             });
 
             try {
-                bodyRO?.disconnect();
+                if (bodyRO) bodyRO.disconnect();
                 bodyRO = new ResizeObserver(() => {
                     if (openId.value === id) apply();
                 });
@@ -2678,7 +2677,7 @@ public class LevelComplete : MonoBehaviour
 
         const clearBodyObserver = () => {
             try {
-                bodyRO?.disconnect();
+                if (bodyRO) bodyRO.disconnect();
             } catch (e) {}
             bodyRO = null;
         };
@@ -2821,7 +2820,7 @@ public class LevelComplete : MonoBehaviour
             openFromUrl(false);
 
             window.addEventListener("writeups:open", (e) => {
-                const id = e?.detail?.id;
+                const id = e && e.detail ? e.detail.id : null;
                 if (!id) return;
 
                 const exists = writeups.value.find((w) => w.id === id);
@@ -2855,7 +2854,7 @@ public class LevelComplete : MonoBehaviour
                         l(
                             "p",
                             null,
-                            "Here are a couple of ctf writeups I've written. I plan to post more of these here as time goes on. I won't post AI slop here, all of it is written by me."
+                            "Here are a couple of ctf writeups I've written. I plan to post more of these here as time goes on. I won't post AI slop here, all of it is written by me ☺️."
                         ),
                     ]),
                 ]),
