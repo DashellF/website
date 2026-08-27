@@ -1330,13 +1330,17 @@ if __name__ == "__main__":
             <strong>Time spent to solve:</strong> ~3 hours.
           </p>
 
-          <p class="desc-label"><strong>Description:</strong></p>
+          <p class="desc-label"><strong>Descriptions:</strong></p>
+          <p class="desc-label">Part 1:</p>
           <blockquote class="desc-area">
-            <p><strong>Part 1:</strong><br>
+            <p>
             Flag format is the flight number (as marketed by the operating airline) (w/ no spaces), followed by ‘-‘, followed by the baggage carousel number. example : <code>bkctf{DL2949-12C4}</code><br>
             can you dedeuce where this photo was taken?</p>
+          </blockquote>
 
-            <p><strong>Part 2:</strong><br>
+          <p class="desc-label">Part 2:</p>
+          <blockquote class="desc-area">
+            <p>
             Flag format is the name of the location the image was taken from (ie the location of the photographer). All lower case, remove spaces. Example: <code>bkctf{goldengatebridge}</code></p>
           </blockquote>
 
@@ -1613,11 +1617,14 @@ public class LevelComplete : MonoBehaviour
             <strong>Category:</strong> <span class="pill">rev</span>
           </p>
 
-          <p>Description:</p>
-          <blockquote>
-          <p>Help Drip escape his predicament, and perhaps find some drip along the way!</p>
+          <p class="writeup-meta">
+            <strong>Time spent to solve:</strong> ~2 hours.
+          </p>
+
+          <p class="desc-label"><strong>Description:</strong></p>
+          <blockquote class="desc-area">
+            <p>Help Drip escape his predicament, and perhaps find some drip along the way!</p>
           </blockquote>
-          <p>Time spent to solve: ~2 hours.</p>
           <hr>
           <p>We start out given a unity game build folder. After unzipping and running the game, we find out that the player is caught within a fence, with two signs explaining the situation.</p>
           <p><img class="writeup-img" src="/images/writeups/Drippy_Adventures/controls_story.png" alt="Signs depicting the storyline and controls"></p>
@@ -1726,19 +1733,20 @@ public class LevelComplete : MonoBehaviour
             <strong>Category:</strong> <span class="pill">forensics</span>
           </p>
 
-          <p>Descriptions:</p>
-          <p>You Scanned WHAT?!?:</p>
-          <blockquote>
-          <p>My llm got excited and somehow brought me this weird file it took from my local hospital 🐕. It seems to be a scan of some sorts, can you figure out what it was of?</p>
+          <p class="writeup-meta">
+            <strong>Time spent to solve:</strong> ~3-5 hours (for humans).
+          </p>
+
+          <p class="desc-label"><strong>Descriptions:</strong></p>
+          <p class="desc-label">You Scanned WHAT?!?:</p>
+          <blockquote class="desc-area">
+            <p>My llm got excited and somehow brought me this weird file it took from my local hospital 🐕. It seems to be a scan of some sorts, can you figure out what it was of?</p>
           </blockquote>
-          <p>You Scanned HOW?!?!?:</p>
-          <blockquote>
-          <p>My agent was so happy to see my earlier reaction, it proceeded to bring me this much larger file 🤷. Can you find out what it is?</p>
+          <p class="desc-label">You Scanned HOW?!?!?:</p>
+          <blockquote class="desc-area">
+            <p>My agent was so happy to see my earlier reaction, it proceeded to bring me this much larger file 🤷. Can you find out what it is?</p>
+            <p>Note: This challenge is the revenge challenge for <code>You Scanned WHAT?!?</code>. It is suggested that you solve that one first.</p>
           </blockquote>
-          <blockquote>
-          <p>Note: This challenge is the revenge challenge for <code>You Scanned WHAT?!?</code>. It is suggested that you solve that one first.</p>
-          </blockquote>
-          <p>Time spent to solve: ~3-5 hours (for humans).</p>
           <hr>
           <p>This writeup is split up for the two challenges, <code>You Scanned WHAT?!?</code> and it&#39;s revenge challenge <code>You Scanned HOW?!?!?</code>. First, lets go over the solution to the first challenge. </p>
           <p>For this challenge, we are given a single file named scan.sqlite.</p>
@@ -2030,22 +2038,21 @@ public class LevelComplete : MonoBehaviour
             <strong>Category:</strong> <span class="pill">hardware</span>
           </p>
 
-          <p>Description:</p>
-          <p>Software is a scam:</p>
-          <blockquote>
-          <p>Why use software when hardware gets the job done just fine?</p>
+          <p class="writeup-meta">
+            <strong>Time spent to solve:</strong> ~3 hours.
+          </p>
+
+          <p class="desc-label"><strong>Descriptions:</strong></p>
+          <p class="desc-label">Software is a scam:</p>
+          <blockquote class="desc-area">
+            <p>Why use software when hardware gets the job done just fine?</p>
           </blockquote>
-          <p>Hardware is a scam:</p>
-          <blockquote>
-          <p>Maybe software isn&#39;t so bad after all...</p>
+          <p class="desc-label">Hardware is a scam:</p>
+          <blockquote class="desc-area">
+            <p>Maybe software isn&#39;t so bad after all...</p>
+            <p>My current password <code>l3ak{...}</code> seems to be working fine, but something tells me someone else has been messing around on my machine 💀.</p>
+            <p>Note: This challenge is the revenge challenge for <code>Software is a scam</code>. It is suggested that you solve that one first.</p>
           </blockquote>
-          <blockquote>
-          <p>My current password <code>l3ak{...}</code> seems to be working fine, but something tells me someone else has been messing around on my machine 💀.</p>
-          </blockquote>
-          <blockquote>
-          <p>Note: This challenge is the revenge challenge for <code>Software is a scam</code>. It is suggested that you solve that one first.</p>
-          </blockquote>
-          <p>Time spent to solve: ~3 hours.</p>
           <hr>
           <p>Let&#39;s start with the first challenge. This is all we are given:</p>
           <p><img class="writeup-img" src="/images/writeups/Software_+_Hardware_is_a_scam/auth.png" alt="our handout"></p>
