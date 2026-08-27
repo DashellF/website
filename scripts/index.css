@@ -3,78 +3,87 @@
 /* =========================================================
    Global theme + typography
    ========================================================= */
+
 :root {
-  --bg: #0a0924;
-  --accent: #ff8a00;
-  --panel-bg: rgba(10, 9, 36, 0.66);
-  --panel-shadow: 0 0 10px rgba(255, 138, 0, 0.18);
-  --radius: 1rem;
-  --max-width: 800px;
+    --bg: #0a0924;
+    --accent: #ff8a00;
+    --panel-bg: rgba(10, 9, 36, 0.66);
+    --panel-shadow: 0 0 10px rgba(255, 138, 0, 0.18);
+    --radius: 1rem;
+    --max-width: 800px;
 }
 
 @font-face {
-  font-display: auto;
-  font-family: Poppins;
-  font-style: italic;
-  font-weight: 100;
-  src: local("Poppins"), url(/fonts/Poppins/Poppins-Thin.ttf) format("truetype");
+    font-display: auto;
+    font-family: Poppins;
+    font-style: italic;
+    font-weight: 100;
+    src: local("Poppins"), url(/fonts/Poppins/Poppins-Thin.ttf) format("truetype");
 }
+
 @font-face {
-  font-display: auto;
-  font-family: Poppins;
-  font-style: normal;
-  font-weight: 300;
-  src: local("Poppins"), url(/fonts/Poppins/Poppins-Light.ttf) format("truetype");
+    font-display: auto;
+    font-family: Poppins;
+    font-style: normal;
+    font-weight: 300;
+    src: local("Poppins"), url(/fonts/Poppins/Poppins-Light.ttf) format("truetype");
 }
+
 @font-face {
-  font-display: auto;
-  font-family: Poppins;
-  font-style: normal;
-  font-weight: 600;
-  src: local("Poppins"), url(/fonts/Poppins/Poppins-Bold.ttf) format("truetype");
+    font-display: auto;
+    font-family: Poppins;
+    font-style: normal;
+    font-weight: 600;
+    src: local("Poppins"), url(/fonts/Poppins/Poppins-Bold.ttf) format("truetype");
 }
 
 body {
-  background-color: var(--bg);
-  font-family: Poppins, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  margin: 0;
-  min-height: 100dvh;
-  width: 100dvw;
-  text-rendering: geometricPrecision;
+    background-color: var(--bg);
+    font-family: Poppins, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    margin: 0;
+    min-height: 100dvh;
+    width: 100dvw;
+    text-rendering: geometricPrecision;
 }
 
 #__nuxt {
-  height: 100dvh;
-  overflow: hidden;
-  position: relative;
-  z-index: 1; /* keep app above background */
-
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+    height: 100dvh;
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+    /* keep app above background */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
+
 #__nuxt::-webkit-scrollbar {
-  width: 0;
-  height: 0;
+    width: 0;
+    height: 0;
 }
 
 ol li::marker,
 ul li::marker {
-  color: var(--accent);
-  font-family: Poppins;
-  font-size: 1.3rem;
+    color: var(--accent);
+    font-family: Poppins;
+    font-size: 1.3rem;
 }
+
 ul li::marker {
-  content: "ø ";
+    content: "ø ";
 }
+
 
 /* =========================================================
    Three.js background
    ========================================================= */
+
 #threejs-container {
-  position: fixed;
-  inset: 0;
-  z-index: 0; /* background layer */
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    /* background layer */
 }
+
 
 /*
   IMPORTANT FIX:
@@ -83,451 +92,494 @@ ul li::marker {
   pointer-events can inherit and kill ALL link clicks.
   Only disable pointer events on the canvas itself.
 */
+
 #threejs-container canvas,
 #threejs canvas,
 canvas#threejs {
-  pointer-events: none !important;
+    pointer-events: none !important;
 }
 
 #threejs-container,
 #threejs {
-  height: 100dvh;
-  inset: 0;
-  width: 100dvw;
+    height: 100dvh;
+    inset: 0;
+    width: 100dvw;
 }
+
 #threejs {
-  position: relative;
+    position: relative;
 }
+
 
 /* =========================================================
    Layout blocks
    ========================================================= */
+
 .hero-block {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100dvh;
-  width: 100%;
-  position: relative;
-  z-index: 1000;
-  padding: 0 1rem;
-  box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100dvh;
+    width: 100%;
+    position: relative;
+    z-index: 1000;
+    padding: 0 1rem;
+    box-sizing: border-box;
 }
 
 .page-container {
-  background: transparent;
-  display: flex;
-  flex-direction: column;
-  font-size: 1.2rem;
-  height: auto;
-  min-height: 100%;
-  justify-content: flex-start;
-  line-height: 2.3rem;
-  margin: auto;
-  max-width: var(--max-width);
-  position: relative;
-  text-align: center;
-  width: 77%;
-  z-index: 1000;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    font-size: 1.2rem;
+    height: auto;
+    min-height: 100%;
+    justify-content: flex-start;
+    line-height: 2.3rem;
+    margin: auto;
+    max-width: var(--max-width);
+    position: relative;
+    text-align: center;
+    width: 77%;
+    z-index: 1000;
 }
 
 .main-block {
-  align-items: center;
-  box-sizing: border-box;
-  display: flex;
-  justify-content: center;
-  min-height: 100dvh;
-  padding-block: 5rem;
+    align-items: center;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    min-height: 100dvh;
+    padding-block: 5rem;
 }
 
+
 /* Spacer sections used as scroll pages */
+
 .three-animation {
-  display: block;
-  height: 100dvh;
-  position: relative;
+    display: block;
+    height: 100dvh;
+    position: relative;
 }
+
 
 /* =========================================================
    Panels / typography
    ========================================================= */
+
 .text-block,
 .section-heading,
 .card-container {
-  background: var(--panel-bg);
-  border: 1px solid var(--accent);
-  border-radius: var(--radius);
-  box-shadow: var(--panel-shadow);
-  color: var(--accent);
+    background: var(--panel-bg);
+    border: 1px solid var(--accent);
+    border-radius: var(--radius);
+    box-shadow: var(--panel-shadow);
+    color: var(--accent);
 }
 
 .text-block {
-  padding: 3rem 2rem;
+    padding: 3rem 2rem;
 }
+
 .text-block p {
-  line-height: 2rem;
-  margin: 0;
+    line-height: 2rem;
+    margin: 0;
 }
-.text-block p + p {
-  margin-top: 1rem;
+
+.text-block p+p {
+    margin-top: 1rem;
 }
+
 .text-block h2 {
-  font-size: 3rem;
-  font-style: italic;
-  line-height: 3rem;
-  margin: 0 0 1rem;
-  text-align: center;
+    font-size: 3rem;
+    font-style: italic;
+    line-height: 3rem;
+    margin: 0 0 1rem;
+    text-align: center;
 }
+
 .text-block h3 {
-  font-size: 1.6rem;
-  margin: 2rem 0 0;
+    font-size: 1.6rem;
+    margin: 2rem 0 0;
 }
+
 .text-block ol,
 .text-block ul {
-  margin: auto;
-  padding-block: 1rem;
-  text-align: left;
-  width: 85%;
+    margin: auto;
+    padding-block: 1rem;
+    text-align: left;
+    width: 85%;
 }
 
 .section-heading {
-  margin: auto;
-  padding: 3rem 2rem;
-  width: fit-content;
+    margin: auto;
+    padding: 3rem 2rem;
+    width: fit-content;
 }
+
 .section-heading h2 {
-  font-size: 3rem;
-  font-style: italic;
-  line-height: 3rem;
-  margin: 0;
-  text-align: center;
+    font-size: 3rem;
+    font-style: italic;
+    line-height: 3rem;
+    margin: 0;
+    text-align: center;
 }
+
 
 /* =========================================================
    Project cards
    ========================================================= */
+
 .prize-container {
-  align-items: stretch;
-  box-sizing: border-box;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2rem;
-  justify-content: center;
-  padding-block: 2.5rem;
-  position: relative;
-  width: 100%;
+    align-items: stretch;
+    box-sizing: border-box;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    justify-content: center;
+    padding-block: 2.5rem;
+    position: relative;
+    width: 100%;
 }
 
 .card-container {
-  padding: 1.2rem 1rem 1rem;
-  width: 300px;
-}
-.card-container h2 {
-  font-size: 1.4rem;
-  font-weight: 700;
-  margin: 0;
-}
-.card-container p {
-  font-size: 1rem;
-  line-height: 1.4rem;
+    padding: 1.2rem 1rem 1rem;
+    width: 300px;
 }
 
+.card-container h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.card-container p {
+    font-size: 1rem;
+    line-height: 1.4rem;
+}
+
+
 /* OPTION A: don't remove underline for links that have class="link" */
+
 .card-container a:not(.link) {
-  color: inherit;
-  text-decoration: none;
+    color: inherit;
+    text-decoration: none;
 }
 
 .card-container ul {
-  text-align: left;
+    text-align: left;
 }
+
 
 /* =========================================================
    Scroll hint (text + arrow)
    ========================================================= */
+
 #scroll-text {
-  align-items: center;
-  bottom: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  left: 0;
-  opacity: 1;
-  padding-bottom: 1rem;
-  position: fixed;
-  transition: opacity 0.35s ease-out, transform 0.35s ease-out;
-  width: 100%;
-  will-change: opacity, transform;
-  pointer-events: none;
-  z-index: 9999;
-  color: var(--accent);
+    align-items: center;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    left: 0;
+    opacity: 1;
+    padding-bottom: 1rem;
+    position: fixed;
+    transition: opacity 0.35s ease-out, transform 0.35s ease-out;
+    width: 100%;
+    will-change: opacity, transform;
+    pointer-events: none;
+    z-index: 9999;
+    color: var(--accent);
 }
 
 #scroll-text.hidden {
-  opacity: 0;
-  transform: translateY(10px);
+    opacity: 0;
+    transform: translateY(10px);
 }
 
 #scroll-text p {
-  margin: 0 0 0.35rem 0;
-  letter-spacing: 0.1em;
-  text-transform: lowercase;
-  font-size: 20px;
-  font-weight: 540;
+    margin: 0 0 0.35rem 0;
+    letter-spacing: 0.1em;
+    text-transform: lowercase;
+    font-size: 20px;
+    font-weight: 540;
 }
 
 #scroll-arrow {
-  fill: none;
-  stroke: var(--accent);
-  fill-rule: evenodd;
-  clip-rule: evenodd;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-miterlimit: 1.5;
-  stroke-width: 1px;
-  animation: shake-arrow 0.55s ease-out infinite alternate;
-  height: 25px;
-  position: relative;
-  width: 25px;
+    fill: none;
+    stroke: var(--accent);
+    fill-rule: evenodd;
+    clip-rule: evenodd;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-miterlimit: 1.5;
+    stroke-width: 1px;
+    animation: shake-arrow 0.55s ease-out infinite alternate;
+    height: 25px;
+    position: relative;
+    width: 25px;
 }
 
 @keyframes shake-arrow {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(-20%); }
+    0% {
+        transform: translateY(0);
+    }
+    100% {
+        transform: translateY(-20%);
+    }
 }
+
 
 /* =========================================================
    Footer
    ========================================================= */
+
 .author {
-  color: var(--accent);
-  font-size: 1rem;
-  width: 100%;
-  position: relative;
+    color: var(--accent);
+    font-size: 1rem;
+    width: 100%;
+    position: relative;
 }
 
 a.link {
-  color: inherit;
-  font-weight: 900;
-  text-decoration-line: underline;
-  text-decoration-color: var(--accent);
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.15em;
+    color: inherit;
+    font-weight: 900;
+    text-decoration-line: underline;
+    text-decoration-color: var(--accent);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.15em;
 }
 
 footer {
-  line-height: 1.3rem;
+    line-height: 1.3rem;
 }
 
 #site-footer {
-  --reveal: 0;
+    --reveal: 0;
 }
 
 #site-footer.footer-reveal {
-  position: fixed;
-  left: 50%;
-  bottom: 0.9rem;
-  width: 77%;
-  max-width: var(--max-width);
-  z-index: 9998;
-  pointer-events: auto;
-
-  opacity: var(--reveal);
-  transform: translate(-50%, calc((1 - var(--reveal)) * 55px));
-  will-change: opacity, transform;
+    position: fixed;
+    left: 50%;
+    bottom: 0.9rem;
+    width: 77%;
+    max-width: var(--max-width);
+    z-index: 9998;
+    pointer-events: auto;
+    opacity: var(--reveal);
+    transform: translate(-50%, calc((1 - var(--reveal)) * 55px));
+    will-change: opacity, transform;
 }
 
 .author .madeby {
-  display: inline-block;
-  font-size: 1.15rem;
-  line-height: 1.4rem;
+    display: inline-block;
+    font-size: 1.15rem;
+    line-height: 1.4rem;
 }
 
 .author .inspo {
-  display: inline-block;
-  margin-top: 0.35rem;
-  font-size: 0.80rem;
+    display: inline-block;
+    margin-top: 0.35rem;
+    font-size: 0.80rem;
 }
+
 
 /* =========================================================
    3D view rotator (index <-> writeups)
    ========================================================= */
 
 .scene {
-  /*
+    /*
     Keep your original depth setup (this is what makes the writeups face
     actually come into view when rotating).
   */
-  --depth: 62vw;
-  --depth-side: 62vw;
-
-  height: 100dvh;
-  width: 100dvw;
-  position: relative;
-
-  /* Keep strong 3D */
-  perspective: 1700px;
-
-  /*
+    --depth: 62vw;
+    --depth-side: 62vw;
+    height: 100dvh;
+    width: 100dvw;
+    position: relative;
+    /* Keep strong 3D */
+    perspective: 1700px;
+    /*
     CAMERA UP:
     move the vanishing point upward (smaller Y = higher camera feel)
   */
-  perspective-origin: 50% 42%;
-
-  overflow: hidden;
+    perspective-origin: 50% 42%;
+    overflow: hidden;
 }
 
 .scene.no-anim .view-rotator {
-  transition: none !important;
+    transition: none !important;
 }
 
 .view-rotator {
-  position: absolute;
-  inset: 0;
-  transform-style: preserve-3d;
-  transform: rotateY(0deg);
-  transition: transform 0.85s cubic-bezier(0.2, 0.8, 0.2, 1);
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+    transform: rotateY(0deg);
+    transition: transform 0.85s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .scene.is-writeups .view-rotator {
-  transform: rotateY(90deg);
+    transform: rotateY(90deg);
 }
 
 .view {
-  position: absolute;
-  inset: 0;
-  transform-style: preserve-3d;
-  backface-visibility: hidden;
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
 }
 
+
 /* Scroll areas */
+
 .view-scroll {
-  height: 100%;
-  overflow: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+    height: 100%;
+    overflow: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
+
 .view-scroll::-webkit-scrollbar {
-  width: 0;
-  height: 0;
+    width: 0;
+    height: 0;
 }
 
 .index-view {
-  transform: rotateY(0deg) translateZ(calc(-1 * var(--depth)));
+    transform: rotateY(0deg) translateZ(calc(-1 * var(--depth)));
 }
 
 .writeups-view {
-  transform: rotateY(-90deg) translateZ(calc(-1 * var(--depth-side)));
+    transform: rotateY(-90deg) translateZ(calc(-1 * var(--depth-side)));
 }
 
+
 /* prevent the hidden face from eating clicks */
-.scene.is-writeups .index-view { pointer-events: none; }
-.scene:not(.is-writeups) .writeups-view { pointer-events: none; }
+
+.scene.is-writeups .index-view {
+    pointer-events: none;
+}
+
+.scene:not(.is-writeups) .writeups-view {
+    pointer-events: none;
+}
+
 
 /* =========================================================
    Writeups navigation hint 
    ========================================================= */
 
 #writeups-switch {
-  position: fixed;
-  top: 50%;
-  right: 1.2rem;
-  transform: translateY(-50%);
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-
-  color: var(--accent);
-  z-index: 9999;
-  opacity: 1;
-  transition: opacity 0.35s ease-out, transform 0.35s ease-out;
-  will-change: opacity, transform;
-  cursor: pointer;
-  pointer-events: auto;
-  user-select: none;
+    position: fixed;
+    top: 50%;
+    right: 1.2rem;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    color: #e37202;
+    z-index: 9999;
+    opacity: 1;
+    transition: opacity 0.35s ease-out, transform 0.35s ease-out;
+    will-change: opacity, transform;
+    cursor: pointer;
+    pointer-events: auto;
+    user-select: none;
 }
 
 #writeups-switch.hidden {
-  opacity: 0;
-  transform: translateY(-50%) translateX(10px);
-  pointer-events: none;
+    opacity: 0;
+    transform: translateY(-50%) translateX(10px);
+    pointer-events: none;
 }
 
 #writeups-switch p {
-  margin: 0;
-  letter-spacing: 0.08em;
-  text-transform: lowercase;
-  font-size: 20px;
-  font-weight: 540;
+    margin: 0;
+    letter-spacing: 0.08em;
+    text-transform: lowercase;
+    font-size: 20px;
+    font-weight: 540;
 }
 
 #writeups-arrow {
-  fill: none;
-  stroke: var(--accent);
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-miterlimit: 1.5;
-  stroke-width: 1px;
-  height: 22px;
-  width: 22px;
-  animation: bounce-right 0.55s ease-out infinite alternate;
+    fill: none;
+    stroke: #e37202;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-miterlimit: 1.5;
+    stroke-width: 1px;
+    height: 22px;
+    width: 22px;
+    animation: bounce-right 0.55s ease-out infinite alternate;
 }
 
 @keyframes bounce-right {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(22%); }
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(22%);
+    }
 }
+
 
 /* =========================================================
    Navigation back to about me page
    ========================================================= */
 
 #back-about {
-  position: fixed;
-  top: 50%;
-  left: 1.2rem;
-  transform: translateY(-50%);
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-
-  color: var(--accent);
-  z-index: 9999;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.25s ease-out;
-  user-select: none;
-  cursor: pointer;
+    position: fixed;
+    top: 50%;
+    left: 1.2rem;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    color: #e37202;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease-out;
+    user-select: none;
+    cursor: pointer;
 }
 
 .scene.is-writeups #back-about {
-  opacity: 1;
-  pointer-events: auto;
+    opacity: 1;
+    pointer-events: auto;
 }
 
 #back-about p {
-  margin: 0;
-  letter-spacing: 0.08em;
-  text-transform: lowercase;
-  font-size: 20px;
-  font-weight: 540;
+    margin: 0;
+    letter-spacing: 0.08em;
+    text-transform: lowercase;
+    font-size: 20px;
+    font-weight: 540;
 }
 
 #back-arrow {
-  fill: none;
-  stroke: var(--accent);
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-miterlimit: 1.5;
-  stroke-width: 1px;
-  height: 22px;
-  width: 22px;
-  animation: bounce-left 0.55s ease-out infinite alternate;
+    fill: none;
+    stroke: #e37202;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-miterlimit: 1.5;
+    stroke-width: 1px;
+    height: 22px;
+    width: 22px;
+    animation: bounce-left 0.55s ease-out infinite alternate;
 }
 
 @keyframes bounce-left {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-22%); }
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-22%);
+    }
 }
+
 
 /* =========================================================
    SIMPLE MODE (NO OFF-SCREEN CLICKING)
@@ -536,55 +588,67 @@ footer {
    switches to simple show/hide panels.
    ========================================================= */
 
+
 /* Keep the WebGL background from ever capturing input */
+
 #threejs-container,
 #threejs,
 #threejs-container *,
 #threejs * {
-  pointer-events: none !important;
+    pointer-events: none !important;
 }
+
 
 /* Ensure the app itself is above the background */
+
 .scene {
-  position: relative;
-  z-index: 10;
+    position: relative;
+    z-index: 10;
 }
 
+
 /* Disable 3D transforms even if JS sets inline styles */
+
 .view-rotator {
-  transform: none !important;
-  transition: none !important;
-  transform-style: flat !important;
+    transform: none !important;
+    transition: none !important;
+    transform-style: flat !important;
 }
 
 .view,
 .index-view,
 .writeups-view {
-  transform: none !important;
-  backface-visibility: visible !important;
+    transform: none !important;
+    backface-visibility: visible !important;
 }
+
 
 /* Only show ONE face at a time (prevents invisible layers stealing clicks) */
+
 .scene:not(.is-writeups) .writeups-view {
-  display: none !important;
-}
-.scene.is-writeups .index-view {
-  display: none !important;
+    display: none !important;
 }
 
+.scene.is-writeups .index-view {
+    display: none !important;
+}
+
+
 /* Make sure the visible scroller is interactive */
+
 .view-scroll,
 #index-scroll,
 #writeups-scroll {
-  pointer-events: auto !important;
+    pointer-events: auto !important;
 }
 
+
 /* Allow text selection on the content */
+
 .page-container,
 .text-block,
 .section-heading,
 .card-container,
 .view-scroll {
-  user-select: text;
+    user-select: text;
 }
-

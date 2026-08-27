@@ -1,16 +1,16 @@
 // writeups.js (full file, patched: deterministic offset scroll + robust direct-link + badges + measured-height + close button + code expand/collapse arrows)
 
 import {
-  m,
-  q as g,
-  s as l,
-  d as k,
-  r as S,
-  F as W,
-  B as A,
-  C as T,
-  t as I,
-  o as D,
+    m,
+    q as g,
+    s as l,
+    d as k,
+    r as S,
+    F as W,
+    B as A,
+    C as T,
+    t as I,
+    o as D,
 } from "./entry.js";
 
 const Root = { class: "page-container writeups-container" };
@@ -21,19 +21,26 @@ const Heading = { class: "section-heading" };
 const List = { class: "writeups-list" };
 
 const Writeups = k({
-  __name: "Writeups",
-  setup() {
-    const diffColorOf = (d) => (d === "hard" ? "#b91c1c" : "#22c55e"); // hard darker than #ef4444
+    __name: "Writeups",
+    setup() {
+        const diffColorOf = (d) =>
+            d === "brutal" ?
+            "#7e22ce" :
+            d === "hard" ?
+            "#b91c1c" :
+            d === "medium" ?
+            "#f59e0b" :
+            "#22c55e";
 
-    const writeups = S([
-      {
-        id: "emoji_captcha",
-        title: "Emoji CAPTCHA",
-        subtitle: "srdnlen CTF 2026 · Bypassing a robot image classification authenticator",
-        difficulty: "hard",
-        category: "misc",
-        catColor: "#a855f7", // purple
-        body: String.raw`
+        const writeups = S([{
+                id: "emoji_captcha",
+                title: "Emoji CAPTCHA",
+                subtitle: "srdnlen CTF 2026 · Bypassing a robot image classification authenticator",
+                difficulty: "brutal",
+                category: "misc",
+                firstBlood: true,
+                catColor: "#a855f7", // purple
+                body: String.raw `
           <p class="writeup-meta">
             <strong>Category:</strong> <span class="pill">misc</span>
           </p>
@@ -1305,17 +1312,16 @@ if __name__ == "__main__":
 
           <img class="writeup-img" src="/images/writeups/Emoji_CAPTCHA/firstblood.png" alt="First Blood message" width="800">
         `,
-      },
+            },
 
-      {
-        id: "eye_on_the_sky",
-        title: "Eye on the Sky",
-        subtitle:
-          "BKCTF 2026 · Finding a flight and a trail with only a picture of a far away fogged mountain",
-        difficulty: "hard",
-        category: "osint",
-        catColor: "#88d5f9", //light blue for osint
-        body: `
+            {
+                id: "eye_on_the_sky",
+                title: "Eye on the Sky",
+                subtitle: "BKCTF 2026 · Finding a flight and a trail with only a picture of a far away fogged mountain",
+                difficulty: "hard",
+                category: "osint",
+                catColor: "#88d5f9", //light blue for osint
+                body: `
           <p class="writeup-meta">
             <strong>Category:</strong> <span class="pill">osint</span>
           </p>
@@ -1392,16 +1398,16 @@ if __name__ == "__main__":
           <p>This gives us the completed flag:
           <code>bkctf{AS265-23T2}</code></p>
         `,
-      },
+            },
 
-      {
-        id: "kaizo_brackeys",
-        title: "Kaizo Brackeys",
-        subtitle: "LITCTF 2025 · Hacking a unity game for all it has to offer",
-        difficulty: "hard",
-        category: "rev",
-        catColor: "#9ca3af", // gray
-        body: `
+            {
+                id: "kaizo_brackeys",
+                title: "Kaizo Brackeys",
+                subtitle: "LITCTF 2025 · Hacking a unity game to reveal hidden scenes and assets",
+                difficulty: "medium",
+                category: "rev",
+                catColor: "#9ca3af", // gray
+                body: `
           <p class="writeup-meta">
             <strong>Category:</strong> <span class="pill">rev</span>
           </p>
@@ -1592,720 +1598,1381 @@ public class LevelComplete : MonoBehaviour
 
           <p><code>LITCTF{I_HAD_TOO_MUCH_FUN_MAKING_THIS}</code></p>
         `,
-      },
+            },
 
-      {
-        id: "jailpy3",
-        title: "jailpy3",
-        subtitle: "LITCTF 2025 · Decyphering a 11MB pyjail",
-        difficulty: "easy",
-        category: "rev",
-        catColor: "#9ca3af", // gray
-        body: String.raw`
+            {
+                id: "drippy_adventures",
+                title: "Drippy Adventures",
+                subtitle: "L3AK CTF 2026 · Further hacking a unity game for all it has to offer",
+                difficulty: "hard",
+                category: "rev",
+                catColor: "#9ca3af",
+                author: true,
+                body: String.raw `
           <p class="writeup-meta">
             <strong>Category:</strong> <span class="pill">rev</span>
           </p>
 
+          <p>Description:</p>
+          <blockquote>
+          <p>Help Drip escape his predicament, and perhaps find some drip along the way!</p>
+          </blockquote>
+          <p>Time spent to solve: ~2 hours.</p>
+          <hr>
+          <p>We start out given a unity game build folder. After unzipping and running the game, we find out that the player is caught within a fence, with two signs explaining the situation.</p>
+          <p><img class="writeup-img" src="/images/writeups/Drippy_Adventures/controls_story.png" alt="Signs depicting the storyline and controls"></p>
+          <p>Taking a quick look around reveals the seemingly large flag in the distance. Now we have our target.</p>
+          <p><img class="writeup-img" src="/images/writeups/Drippy_Adventures/flag1FromStart.png" alt="Large flag in the distance"></p>
+          <p>First, it is important to note that all player made scripts are stored in <code>Drippy Adventures_Data/Managed/Assembly-CSharp.dll</code>. We can view and edit these with dnSpy.</p>
+          <p><img class="writeup-img" src="/images/writeups/Drippy_Adventures/dnSpyfiles.png" alt="dnSpy file explorer"></p>
+          <p>From here, we can see that the most important script file to us at the moment is the Player.cs file. It contains all scripting relating to the player and the player&#39;s generation. By finding the HandleMovement() method, we can change/add controls to the player, allowing us to do more things.</p>
+          <p>For instance, looking into the flag3 variable (has nothing to do with a ctf flag, this means flag in the boolean sense), we note that it depicts what happens if the space bar is pressed and what happens if the &quot;coyoteTimer&quot; is greater than zero. With a little more looking into the logic, we can see that the coyoteTimer is the timer that tells how long a player has been in the air for before not being able to jump (there is a slight time allowed to jump after falling off an object). By removing this timer from the flag3 condition, we allow ourselves to jump midair. This is just one example of how to get to the next step, there are many ways of continuing, such as Cheat Engine (more on issues with that below), new buttons to hover in place, increasing the jump height, etc. I should note that for every change in dnSpy, you must save in the top left File drop down, then you must restart the game. </p>
+          <p>The annoying bit with cheat engine is that you must run <code>this.controller.enabled = false;</code> beforehand. Why this is the case is explained further in the next few sections.</p>
+          <p><img class="writeup-img" src="/images/writeups/Drippy_Adventures/scriptJumpLogicBefore.png" alt="flag3 jump before"></p>
+          <p><img class="writeup-img" src="/images/writeups/Drippy_Adventures/scriptJumpLogicAfter.png" alt="flag3 jump after"></p>
+          <p>After this change, we can jump midair.</p>
+          <p><img class="writeup-img" src="/images/writeups/Drippy_Adventures/flying.png" alt="flying"></p>
+          <p>Once we get to our desired location, we find a hole with part of the flag.</p>
+          <p><img class="writeup-img" src="/images/writeups/Drippy_Adventures/flagPart1.png" alt="Flag Part 1"></p>
+          <p>This gives us part of the flag, <code>L3AK</code>.</p>
+          <p>At the bottom of the hole, we see a sign and some equipable drip.</p>
+          <p><img class="writeup-img" src="/images/writeups/Drippy_Adventures/sign3.png" alt="Sign 3"></p>
+          <p>Moving to these coordinates is simple in Unity c#. We can bind a new key to change our x, y, and z values to these positions with the following code added anywhere in HandleMovement():</p>
+          <pre><code>if (current.gKey.wasPressedThisFrame)
+          {
+          	this.controller.enabled = false;
+          	this.controller.transform.position = new Vector3(4027f, 92457f, 125f);
+          	this.verticalVelocity = 0f;
+          	this.controller.enabled = true;
+          }
+          </code></pre>
+          <p>Note that this custom Player object uses Unity&#39;s CharacterController object, which disallows unnatural movements such as direct position changes. This type of object can be easily gotten around though by turning its enabled value to false. This is why cheat engine doesn&#39;t work at first.</p>
+          <p>Restarting the game and pressing <code>g</code> does indeed teleport us to the location mentioned on the sign. We are brought to another desert with another part of the flag laid out, along with another sign and some collectable boots.</p>
+          <p><img class="writeup-img" src="/images/writeups/Drippy_Adventures/teleportLocation.png" alt="Location Directly after teleporting"></p>
+          <p><img class="writeup-img" src="/images/writeups/Drippy_Adventures/flagPart2.png" alt="Flag Part 2"></p>
+          <p>This gives us part of the flag, <code>{H4ck3r</code>.</p>
+          <p><img class="writeup-img" src="/images/writeups/Drippy_Adventures/sign4.png" alt="Sign 4"></p>
+          <p>To get to the next scene, we can add a new keybind for going to the next scene, and another one for teleporting us to the given coordinates. This could be done in the same keybind but for simplicity&#39;s sake I put them separate. You could also turn <code>this.controller.enabled = false</code> and use Cheat Engine to teleport to the right location. The following code brings you to the next scene:</p>
+          <pre><code>if (current.vKey.wasPressedThisFrame)
+          {
+          	int currentScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex;
+          	int nextScene = currentScene + 1;
+          	if (nextScene &lt; UnityEngine.SceneManagement.SceneManager.sceneCountInBuildSettings)
+          	{
+          	UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(nextScene);
+          	}
+          }
+          </code></pre>
+          <p>To have it compile you will also need to add this import at the top:</p>
+          <pre><code>using UnityEngine.SceneManagement;
+          </code></pre>
+          <p>You can replicate the same code from before to teleport to a different location using a different Vector3(x, y, z).</p>
+          <p>Once at this new location, we find ourselves in a grass field. A little to the left, we can see a giant red X in the ground. From the hint in the last sign, we can deduce that the flag is below this X. To get there, we can either move around the terrain and then move under it, or just add another keybind to move under it. I will note again that I am only mentioning one or two possible paths to the flag, but there exist countless other ways to the flag. This challenge is flexible in that way.</p>
+          <p><img class="writeup-img" src="/images/writeups/Drippy_Adventures/x.png" alt="X on the ground"></p>
+          <p>In this case, I made a keybind to teleport the player 10 units beneath their current position. The code is below:</p>
+          <pre><code>if (current.jKey.wasPressedThisFrame)
+          {
+              this.controller.enabled = false;
+              base.transform.position = base.transform.position + 10*Vector3.down;
+              this.verticalVelocity = 0f;
+              this.controller.enabled = true;
+          }
+          </code></pre>
+          <p>Note that Vector3.down is just a unit vector facing down.</p>
+          <p>This reveals the flag alongside a new sign and a collectable bowtie.</p>
+          <p><img class="writeup-img" src="/images/writeups/Drippy_Adventures/flagPart3.png" alt="Flag Part 3"></p>
+          <p>This gives us another part of the flag, <code>_0f_G4M35</code>.</p>
+          <p><img class="writeup-img" src="/images/writeups/Drippy_Adventures/sign5.png" alt="Sign 5"></p>
+          <p>We are told that the next flag fragment is at a specified coordinate in another scene. If we take a quick look at some of the other scenes (press <code>v</code> if you are following along), they all seem to look the same. There are multiple ways of finding the next flag fragment, but the path I would like to highlight here is file size. If we look at the Drippy Adventures_Data folder, we find all the scene files labeled level{Number}. We see that scenes 0 and 1 have an abnormal size (1944 KB and 618 KB respectively) While every other scene has either 329 KB or 18KB. This is with the exception of level176 with the abnormal size of 1115 KB. From this data, we can make a hierarchy of levels to check out first. Since level176 has the most abnormal size, we should check that level out first to see what is taking up all that space. Next, we should check out the 349 KB files to see why they have greater size. Lastly, if we have not found anything yet, we should check the nearly empty 18 KB levels one by one.</p>
+          <p>To get to each particular scene, you can use the same function above using the same scene index as stated in the file naming convention. Unity auto names its scenes level{number} where the number is the index stored for that scene. This makes our code convenient for this step.</p>
+          <pre><code>if (current.bKey.wasPressedThisFrame)
+          {
+          	SceneManager.LoadSceneAsync(176);
+          }
+          </code></pre>
+          <p>Also remember to make another teleport hotkey to the new coordinates.</p>
+          <p>Using this, we find our top priority scene is in fact the one that we wanted to look for. Teleporting to the given coordinates gives us two signs to read.</p>
+          <p><img class="writeup-img" src="/images/writeups/Drippy_Adventures/ocean_story.png" alt="Signs at the given coordinates in level176"></p>
+          <p>The first sign is just there to mess with the people who brute forced all 176 prior scenes before checking this one. The second sign gives us our next objective to get into the box below us. There are a couple ways to do this. You can remove the death code from Player.cs, you can remove the death plane in WaterDeathFogTrigger.cs or WaterDeathFogZone.cs, you could guess and check depths to teleport the player, etc. </p>
+          <p>I simply removed all innards of the BeginDeath(Player) method from the WaterDeathFogZone.cs file, and that successfully removed the issue of dying underwater. Then, with a little bit of guess and check, I was able to adjust the <code>j</code> keybind to teleport me through the top wall of the underwater box.</p>
+          <p><img class="writeup-img" src="/images/writeups/Drippy_Adventures/underwaterBox.png" alt="Underwater Box"></p>
+          <p>With this method, I was able to get into the box and recover another part of the flag and 2 more signs.</p>
+          <p><img class="writeup-img" src="/images/writeups/Drippy_Adventures/flagPart4.png" alt="Part 4 of the Flag"></p>
+          <p><img class="writeup-img" src="/images/writeups/Drippy_Adventures/underwaterBoxSigns.png" alt="Underwater Box Signs"></p>
+          <p>This gives us another part of the flag, <code>_m45T3r_0F_</code>.</p>
+          <p>The sign on the left reveals that the last part of the flag is &quot;in our hearts&quot;, i.e. is inside the player. As always, there are a lot of ways of getting to this flag, such as deleting the character model in Player.cs, or removing the scroll cap on the player&#39;s scroll wheel zoom. I opted for the latter. in HandleCameraZoom() in Player.cs, simply remove the</p>
+          <pre><code>this.currentBehindZoomDistance = Mathf.Clamp(this.currentBehindZoomDistance, min, normalMaxCameraDistance);
+          </code></pre>
+          <p>line from either the BehindPlayer if statement or after both FirstPerson and BehindPlayer if statements (the in front of player camera section).</p>
+          <p>Then you will need to allow a higher level of pitch for the camera. Simply remove all clamps in PlaceOrbitCamrea() and HandleCamera() and you should be good to go.</p>
+          <p>Then load up the game again, go into either the front or back view, and zoom into the player to retrieve the last flag.</p>
+          <p><img class="writeup-img" src="/images/writeups/Drippy_Adventures/flagPart5.png" alt="Part 5 of the Flag"></p>
+          <p>This gives us the last part of the flag, <code>UNITY!!}</code>.</p>
+          <p>That gives us a combined flag of <code>L3AK{H4ck3r_0f_G4M35_m45Ter_0F_UNITY!!}</code>.</p>
+          
+        `,
+            },
+
+            {
+                id: "you_scanned_what_and_how",
+                title: "You Scanned WHAT?!? and HOW?!?!?",
+                subtitle: "L3AK CTF 2026 · Reconstructing CT scan data from projection measurements",
+                difficulty: "hard",
+                category: "forensics",
+                catColor: "#3b82f6",
+                author: true,
+                body: String.raw `
           <p class="writeup-meta">
-            <strong>Time spent to solve:</strong> ~30 minutes.
+            <strong>Category:</strong> <span class="pill">forensics</span>
           </p>
 
-          <p class="desc-label"><strong>Description:</strong></p>
-          <blockquote class="desc-area">
-            <p>Made with a burning passion for pyjails (i.e. creating insane payloads just to bypass some random condition), I turned everything in this python script into pyjail tech! Here's a program that's suppose to print a flag. But something seems to be getting in the way...</p>
+          <p>Descriptions:</p>
+          <p>You Scanned WHAT?!?:</p>
+          <blockquote>
+          <p>My llm got excited and somehow brought me this weird file it took from my local hospital 🐕. It seems to be a scan of some sorts, can you figure out what it was of?</p>
           </blockquote>
-
-          <hr />
-
-          <p>I should preface by saying the scripts in this writeup were AI generated, but this was allowed as per this CTF's rules. This AI had no access to the challenge files, and was only used to write specific scripts I had asked it exactly to write (I wasn't very good at coding at the time 😭).
-
-          <p>At first, this challenge looks like a simple 'find the error' challenge. We are given a python file with two lines, an import line and an <strong><em>11 megabyte</em></strong> long print statement.</p>
-
-          <pre><code class="language-python">import collections
-print({}.__class__.__subclasses__()[2].copy.__builtins__[{}.__class__.__subclasses__()[2].copy.__builtins__[chr(1^2^32^64)+chr(8^32^64)+chr(2^16^32^64)]({}.__class__.__subclasses__()[2].copy.__builtins__[chr(1^2^4^8^16^64)+chr(1^2^4^8^16^64)+chr(1^8^32^64)+chr(1^4^8^32^64)+chr(16^32^64)+chr(1^2^4^8^32^64)+chr(2^16^32^64)+chr(4^16^32^64)+chr(1^2^4^8^16^64)
-
-...
-
-.select.POLLRDNORM)).select.POLLRDNORM))</code></pre>
-
-          <p>When you try and run this file, it gives you the error: </p>
-
-          <p><code>
-$ python3 'code.py' \n
-Segmentation fault
-</code></p>
-
-          <p>How this file is right now, we can't really understand what is going on.To start us off, let's start simplifying this print statement.</p>
-
-          <p>taking a quick glance at this file, we can see there are a lot of <code>chr(1^2^32^64)</code> type statements, which we can simplify pretty easily. <code>chr()</code> is a function from <code>builtins</code> that returns a character given that character's ascii table value. the statement <code>1^2^32^64</code> can be mathmatecally simplified as just adding 1+2+32+64 because all of these numbers are factors of 2 so xor can be equivalized to addition. Let's first start by going through the file and simplifying all of the xor statements.</p>
-
-          <pre><code class="language-python">import re
-
-def decode_chr_expressions(file_path):
-    """
-    Reads a Python file, decodes all chr() expressions with XOR operations
-    using re.sub(), and returns the modified content.
-
-    Args:
-        file_path (str): The path to the input Python file.
-
-    Returns:
-        str: The file content with decoded characters, or None if an error occurs.
-    """
-    try:
-        # Read the entire content of the file
-        with open(file_path, 'r') as file:
-            content = file.read()
-
-        # Counter for decoded commands (debugging + its neat)
-        decoded_count = 0
-
-        def decoder_callback(match):
-            nonlocal decoded_count
-            expression = match.group(1)
-            try:
-                result = eval(expression)
-                decoded_char = chr(result)
-                decoded_count += 1
-                return f"'{re.escape(decoded_char)}'"
-            except Exception as e:
-                # If there's an error, return the original string to avoid breaking the code
-                return match.group(0)
-
-        # Regular expression to find all occurrences of chr(...)
-        pattern = r"chr\(([^)]+)\)"
-        
-        # Use re.sub() with the callback function to handle all replacements in one pass
-        modified_content = re.sub(pattern, decoder_callback, content)
-
-        return modified_content, decoded_count
-
-    except FileNotFoundError:
-        print(f"Error: The file '{file_path}' was not found.")
-        return None, None
-    except Exception as e:
-        print(f"An unexpected error occurred: {e}")
-        return None, None
-
-
-decoded_content, decoded_count = decode_chr_expressions(original_file)
-
-if decoded_content:
-    # Print the summary of the process
-    print("\n--- Decoding Summary ---")
-    # A total count isn't as useful here as we're not iterating separately,
-    # but we can print the number of successful decodes.
-    print(f"Commands successfully decoded: {decoded_count}")
-    
-    # Save the decoded content to a new file named 'decoded1.py' (you can edit this to be the same file or if you want a new one with a different name)
-    try:
-        with open('decoded1.py', 'w') as new_file:
-            new_file.write(decoded_content)
-        print("\nDecoded content successfully saved to 'decoded1.py'")
-    except Exception as e:
-        print(f"Error writing to file 'decoded1.py': {e}")</code></pre>
-
-          <p>With that, you are left with a smaller file 'decoded1.py' that now looks like this:</p>
-
-          <pre><code class="language-python">import collections
-print({}.__class__.__subclasses__()[2].copy.__builtins__[{}.__class__.__subclasses__()[2].copy.__builtins__['chr']({}.__class__.__subclasses__()[2].copy.__builtins__['__import__']('subprocess').select.POLLIN^{}
-
-...
-
-.select.POLLRDNORM)).select.POLLRDNORM))</code></pre>
-
-          <p>Next, to make this more readable, let's get rid of all of the '+' signs and combine all of the repeatedly added characters into strings. You can do this several ways, here is what I did:</p>
-
-          <pre><code class="language-python">import os
-import re
-
-def simplify_concatenated_strings(file_path):
-    """
-    Reads a file, finds concatenated string expressions like "'c'+'h'+'r'",
-    and replaces them with the single resulting string.
-
-    Args:
-        file_path (str): The path to the input Python file.
-
-    Returns:
-        tuple: A tuple containing the modified content (str) and a count of
-               replacements made (int). Returns (None, None) if an error occurs.
-    """
-    try:
-        if not os.path.exists(file_path):
-            print(f"Error: The file '{file_path}' was not found.")
-            return None, None
-
-        with open(file_path, 'r') as file:
-            content = file.read()
-        
-        replacements_made = 0
-        
-        pattern = re.compile(r"(\'[^\']*?\'\s*\+\s*\'[^\']*?\')(?:\s*\+\s*\'[^\']*?\')*")
-        
-        def replacer_callback(match):
-            nonlocal replacements_made
-            expression = match.group(0)
-            
-            try:
-                simplified_string = eval(expression)
-                replacements_made += 1
-                return f"'{simplified_string}'"
-            except Exception as e:
-                print(f"Error evaluating string expression '{expression}': {e}")
-                return match.group(0)
-
-        simplified_content = re.sub(pattern, replacer_callback, content)
-        
-        return simplified_content, replacements_made
-    
-    except Exception as e:
-        print(f"An unexpected error occurred: {e}")
-        return None, None
-
-source_file = 'decoded1.py'
-output_file = 'decoded2.py'
-
-simplified_content, count = simplify_concatenated_strings(source_file)
-
-if simplified_content:
-    print("\n--- Replacement Summary ---")
-    print(f"Successfully simplified {count} concatenated string expressions.")
-    
-    try:
-        with open(output_file, 'w') as new_file:
-            new_file.write(simplified_content)
-        print(f"\nSimplified content successfully saved to '{output_file}'")
-    except Exception as e:
-        print(f"Error writing to file '{output_file}': {e}")</code></pre>
-
-          <p>With that, our file now will look like this</p>
-
-          <pre><code class="language-python">import collections
-print({}.__class__.__subclasses__()[2].copy.__builtins__[{}.__class__.__subclasses__()[2].copy.__builtins__['chr']({}.__class__.__subclasses__()[2].copy.__builtins__['__import__']('subprocess').select.POLLIN^{}
-
-...
-
-.select.POLLRDNORM)).select.POLLRDNORM))</code></pre>
-
-          <p>Now it gets a little more complex to simplify. We see a repeated call of <code>{}.__class__.__subclasses__()[2].copy.__builtins__</code>. In short, this is just a call to <code>__builtins__</code>. We can simply replace all instances of <code>{}.__class__.__subclasses__()[2].copy.__builtins__</code> with <code>__builtins__</code>.</p>
-
-          <pre><code class="language-python">import re
-
-def simplify_builtins_expressions(file_path):
-    """
-    Reads a file and replaces the obfuscated __builtins__ access
-    with the simple '__builtins__' name.
-    """
-    with open(file_path, 'r') as file:
-        content = file.read()
-
-    pattern = r"\{\}\.__class__\.__subclasses__\(\)\[2\]\.copy\.__builtins__"
-    simplified_content, count = re.subn(pattern, '__builtins__', content)
-    return simplified_content, count</code></pre>
-
-          <p>That makes things much more readable.</p>
-
-          <pre><code class="language-python">import collections
-print(__builtins__[__builtins__['chr'](__builtins__['__import__']('subprocess').select.POLLIN^__builtins__['__import__']('subprocess').select.POLLPRI^__builtins__['__import__']('subprocess').select.POLLNVAL^__builtins__['__import__']('subprocess').select.POLLRDNORM)+__builtins__['chr'](__builtins__['__import__']('subprocess').select.POLLERR^__builtins__['__import__']
-
-...
-
-.select.POLLRDNORM)).select.POLLRDNORM))</code></pre>
-
-          <p>From here, we need to look into the <code>__builtins__['__import__']('subprocess').select.POLLIN</code> type lines. They repeat a lot, just with different ending calls. A quick google search tells us that this code is supposed to simply return whatever number <code>POLLIN</code> is set to in the subprocess function.</p>
-
-          <p>Another google search tells us what other values are set to:
-POLLIN: 1,
-POLLPRI: 2,
-POLLOUT: 4,
-POLLRDNORM: 64,
-POLLRDBAND: 128,
-POLLWRNORM: 256,
-POLLWRBAND: 512,
-POLLERR: 8,
-POLLHUP: 16,
-POLLNVAL: 32,</p>
-
-          <p>With this information, we can greatly simplify what is left. Replace all of the <code>__builtins__['__import__']('subprocess').select.POLLIN</code> calls with the corresponding integer.</p>
-
-          <pre><code class="language-python">import os
-import re
-
-def replace_obfuscated_select_constants(file_path):
-    try:
-        if not os.path.exists(file_path):
-            print(f"Error: The file '{file_path}' was not found.")
-            return None, None
-
-        with open(file_path, 'r') as file:
-            content = file.read()
-            
-        constant_values = {
-            'POLLIN': 1,
-            'POLLPRI': 2,
-            'POLLOUT': 4,
-            'POLLRDNORM': 64,
-            'POLLRDBAND': 128,
-            'POLLWRNORM': 256,
-            'POLLWRBAND': 512,
-            'POLLERR': 8,
-            'POLLHUP': 16,
-            'POLLNVAL': 32,
-        }
-        
-        pattern = re.compile(r"__builtins__\['__import__']\('subprocess'\)\.select\.([A-Z_]+)")
-        
-        def replacer_callback(match):
-            constant_name = match.group(1)
-            return str(constant_values.get(constant_name, match.group(0)))
-            
-        simplified_content = re.sub(pattern, replacer_callback, content)
-        return simplified_content, 0
-    
-    except Exception as e:
-        print(f"An unexpected error occurred: {e}")
-        return None, None</code></pre>
-
-          <p>That last simplification greatly reduced the size of the file. Now, the file is only about 102 kb. We have a very familiar look to the print statement now:</p>
-
-          <pre><code class="language-python">print(chr(4^8^64)+chr(1^8^64)+chr(4^16^64)+chr(1^2^64)+chr(4^16^64)+chr(2^4^64)+chr(1^2^8^16^32^64)+chr(8^32^64)+chr(16^32)+chr(1^2^4^16^32^64)+chr(1^2^4^8^16^64)+chr(1^2^32^64)+chr(16^32)+chr(2^4^8^32^64)+chr(2^4^16^32^64)+chr(1^2^4^8^32^64)+chr(4^8^32^64)
-
-...
-
-)</code></pre>
-
-          <p>From here, we can just continue to run the scripts mentioned above. After that has been done, you get this file:</p>
-
-          <pre><code class="language-python">import collections
-print('L'+'I'+'T'+'C'+'T'+'F'+'{'+'h'+'0'+'w'+'_'+'c'+'0'+'n'+'v'+'o'+'l'+'u'+'7'+'e'+'d'+'_'+'c'+'4'+'n'+'_'+'i'+'7'+'_'+'g'+__builtins__['__import__']('types').FunctionType(__builtins__['__import__']('marshal').loads(__builtins__['bytes'].fromhex('630000000000000000000000000300000000000000f3300000009700640064016c005a00020065006a020000000000000000000000000000000000006402ab01000000000000010079012903e9000000004ee9010000002902da026f73da055f65786974a900f300000000fa033c783efa083c6d6f64756c653e7208000000010000007314000000f003010101db0009883888328f38893890418d3b7206000000')), {'os': __builtins__['__import__']('os')})()+'3'+'7'+'_'+'f'+'0'+'r'+'_'+'0'+'n'+'3'+'_'+'s'+'1'+'m'+'p'+'l'+'3'+'_'+'w'+'0'+'r'+'k'+'4'+'r'+'o'+'u'+'n'+'d'+'?'+'?'+'}')</code></pre>
-
-          <p>If we simplify once more and skip the middle statement, we can read the full flag:
-          <code>LITCTF{h0w_c0nvolu7ed_c4n_i7_g37_f0r_0n3_s1mpl3_w0rk4round??}</code></p>
-
-          <p>If we continue to simplify this code, we can see what was crashing the code.
-The code that divides the flag simplifies down to the line <code>os._exit(2)</code> which simply exits the code prematurely.</p>
+          <p>You Scanned HOW?!?!?:</p>
+          <blockquote>
+          <p>My agent was so happy to see my earlier reaction, it proceeded to bring me this much larger file 🤷. Can you find out what it is?</p>
+          </blockquote>
+          <blockquote>
+          <p>Note: This challenge is the revenge challenge for <code>You Scanned WHAT?!?</code>. It is suggested that you solve that one first.</p>
+          </blockquote>
+          <p>Time spent to solve: ~3-5 hours (for humans).</p>
+          <hr>
+          <p>This writeup is split up for the two challenges, <code>You Scanned WHAT?!?</code> and it&#39;s revenge challenge <code>You Scanned HOW?!?!?</code>. First, lets go over the solution to the first challenge. </p>
+          <p>For this challenge, we are given a single file named scan.sqlite.</p>
+          <p>The first step of this challenge, which is arguably the hardest, is to deduce that this file is an xray scan. The scan file includes the following schema:</p>
+          <pre><code>sqlite&gt; .schema
+          CREATE TABLE projections (
+                          angle_degrees INTEGER PRIMARY KEY,
+                          detector_count INTEGER NOT NULL,
+                          light_values TEXT NOT NULL
+                      );
+          sqlite&gt;
+          </code></pre>
+          <p>The <code>projections</code> table contains <code>angle_degrees</code>, <code>detector_count</code>, and <code>light_values</code>. angle_degrees refers to what angle the scan was taken from in relation to the object, detector_count specifies how many measurements were recorded at that angle, and light_values contains those measurements.</p>
+          <p>Through google searches and research, you can deduce that these three variables closely resemble a 2D xray scan. This is due to having 180 degrees of angles of a scan, lots of something being detected, and storing the values of each detector at every angle. This might be a long shot, but moving forward you can confirm this.</p>
+          <p>Xrays scans are taken when a number of xrays are shot out of one side of an object, and are detected at the other side of an object. These detectors record how much radiation gets through the object, thus how much of an obstacle the path the xray took was. Denser objects will block more radiation, and thus will show brighter on an xray scan.</p>
+          <p>An important note in this scan is that not all angles have the same detector count. That means we are scanning something that isn&#39;t a circle. We can find the ratio of width to height of this shape by finding the detector_count of the scan at 0 and 90 degrees.</p>
+          <pre><code>sqlite&gt; select detector_count From projections Where angle_degrees == 0;
+          497
+          sqlite&gt; select detector_count From projections Where angle_degrees == 90;
+          215
+          sqlite&gt;
+          </code></pre>
+          <p>Taking a broader look at the scan, we can tell that the detector_count increases as angle_degrees approaches 23, then decreases until 90, then follows the exact reversed increase/decrease as angle_degrees approaches 157, then 179.</p>
+          <pre><code>sqlite&gt; select detector_count From projections Where angle_degrees == 91;
+          225
+          sqlite&gt; select detector_count From projections Where angle_degrees == 89;
+          225
+          sqlite&gt;
+          </code></pre>
+          <p>Graphing out the data can also help us deduce what kind of shape the canvas of this image is.</p>
+          <p><img class="writeup-img" src="/images/writeups/You_Scanned_WHAT_and_HOW/graph.png" alt="Graph of angle_degrees and detector_count"></p>
+          <p>As we can see, the detector_count is symmetrical around angle_degrees == 90. Now analyzing the rate of increase and decrease, through deductive reasoning, we can deduce that the object we are scanning is in the shape of a rectangle with a width to height ratio of 497:215. This can be concluded because the detector_count follows the formula for the bounding width of a rotated rectangle. This formula is below:</p>
+          <p><code>|W*cos(angle)| + |H*sin(angle)| = approx_detector_count</code></p>
+          <p>For a rectangle, the maximum width occurs at $\tan^{-1}(H/W)$. Using the proposed dimensions we found earlier at angle 0 and 90, we find the maximum width occurs at $\theta = \tan^{-1}(215/497) \approx 23.4^\circ$, which matches our graph exactly. Angles 0, 90, and as it approaches 180 make sense too, as those are equivalent to taking a side or top view of the rectangle, and thus have the same amount of detectors as their length.</p>
+          <p>Now that we have concluded this xray scan is of a rectangular canvas, we can use formulas to generate an approximate image of what was scanned.</p>
+          <p>A little google searching gives us something called the Inverse Radon transform. This algorithm puts all 180 light projection graphs (graphs of detector_count to their corresponding light_values value) together and computes the sum of all xray values that go through each pixel. It also filters to make the image a lot more defined but this is unnecessary for this challenge. This sum is greater on denser objects, since all xrays that go through these denser objects will return a greater change from the detector. Thus all light_values that follow an xray going through a dense object will return a high value. To the visual learners out there, a video that shows this well (and was the inspiration for this challenge) is below:</p>
+          <p><a href="https://www.youtube.com/shorts/nE8W-HZR070">https://www.youtube.com/shorts/nE8W-HZR070</a></p>
+          <p>The code for this is simpler than you might think. Since the xray is taken from angles circular to the center of the rectangular image, most online sources use pixel coordinates in relation to the center of the image. That gives us:</p>
+          <p>x = c - (W-1)/2</p>
+          <p>y = (H-1)/2 - r</p>
+          <p>For our given image of size 497x215, this means our pixel x and y equations are:</p>
+          <p>x = c - 248</p>
+          <p>y = 107 - r</p>
+          <p>This makes the center of the image at coordinates (0,0), and our boundaries at ($\pm$248,$\pm$107). </p>
+          <p>Since the largest projection angle contains 543 detectors, we can use a sinogram, a 2D array of size 543 and center all light_values to this array for each angle per row.</p>
+          <p>That just means that the starting pointer for this index for a given detector_count is (543 - detector_count)/2. For the example of a detector_count of 215 (at 90 degrees), the array is filled from (543 - 215)/2 = 164 to 164 + 215 = 378. All other positions are filled with 0.</p>
+          <p>Once you have a full sinogram, create an empty 497x215 image to store the sum values. Start with 0 degrees as vertical, and add the values of the sinogram from left to right starting from the calculated offset value from the sinograph and add up until the offset starts again on the right. The below exampele image may help:</p>
+          <p><img class="writeup-img" src="/images/writeups/You_Scanned_WHAT_and_HOW/sinogram_example.png" alt="Sinogram Example image"></p>
+          <p>Doing this vertically and horizontally is simple, but doing this for angles can be a little bit more complicated. The below code is the calculation to find the sinogram x and y at any angle.</p>
+          <pre><code>x = column - 248
+          y = 107 - row
+          
+          distance_along_detector = x*cos(angle) + y*sin(angle)
+          
+          
+          sinogram_position = 271 + distance_along_detector
+          </code></pre>
+          <p>Now that the logic is explained, take a look at my solve script below. Most of it is self explanatory or explained through the comments. It looks long but if you see what its doing, its not that complicated. A lot of it is just formatting taking everything from the SQLite database and turning it into a sinogram, which is quite simple. The logic from the code above can be seen in reconstruct(). </p>
+          <pre><code>import sqlite3
+          import math
+          import json
+          from numpy import *
+          from pathlib import Path
+          from PIL import Image
+          
+          #get the stuff from the db
+          def loadProjections(db_path):
+                  with sqlite3.connect(db_path) as connection:
+                          rows = connection.execute(&quot;&quot;&quot;SELECT angle_degrees, detector_count, light_values FROM projections ORDER BY angle_degrees&quot;&quot;&quot;).fetchall()
+                          projections = []
+                          for angle_degrees, detector_count, light_values in rows:
+                                  values = array(json.loads(light_values))
+                                  projections.append((int(angle_degrees), values))
+                  return projections
+          
+          #making the sinogram, explained in the previous readme
+          def getSinogram(projections):
+                  maximum_detector_count = max([len(values) for _, values in projections])
+                  #blank sinogram array
+                  sinogram = zeros((len(projections), maximum_detector_count))
+                  #padding is the offset of 0s to get to the data in the center
+                  for angle_index, (_, values) in enumerate(projections):
+                          padding = maximum_detector_count - len(values)
+                          start = padding // 2
+                          end = start + len(values)
+                          sinogram[angle_index, start:end] = values
+          
+                  return sinogram
+          
+          #sums up all lines that go through each pixel (most of the logic behind the chall)
+          def getPixelData(sinogram, angles, width, height):
+                  detector_count = sinogram.shape[1]
+                  detector_center = (detector_count - 1) / 2.0
+          
+                  x = arange(width) - (width - 1) / 2.0
+                  y = arange(height) - (height - 1) / 2.0
+          
+                  x_grid, y_grid = meshgrid(x, y) # every possible x and y
+                  pixeldata = zeros((height, width))      # empty array to hold pixel sums
+          
+                  detector_indexes = arange(detector_count)
+                  #big loop that does most of the logic w the sinogram
+                  for projection, angle in zip(sinogram, angles):
+                          angle_rad = math.radians(angle)
+                          detector_pos = detector_center + x_grid * math.cos(angle_rad) + y_grid * math.sin(angle_rad)
+          
+                          newsum = interp(
+                                  detector_pos.ravel(),
+                                  detector_indexes,
+                                  projection,
+                                  left=0,
+                                  right=0
+                          ).reshape(height, width)
+          
+                          pixeldata += newsum
+          
+                  return pixeldata
+          
+          #converts reconstructed sum values into grayscale and saves it to output.png
+          def save(pixeldata, outpath):
+                  #since all of the values are added up you have to weight the highest value at 255 and lowest at 0 and weigh the rest inbetween. Also skips outliers 0 and 100 so the image isnt all just grey
+                  low, high = percentile(pixeldata, [1.0, 99.0])
+                  weighted = clip((pixeldata - low) / (high - low), 0.0, 1.0)
+                  imagedata = rint(weighted * 255.0).astype(uint8)
+          
+                  Image.fromarray(imagedata).save(outpath)
+          
+          
+          
+          
+          #most of this stuff is self explanatory tbh
+          dir = Path(__file__).parent
+          db = dir / &quot;scan.sqlite&quot;
+          
+          projections = loadProjections(db)
+          #put stuff in a dict so its accessible by angle
+          dict = {angle: values for angle, values in projections}
+          imageWidth = len(dict[0]) #num of detectors at 0 is width as explained in the readme
+          imageHeight = len(dict[90]) #num of detectors at 90 is height as explained in the readme
+          angles = array([angle for angle, _ in projections])
+          sinogram = getSinogram(projections)
+          
+          pixeldata = getPixelData(sinogram, angles, imageWidth, imageHeight)
+          
+          outpath = dir / &quot;output.png&quot;
+          save(pixeldata, outpath)
+          print(&quot;done&quot;)
+          </code></pre>
+          <p>The outputted <code>output.png</code> is below.</p>
+          <p><img class="writeup-img" src="/images/writeups/You_Scanned_WHAT_and_HOW/output.png" alt="Output of solve code"></p>
+          <p>Final flag: <code>L3AK{Xr4Y_C0mp1373!}</code></p>
+          <p>Note: there are a bunch of methods and filters you can put on this output to make it more readable, but they weren&#39;t required for this challenge.</p>
+          <p>Also, unknown to me, there was a <a href="https://github.com/scikit-image/scikit-image">github repo</a> out there that solves this challenge and includes filtering and all, so that&#39;s kinda cooked 💀. I guess I should have looked for something like that lol. Since there isn&#39;t any standard that I found for what direction the degrees should go, I decided to make the handout start with 0 degrees in the positive x direction, moving clockwise with every increase in degree. scikit also starts with 0 degrees in the positive x direction, but rotates counter-clockwise. This just results in an image that is rotated 180 degrees from the final flag image.</p>
+          <hr>
+          <p>Now lets move on to the revenge challenge.</p>
+          <p>For this challenge, we are also given a single file named scan2.sqlite.</p>
+          <p>Looking at the scan, you can tell its a lot similar to the previous challenge. In fact, the solve code is almost exactly the same. The reason this challenge was made was to introduce a different type of scan, a 3d CT or CAT scan. This scan is built on many xrays lined up across an object. They provide cross sections of the object, and reading them is a lot harder than reading just an xray. It surprises me how few people know that single xray scans and ct / cat scans are basically the same thing.</p>
+          <p>To build all of the xray scans, you must add a single for loop to your solve code to loop through all tables in the scan file. My solve code below outputs all of the scans in the same folder for organization.</p>
+          <pre><code>import sqlite3
+          import math
+          import json
+          from numpy import *
+          from pathlib import Path
+          from PIL import Image
+          
+          #get the stuff from the db
+          def loadProjections(db_path, tablename):
+          	with sqlite3.connect(db_path) as connection:
+          		rows = connection.execute(f&quot;&quot;&quot;SELECT angle_degrees, detector_count, light_values FROM {tablename} ORDER BY angle_degrees&quot;&quot;&quot;).fetchall()
+          		projections = []
+          		for angle_degrees, detector_count, light_values in rows: #never gonna use detector_count bc thats just verification of how many things are in light_values
+          			values = array(json.loads(light_values))
+          			projections.append((int(angle_degrees), values))
+          	return projections
+          
+          #get func for sorted table names used at the bottom
+          def getTablenames(db_path: Path):
+              with sqlite3.connect(db_path) as connection:
+                  rows = connection.execute(&quot;&quot;&quot;SELECT name FROM sqlite_master WHERE type = &#39;table&#39;&quot;&quot;&quot;).fetchall()
+              tables = []
+              for (name,) in rows:
+                  position_text = name[len(&quot;slice_&quot;):-len(&quot;cm&quot;)]
+                  tables.append((int(position_text), name))
+              # dont sort by alphabetically bc 1000 would be before 2
+              tables.sort(key=lambda item: item[0])
+              return [name for _, name in tables]
+          
+          #making the sinogram, explained in the previous readme
+          def getSinogram(projections):
+          	maximum_detector_count = max([len(values) for _, values in projections])
+          	#blank sinogram array
+          	sinogram = zeros((len(projections), maximum_detector_count))
+          	#padding is the offset of 0s to get to the data in the center
+          	for angle_index, (_, values) in enumerate(projections):
+          		padding = maximum_detector_count - len(values)
+          		start = padding // 2
+          		end = start + len(values)
+          		sinogram[angle_index, start:end] = values
+          
+          	return sinogram
+          
+          #sums up all lines that go through each pixel (most of the logic behind the chall)
+          def getPixelData(sinogram, angles, width, height):
+          	detector_count = sinogram.shape[1]
+          	detector_center = (detector_count - 1) / 2.0
+          
+          	x = arange(width) - (width - 1) / 2.0
+          	y = arange(height) - (height - 1) / 2.0
+          
+          	x_grid, y_grid = meshgrid(x, y) # every possible x and y
+          	pixeldata = zeros((height, width))	# empty array to hold pixel sums
+          
+          	detector_indexes = arange(detector_count)
+          	#big loop that does most of the logic w the sinogram
+          	for projection, angle in zip(sinogram, angles):
+          		angle_rad = math.radians(angle)
+          		detector_pos = detector_center + x_grid * math.cos(angle_rad) + y_grid * math.sin(angle_rad)
+          
+          		newsum = interp(
+          			detector_pos.ravel(),
+          			detector_indexes,
+          			projection,
+          			left=0,
+          			right=0
+          		).reshape(height, width)
+          
+          		pixeldata += newsum
+          
+          	return pixeldata
+          
+          #converts reconstructed sum values into grayscale and saves it to output/
+          def save(pixeldata, outpath):
+          	#since all of the values are added up you have to weight the highest value at 255 and lowest at 0 and weigh the rest inbetween. Also skips outliers 0 and 100 so the image isnt mostly just grey but this isnt necessary its just a little filtering
+          	low, high = percentile(pixeldata, [1.0, 99.0])
+          	weighted = clip((pixeldata - low) / (high - low), 0.0, 1.0)
+          	imagedata = rint(weighted * 255.0).astype(uint8)
+          
+          	Image.fromarray(imagedata).save(outpath)
+          
+          
+          
+          
+          #most of this stuff is self explanatory tbh
+          dir = Path(__file__).parent
+          db = dir / &quot;scan2.sqlite&quot;
+          outdir = dir / &quot;output&quot;
+          outdir.mkdir(exist_ok=True)
+          
+          tablenames = getTablenames(db)
+          #simple for loop that was added for all tables
+          for name in tablenames:
+          	projections = loadProjections(db, name)
+          	#put stuff in a dict so its accessible by angle
+          	dict = {angle: values for angle, values in projections}
+          	imageWidth = len(dict[0]) #num of detectors at 0 is width as explained in the readme
+          	imageHeight = len(dict[90]) #num of detectors at 90 is height as explained in the readme
+          	angles = array([angle for angle, _ in projections])
+          	sinogram = getSinogram(projections)
+          
+          	pixeldata = getPixelData(sinogram, angles, imageWidth, imageHeight)
+          
+          	#images are named after their table names
+          	outpath = outdir / f&quot;{name}.png&quot;
+          	save(pixeldata, outpath)
+          	print(f&quot;{name} done&quot;)
+          </code></pre>
+          <p>Once you have all of these images, you need to reconstruct the 3d file by stacking all of the images at their height. The easiest way to do this is by eye, and to go image by image seeing what the cross section of the flag is. </p>
+          <p><img class="writeup-img" src="/images/writeups/You_Scanned_WHAT_and_HOW/slice_147cm.png" alt="Sample output slice"></p>
+          <p>You could also stack these images on a 3d rendering program, but that is not required.</p>
+          <p>All output is in the output folder in this directory, feel free to take a look and try to solve it from there.</p>
+          <p>For reference, here was the final flag that the scan was taken of.</p>
+          <p><img class="writeup-img" src="/images/writeups/You_Scanned_WHAT_and_HOW/flagForReference.png" alt="Flag For Reference"></p>
+          <p>Again, using a filter or method to make the images more clear could have been used, but they aren&#39;t requited if you don&#39;t need a completely clear file.</p>
+          <p>Final flag: <code>L3AK{CT_Sc4Ns_R_jU57_L0tz_0F_Xr4y5!!}</code></p>
+          
         `,
-      },
-    ]);
+            },
 
-    const openId = S(null);
+            {
+                id: "software_and_hardware_are_a_scam",
+                title: "Software + Hardware is a scam",
+                subtitle: "L3AK CTF 2026 · Simplifying hardware logic to recover the flag",
+                difficulty: "hard",
+                category: "hardware",
+                catColor: "#e5e7eb",
+                author: true,
+                body: String.raw `
+          <p class="writeup-meta">
+            <strong>Category:</strong> <span class="pill">hardware</span>
+          </p>
 
-    // ---------------------------------------------------------
-    // CODE TOGGLES (CSS-only chevron) FOR LONG <pre> BLOCKS
-    // - only adds toggle if code has > 10 lines
-    // - collapsed: 10 lines (scrollable)
-    // - expanded: 25 lines (scrollable)
-    // - button is OUTSIDE the <pre> so scrolling doesn't move it
-    // ---------------------------------------------------------
-    const setupCodeToggles = (id) => {
-      const body = document.querySelector(`#writeup-${id} .writeup-body`);
-      if (!body) return;
+          <p>Description:</p>
+          <p>Software is a scam:</p>
+          <blockquote>
+          <p>Why use software when hardware gets the job done just fine?</p>
+          </blockquote>
+          <p>Hardware is a scam:</p>
+          <blockquote>
+          <p>Maybe software isn&#39;t so bad after all...</p>
+          </blockquote>
+          <blockquote>
+          <p>My current password <code>l3ak{...}</code> seems to be working fine, but something tells me someone else has been messing around on my machine 💀.</p>
+          </blockquote>
+          <blockquote>
+          <p>Note: This challenge is the revenge challenge for <code>Software is a scam</code>. It is suggested that you solve that one first.</p>
+          </blockquote>
+          <p>Time spent to solve: ~3 hours.</p>
+          <hr>
+          <p>Let&#39;s start with the first challenge. This is all we are given:</p>
+          <p><img class="writeup-img" src="/images/writeups/Software_+_Hardware_is_a_scam/auth.png" alt="our handout"></p>
+          <p>If you understand circuits, this challenge shouldn&#39;t be that hard. It should mostly be tedious.</p>
+          <p>The circuit diagram is actually 3 seperate circuits. I will solve them here individually. They all are required for the password to be right, but none of the input characters in these three blocks effect any of the input characters in any other block.</p>
+          <p>For circuit one, we have four input characters labeled 1-4. If we look closely, there are 5 subcircuits that all need to be true for the password to autheticate. Those circuits can be written like so:</p>
+          <pre><code>((C1 x C4) + C1) xnor C2 == 5c
+          (C1 &amp; C3) nor (C2 xor C4) == 87
+          C3 xor C4 == 0a
+          C2 - C1 == e7
+          C3 - C1 == f4
+          </code></pre>
+          <p>To solve this series of equations, we know the flag must be printable, thus we can bound all characters between 32 and 127. with that, we can brute force this series smartly by starting with the equations that cancel out the most possibilities. One thing to note is that since the circuit is discarding all extra bits, we need to mod each arithmetic section by 256 (0xff). We start with <code>C3 xor C4</code>, <code>C2 - C1 == e7</code>, and <code>C3 - C1 == f4</code> in no particular order because all of these equations only include two characters, and thus are easy to brute force to lower the possibilities. Then, we can just add more if statements for the last circuits. The solve script I wrote is attached at <code>solve1.py</code> (pardon my awful code), and it computes all possibilities.</p>
+          <pre><code>from Crypto.Util.number import *
+          
+          for one in range(32,127):
+          	for three in range(32,127):
+          		if ((three - one)%256 &gt; 0xf4):
+          			for two in range(32,127):
+          				if ((two - one)%256 == 0xe7):
+          					for four in range(32,127):
+          						if (three ^ four == 0xa):
+          							if ((~(((((one * four)%256) + one)%256)^two))%256 == 0x5c):
+          								if ((~((one &amp; three) | (two^four)))%256 == 0x87):
+          									print(long_to_bytes(one) + long_to_bytes(two) +long_to_bytes(three) + long_to_bytes(four) + b&#39;?&#39;*16)
+          </code></pre>
+          <p>The series of circuits in the first section only lead to a single possibility for characters 1-4.</p>
+          <p>Flag part one: <code>L3AK????????????????</code></p>
+          <p>For the 2nd large circuit, we can do the same thing. We have 4 characters, and we have a total of 5 sub-circuits to validate those characters. We can write those circuts as so:</p>
+          <pre><code>C5 - C20 == fe
+          (C10 &amp; C20) xor !(C5) == d9
+          (C5 &amp; C10) &amp; (C15 xnor C20) == 59
+          d6 &gt; (C15 + C10)
+          bd &lt; (C15 + C10)
+          </code></pre>
+          <p>Again, we start with the equations with the least characters, <code>d6 &gt; (C15 + C10)</code> and <code>bd &lt; (C15 + C10)</code>. Then, the rest of them all include C5 and C20 so we can use another two nested for loops to get through the rest of the equations. Again, pardon my awful code, my solve script is attached in <code>solve2.py</code>.</p>
+          <pre><code>from Crypto.Util.number import *
+          
+          for ten in range(32,127):
+          	for fifteen in range(32,127):
+          		if ((ten + fifteen)%256 &lt; 0xd6):
+          			if ((ten + fifteen)%256 &gt; 0xbd):
+          				for five in range(32,127):
+          					for twenty in range(32,127):
+          						if ((five - twenty)%256 == 0xfe):
+          							if (((ten &amp; twenty) ^ (~(five))%256) == 0xd9):
+          								if (((five &amp; ten) &amp; (~(twenty ^ fifteen))) == 0x59):
+          									print(b&#39;????&#39; + long_to_bytes(five) + b&#39;????&#39; + long_to_bytes(ten) + b&#39;????&#39;  + long_to_bytes(fifteen) +  b&#39;????&#39; + long_to_bytes(twenty))
+          </code></pre>
+          <p>This series of equations also gives us a single possible combination of C5, C10, C15, and C20.</p>
+          <p>Flag part 2: <code>????{????_????_????}</code></p>
+          <p>For the 3rd and largest circuit, we follow the same steps but at a larger scale. We see 11 sub-circuits that all seem intertwined. If you look closely enough though, there are several near the middle and bottom that require only 2 characters to validate. We start with six, thirteen, eight, sixteen, and seventeen (in an order where each number allows the next to be found with a single for loop) since all of these characters can be found via a single for loop comparison with another number. Then we move on to the much larger equations. The order doesn&#39;t matter much from here, but tis important to have the most if statements before your for loops as possible.</p>
+          <p>My solve code is attached at <code>solve3.py</code>. One note that I have is that I simplified one of the equations from 5 calculations to one, since C7 is directly compared to this last connection. I am sure there are far more logic jumps you can simplify from, but none of those were really necessary for this challenge.</p>
+          <p><img class="writeup-img" src="/images/writeups/Software_+_Hardware_is_a_scam/C7LogicSimplificationExample.png" alt="Logic simplification example with C7"></p>
+          <pre><code>from Crypto.Util.number import *
+          
+          for six in range(32,127):
+          	for thirteen in range(32,127):
+          		if (((six + thirteen)%256) == 0xb5):
+          			for eight in range(32,127):
+          				if (((thirteen - eight)%256) == 0x2e):
+          					for sixteen in range(32,127):
+          						if (sixteen ^ eight == 0x2c):
+          							for seventeen in range(32,127):
+          								if (seventeen - eight)%256 == 0xef:
+          									for twelve in range(32,127):
+          										for seven in range(32,127):
+          											if ((seven - ((~(((six &lt;&lt; 2)%256) &amp; twelve))%256))%256 == 0x74):
+          												for nine in range(32,127):
+          													if ((~(((((nine &amp; thirteen) ^ ((~(nine &amp; sixteen))%256)) ^ sixteen ^ twelve) &amp; ~(((nine &amp; thirteen) ^ ((~(nine &amp; sixteen))%256)) &amp; sixteen &amp; twelve)))%256) == seven):
+          														for fourteen in range(32,127):
+          															if ((fourteen ^ (twelve ^ (seventeen &amp; ((~(nine &amp; sixteen))%256)))) == 0x51):
+          																for eighteen in range(32,127):
+          																	if ((((seventeen - eighteen)%256) &amp; nine) == 0x33):
+          																		for eleven in range(32,127):
+          																			if (((((~(((~((((six &lt;&lt; 2)%256) ^ eleven ^ thirteen) &amp; ~(((six &lt;&lt; 2) % 256) &amp; eleven &amp; thirteen))) % 256) &amp; fourteen)) % 256) ^ ((~((((six &lt;&lt; 2) % 256) ^ eleven ^ thirteen) &amp; ~(((six &lt;&lt; 2) % 256) &amp; eleven &amp; thirteen))) % 256)) | eighteen) == 0x37):
+          																				for nineteen in range(32,127):
+          																					if (((((~((((six &lt;&lt; 2)%256) ^ eleven ^ thirteen) &amp; ~(((six &lt;&lt; 2)%256) &amp; eleven &amp; thirteen)))%256) + nineteen)%256) == 0xd):
+          																						if ((((nine ^ nineteen) + eighteen)%256) == 0xab):
+          																							print(b&#39;?????&#39; + long_to_bytes(six) + long_to_bytes(seven) + long_to_bytes(eight) + long_to_bytes(nine) + b&#39;?&#39; + long_to_bytes(eleven) + long_to_bytes(twelve) + long_to_bytes(thirteen) + long_to_bytes(fourteen) + b&#39;?&#39; + long_to_bytes(sixteen) + long_to_bytes(seventeen) + long_to_bytes(eighteen) + long_to_bytes(nineteen) + b&#39;?&#39;)
+          </code></pre>
+          <p>Again, there was only one possible combination that would verify the circuit.</p>
+          <p>Flag part 3: <code>?????CoD3?Hur7?h34D?</code></p>
+          <p>Final combined flag: <code>L3AK{CoD3_Hur7_h34D}</code></p>
+          <hr>
+          <p>The revenge challenge is very similar, but is given at a MUCH larger scale:</p>
+          <p><img class="writeup-img" src="/images/writeups/Software_+_Hardware_is_a_scam/auth2.png" alt="our handout"></p>
+          <p>If you understand circuits, this challenge should make sense, but the solve path still may seem unclear.</p>
+          <p>The key idea behind this challenge was to simplify the circuit. There are a lot of sections throughout the circuit that can be simplified to much shorter logic gates, and thus brute forcers will be much faster / not necessary.</p>
+          <p>First, let&#39;s look at the top block. There are a lot of logic gates on inputs C1-C4. Let&#39;s first see how many possible solutions C1-C4 have with just these logic gates.</p>
+          <p>We see that there are 5 circuits that all need to be correct for this circuit block to respond true. These logic gates are below:</p>
+          <pre><code>((C1 * C4) + C1) xnor C2 == 5c
+          (C1 &amp; C3) nor (C2 xor C4) == 87
+          C3 xor C4 == 0a
+          (C2 xor C1) xor C3 == 3e
+          C3 - C1 == 4f
+          </code></pre>
+          <p>With these 5 equations, we can brute force character by character to find all possibilities (in the same way used in <code>Software is a scam</code>). Here was my solve code for this section:</p>
+          <pre><code>from Crypto.Util.number import *
+          
+          for one in range(32,127):
+          	for three in range(32,127):
+          		if ((three - one)%256 &gt; 0xf4):
+          			for two in range(32,127):
+          				for four in range(32,127):
+          					if (((one ^ two) ^ three) == 0x3e):
+          						if (three ^ four == 0xa):
+          							if ((~(((((one * four)%256) + one)%256)^two))%256 == 0x5c):
+          								if ((~((one &amp; three) | (two^four)))%256 == 0x87):
+          									print(long_to_bytes(one) + long_to_bytes(two) +long_to_bytes(three) + long_to_bytes(four) + b&#39;?&#39;*30)
+          </code></pre>
+          <p>Through this code, we find that there exit only 2 possible combinations of C1-C4 that satisfy this circuit. <code>l3ak</code> and <code>L3AK</code>. We can note this down for our next script, as we can see that the rest of the circuit requires these characters to be known.</p>
+          <p>The next step is to map out all the logic gates in the second chunk. This part will most likely take you the longest. Patience is key here lol, you will get to the end eventually.</p>
+          <p>The below equations are all - circuits in the 2nd chunk:</p>
+          <pre><code>(C5 xor C34) == 0x06
+          
+          (C6 - (
+              (C1 &gt;&gt; 5)
+              *
+              (((C15 | C24) / (C24 | C15))
+              | (((C21 nand C30) / (C30 nand C21)) &lt;&lt; 4))
+          )) == 0x20
+          
+          (C7 - (
+              (C3 &gt;&gt; 5)
+              *
+              (((C21 nor C30) / (C30 nor C21))
+              | (((C14 xnor C23) / (C23 xnor C14)) &lt;&lt; 6))
+          )) == 0xB2
+          
+          (C8 - (
+              (C4 &gt;&gt; 5)
+              *
+              (((((C27 xor C9) | C18) / (C18 | (C9 xor C27)))
+              | ((((C19 &amp; C28) | C10) / (C10 | (C28 &amp; C19))) &lt;&lt; 2))
+              | ((((C31 + C13) | C22) / (C22 | (C13 + C31))) &lt;&lt; 3))
+          )) == 0x49
+          
+          (C9 + (
+              (C1 &gt;&gt; 5)
+              *
+              (((((C32 | C14) / (C14 | C32)) &lt;&lt; 3)
+              | (((C17 nand C26) / (C26 nand C17)) &lt;&lt; 4))
+              | (((C29 nor C11) / (C11 nor C29)) &lt;&lt; 5))
+          )) == 0xDB
+          
+          (C10 - (
+              (C3 &gt;&gt; 5)
+              *
+              (((((C29 xnor C11) / (C11 xnor C29)) &lt;&lt; 1)
+              | ((((C14 xor C23) | C32) / (C32 | (C23 xor C14))) &lt;&lt; 2))
+              | ((((C26 &amp; C7) | C17) / (C17 | (C7 &amp; C26))) &lt;&lt; 3))
+          )) == 0x48
+          
+          (C11 + (
+              (C4 &gt;&gt; 5)
+              *
+              ((((((C33 + C15) | C24) / (C24 | (C15 + C33)))
+              | (((C12 | C21) / (C21 | C12)) &lt;&lt; 4))
+              | (((C31 nand C13) / (C13 nand C31)) &lt;&lt; 6))
+              | (((C16 nor C25) / (C25 nor C16)) &lt;&lt; 7))
+          )) == 0xD2
+          
+          (C12 + (
+              (C1 &gt;&gt; 5)
+              *
+              ((((((C29 xnor C10) / (C10 xnor C29)) &lt;&lt; 1)
+              | ((((C21 xor C30) | C11) / (C11 | (C30 xor C21))) &lt;&lt; 3))
+              | ((((C33 &amp; C15) | C24) / (C24 | (C15 &amp; C33))) &lt;&lt; 4))
+              | ((((C18 + C27) | C8) / (C8 | (C27 + C18))) &lt;&lt; 5))
+          )) == 0xE3
+          
+          (C13 xor (
+              (C3 &gt;&gt; 5)
+              *
+              (((C10 | C20) / (C20 | C10))
+              | (((C31 nand C12) / (C12 nand C31)) &lt;&lt; 6))
+          )) == 0xF0
+          
+          (C14 - (
+              (C4 &gt;&gt; 5)
+              *
+              (((C31 nor C12) / (C12 nor C31)) &lt;&lt; 2)
+          )) == 0x57
+          
+          (C15 + (
+              (C1 &gt;&gt; 5)
+              *
+              ((((C18 xnor C27) / (C27 xnor C18))
+              | ((((C30 xor C11) | C21) / (C21 | (C11 xor C30))) &lt;&lt; 1))
+              | ((((C29 &amp; C10) | C20) / (C20 | (C10 &amp; C29))) &lt;&lt; 4))
+          )) == 0x8E
+          
+          (C16 - (
+              (C3 &gt;&gt; 5)
+              *
+              ((((C29 + C10) | C20) / (C20 | (C10 + C29)))
+              | (((C22 | C31) / (C31 | C22)) &lt;&lt; 6))
+          )) == 0xAF
+          
+          (C17 + (
+              (C4 &gt;&gt; 5)
+              *
+              ((((C7 nand C16) / (C16 nand C7))
+              | (((C13 nor C23) / (C23 nor C13)) &lt;&lt; 4))
+              | (((C26 xnor C7) / (C7 xnor C26)) &lt;&lt; 5))
+          )) == 0xC6
+          
+          (C18 + (
+              (C1 &gt;&gt; 5)
+              *
+              ((((C19 xor C28) | C9) / (C9 | (C28 xor C19)))
+              | ((((C10 &amp; C20) | C29) / (C29 | (C20 &amp; C10))) &lt;&lt; 2))
+          )) == 0x6E
+          
+          (C19 + (
+              (C3 &gt;&gt; 5)
+              *
+              ((((((C25 + C6) | C15) / (C15 | (C6 + C25)))
+              | (((C9 | C18) / (C18 | C9)) &lt;&lt; 1))
+              | (((C23 nand C32) / (C32 nand C23)) &lt;&lt; 6))
+              | (((C7 nor C16) / (C16 nor C7)) &lt;&lt; 7))
+          )) == 0xB9
+          
+          (C20 + (
+              (C4 &gt;&gt; 5)
+              *
+              (((((C21 xnor C30) / (C30 xnor C21)) &lt;&lt; 1)
+              | ((((C12 xor C22) | C31) / (C31 | (C22 xor C12))) &lt;&lt; 3))
+              | ((((C25 &amp; C6) | C15) / (C15 | (C6 &amp; C25))) &lt;&lt; 4))
+          )) == 0x82
+          
+          (C21 - (
+              (C1 &gt;&gt; 5)
+              *
+              (((((C11 + C20) | C30) / (C30 | (C20 + C11))) &lt;&lt; 2)
+              | (((C31 | C12) / (C12 | C31)) &lt;&lt; 4))
+          )) == 0x37
+          
+          (C22 - (
+              (C3 &gt;&gt; 5)
+              *
+              ((((C10 nand C19) / (C19 nand C10)) &lt;&lt; 1)
+              | (((C30 nor C11) / (C11 nor C30)) &lt;&lt; 3))
+          )) == 0x55
+          
+          (C23 - (
+              (C4 &gt;&gt; 5)
+              *
+              ((((C9 xnor C18) / (C18 xnor C9))
+              | ((((C8 xor C17) | C27) / (C27 | (C17 xor C8))) &lt;&lt; 3))
+              | ((((C28 &amp; C9) | C18) / (C18 | (C9 &amp; C28))) &lt;&lt; 5))
+          )) == 0xFC
+          
+          (C24 - (
+              (C1 &gt;&gt; 5)
+              *
+              ((((((C20 + C30) | C11) / (C11 | (C30 + C20)))
+              | (((C27 | C8) / (C8 | C27)) &lt;&lt; 4))
+              | (((C18 nand C28) / (C28 nand C18)) &lt;&lt; 6))
+              | (((C31 nor C12) / (C12 nor C31)) &lt;&lt; 7))
+          )) == 0xBD
+          
+          (C25 - (
+              (C3 &gt;&gt; 5)
+              *
+              (((((C16 xnor C26) / (C26 xnor C16)) &lt;&lt; 1)
+              | ((((C8 xor C17) | C27) / (C27 | (C17 xor C8))) &lt;&lt; 3))
+              | ((((C28 &amp; C9) | C18) / (C18 | (C9 &amp; C28))) &lt;&lt; 5))
+          )) == 0xF4
+          
+          (C26 - (
+              (C4 &gt;&gt; 5)
+              *
+              ((((C21 + C31) | C12) / (C12 | (C31 + C21))) &lt;&lt; 4)
+          )) == 0x14
+          
+          (C27 + (
+              (C1 &gt;&gt; 5)
+              *
+              ((((C21 | C31) / (C31 | C21))
+              | (((C6 nand C15) / (C15 nand C6)) &lt;&lt; 1))
+              | (((C33 nor C14) / (C14 nor C33)) &lt;&lt; 4))
+          )) == 0x98
+          
+          (C28 xor (
+              (C3 &gt;&gt; 5)
+              *
+              (((((C12 xnor C21) / (C21 xnor C12)) &lt;&lt; 1)
+              | ((((C24 xor C6) | C15) / (C15 | (C6 xor C24))) &lt;&lt; 2))
+              | ((((C9 &amp; C18) | C27) / (C27 | (C18 &amp; C9))) &lt;&lt; 3))
+          )) == 0x58
+          
+          (C29 + (
+              (C4 &gt;&gt; 5)
+              *
+              ((((((C23 + C33) | C14) / (C14 | (C33 + C23))) &lt;&lt; 1)
+              | (((C8 | C17) / (C17 | C8)) &lt;&lt; 2))
+              | (((C14 nand C23) / (C23 nand C14)) &lt;&lt; 6))
+          )) == 0x03
+          
+          (C30 - (
+              (C1 &gt;&gt; 5)
+              *
+              (((((C27 nor C9) / (C9 nor C27))
+              | (((C12 xnor C21) / (C21 xnor C12)) &lt;&lt; 1))
+              | ((((C11 xor C20) | C29) / (C29 | (C20 xor C11))) &lt;&lt; 4))
+              | ((((C23 &amp; C33) | C14) / (C14 | (C33 &amp; C23))) &lt;&lt; 5))
+          )) == 0xCE
+          
+          (C31 + (
+              (C3 &gt;&gt; 5)
+              *
+              (((((C23 + C33) | C14) / (C14 | (C33 + C23))) &lt;&lt; 1)
+              | (((C15 | C24) / (C24 | C15)) &lt;&lt; 3))
+          )) == 0x66
+          
+          (C32 xor (
+              (C4 &gt;&gt; 5)
+              *
+              (((((C29 nand C11) / (C11 nand C29)) &lt;&lt; 1)
+              | (((C28 nor C10) / (C10 nor C28)) &lt;&lt; 4))
+              | (((C20 xnor C29) / (C29 xnor C20)) &lt;&lt; 6))
+          )) == 0xC1
+          
+          (C33 xor (
+              (C1 &gt;&gt; 5)
+              *
+              (((((C13 xor C22) | C31) / (C31 | (C22 xor C13))) &lt;&lt; 1)
+              | ((((C25 &amp; C7) | C16) / (C16 | (C7 &amp; C25))) &lt;&lt; 2))
+          )) == 0x2D
+          
+          (C34 - (C1 xor C3)) == 0x70
+          </code></pre>
+          <p>Immediately, we see a whole bunch of contradictive statements. Things such as <code>(((C13 xor C22) | C31) / (C31 | (C22 xor C13)))</code> or <code>((C27 nor C9) / (C9 nor C27))</code> where you have the same communative function dividing itself. The key idea of this challenge was to simplify all of these communative functions to cut away useless functions. If you found this pattern earlier, you could have skipped a bunch of logic gates. After doing so, you get the following (much nicer) series of equations:</p>
+          <pre><code>(C5 xor C34) == 0x06
+          (C6 - ((C1 &gt;&gt; 5) * (1 | (1 &lt;&lt; 4)))) == 0x20
+          (C7 - ((C3 &gt;&gt; 5) * (1 | (1 &lt;&lt; 6)))) == 0xB2
+          (C8 - ((C4 &gt;&gt; 5) * ((1 | (1 &lt;&lt; 2)) | (1 &lt;&lt; 3)))) == 0x49
+          (C9 + ((C1 &gt;&gt; 5) * (((1 &lt;&lt; 3) | (1 &lt;&lt; 4)) | (1 &lt;&lt; 5)))) == 0xDB
+          (C10 - ((C3 &gt;&gt; 5) * (((1 &lt;&lt; 1) | (1 &lt;&lt; 2)) | (1 &lt;&lt; 3)))) == 0x48
+          (C11 + ((C4 &gt;&gt; 5) * (((1 | (1 &lt;&lt; 4)) | (1 &lt;&lt; 6)) | (1 &lt;&lt; 7)))) == 0xD2
+          (C12 + ((C1 &gt;&gt; 5) * ((((1 &lt;&lt; 1) | (1 &lt;&lt; 3)) | (1 &lt;&lt; 4)) | (1 &lt;&lt; 5)))) == 0xE3
+          (C13 xor ((C3 &gt;&gt; 5) * (1 | (1 &lt;&lt; 6)))) == 0xF0
+          (C14 - ((C4 &gt;&gt; 5) * (1 &lt;&lt; 2))) == 0x57
+          (C15 + ((C1 &gt;&gt; 5) * ((1 | (1 &lt;&lt; 1)) | (1 &lt;&lt; 4)))) == 0x8E
+          (C16 - ((C3 &gt;&gt; 5) * (1 | (1 &lt;&lt; 6)))) == 0xAF
+          (C17 + ((C4 &gt;&gt; 5) * ((1 | (1 &lt;&lt; 4)) | (1 &lt;&lt; 5)))) == 0xC6
+          (C18 + ((C1 &gt;&gt; 5) * (1 | (1 &lt;&lt; 2)))) == 0x6E
+          (C19 + ((C3 &gt;&gt; 5) * (((1 | (1 &lt;&lt; 1)) | (1 &lt;&lt; 6)) | (1 &lt;&lt; 7)))) == 0xB9
+          (C20 + ((C4 &gt;&gt; 5) * (((1 &lt;&lt; 1) | (1 &lt;&lt; 3)) | (1 &lt;&lt; 4)))) == 0x82
+          (C21 - ((C1 &gt;&gt; 5) * ((1 &lt;&lt; 2) | (1 &lt;&lt; 4)))) == 0x37
+          (C22 - ((C3 &gt;&gt; 5) * ((1 &lt;&lt; 1) | (1 &lt;&lt; 3)))) == 0x55
+          (C23 - ((C4 &gt;&gt; 5) * ((1 | (1 &lt;&lt; 3)) | (1 &lt;&lt; 5)))) == 0xFC
+          (C24 - ((C1 &gt;&gt; 5) * (((1 | (1 &lt;&lt; 4)) | (1 &lt;&lt; 6)) | (1 &lt;&lt; 7)))) == 0xBD
+          (C25 - ((C3 &gt;&gt; 5) * (((1 &lt;&lt; 1) | (1 &lt;&lt; 3)) | (1 &lt;&lt; 5)))) == 0xF4
+          (C26 - ((C4 &gt;&gt; 5) * (1 &lt;&lt; 4))) == 0x14
+          (C27 + ((C1 &gt;&gt; 5) * ((1 | (1 &lt;&lt; 1)) | (1 &lt;&lt; 4)))) == 0x98
+          (C28 xor ((C3 &gt;&gt; 5) * (((1 &lt;&lt; 1) | (1 &lt;&lt; 2)) | (1 &lt;&lt; 3)))) == 0x58
+          (C29 + ((C4 &gt;&gt; 5) * (((1 &lt;&lt; 1) | (1 &lt;&lt; 2)) | (1 &lt;&lt; 6)))) == 0x03
+          (C30 - ((C1 &gt;&gt; 5) * (((1 | (1 &lt;&lt; 1)) | (1 &lt;&lt; 4)) | (1 &lt;&lt; 5)))) == 0xCE
+          (C31 + ((C3 &gt;&gt; 5) * ((1 &lt;&lt; 1) | (1 &lt;&lt; 3)))) == 0x66
+          (C32 xor ((C4 &gt;&gt; 5) * (((1 &lt;&lt; 1) | (1 &lt;&lt; 4)) | (1 &lt;&lt; 6)))) == 0xC1
+          (C33 xor ((C1 &gt;&gt; 5) * ((1 &lt;&lt; 1) | (1 &lt;&lt; 2)))) == 0x2D
+          (C34 - (C1 xor C3)) == 0x70
+          </code></pre>
+          <p>From here, since every equation has their own new variable (C1, C3, and C4 have been &quot;found&quot;), we can simply loop through every letter for every character index and get the flag. If you simplify further, you can do this without brute forcing, but since we&#39;ve written out all of this logic in almost python syntax, its probably faster just to port these equations to python and solve. Remember that everything here is bitwise and must have a bit mask of 256 (0xff).</p>
+          <p>We can assume that each character is printable, and thus land between 32 and 126 inclusive on the ascii table (if we don&#39;t assume this, we can just use 0 through 256 it doesnt speed the code up that much).</p>
+          <p>Below is my solve code for these equations. Sorry for the atrocious code, but it still gets the job done pretty quickly.</p>
+          <pre><code>from Crypto.Util.number import *
+          
+          def _solve_28_to_33(one, two, three, four, five, six, seven, eight, nine, ten, eleven, twelve, thirteen, fourteen, fifteen, sixteen, seventeen, eighteen, nineteen, twenty, twentyone, twentytwo, twentythree, twentyfour, twentyfive, twentysix, twentyseven, thirtyfour):
+          	for twentyeight in range(32,127):
+          		if ((twentyeight ^ (((three &gt;&gt; 5) * (((1 &lt;&lt; 1) | (1 &lt;&lt; 2)) | (1 &lt;&lt; 3))) % 256)) == 0x58):
+          			for twentynine in range(32,127):
+          				if (((twentynine + ((four &gt;&gt; 5) * (((1 &lt;&lt; 1) | (1 &lt;&lt; 2)) | (1 &lt;&lt; 6)))) % 256) == 0x03):
+          					for thirty in range(32,127):
+          						if (((thirty - ((one &gt;&gt; 5) * (((1 | (1 &lt;&lt; 1)) | (1 &lt;&lt; 4)) | (1 &lt;&lt; 5)))) % 256) == 0xCE):
+          							for thirtyone in range(32,127):
+          								if (((thirtyone + ((three &gt;&gt; 5) * ((1 &lt;&lt; 1) | (1 &lt;&lt; 3)))) % 256) == 0x66):
+          									for thirtytwo in range(32,127):
+          										if ((thirtytwo ^ (((four &gt;&gt; 5) * (((1 &lt;&lt; 1) | (1 &lt;&lt; 4)) | (1 &lt;&lt; 6))) % 256)) == 0xC1):
+          											for thirtythree in range(32,127):
+          												if ((thirtythree ^ (((one &gt;&gt; 5) * ((1 &lt;&lt; 1) | (1 &lt;&lt; 2))) % 256)) == 0x2D):
+          													print(long_to_bytes(one) + long_to_bytes(two) + long_to_bytes(three) + long_to_bytes(four) + long_to_bytes(five) + long_to_bytes(six) + long_to_bytes(seven) + long_to_bytes(eight) + long_to_bytes(nine) + long_to_bytes(ten) + long_to_bytes(eleven) + long_to_bytes(twelve) + long_to_bytes(thirteen) + long_to_bytes(fourteen) + long_to_bytes(fifteen) + long_to_bytes(sixteen) + long_to_bytes(seventeen) + long_to_bytes(eighteen) + long_to_bytes(nineteen) + long_to_bytes(twenty) + long_to_bytes(twentyone) + long_to_bytes(twentytwo) + long_to_bytes(twentythree) + long_to_bytes(twentyfour) + long_to_bytes(twentyfive) + long_to_bytes(twentysix) + long_to_bytes(twentyseven) + long_to_bytes(twentyeight) + long_to_bytes(twentynine) + long_to_bytes(thirty) + long_to_bytes(thirtyone) + long_to_bytes(thirtytwo) + long_to_bytes(thirtythree) + long_to_bytes(thirtyfour))
+          
+          def _solve_20_to_27(one, two, three, four, five, six, seven, eight, nine, ten, eleven, twelve, thirteen, fourteen, fifteen, sixteen, seventeen, eighteen, nineteen, thirtyfour):
+          	for twenty in range(32,127):
+          		if (((twenty + ((four &gt;&gt; 5) * (((1 &lt;&lt; 1) | (1 &lt;&lt; 3)) | (1 &lt;&lt; 4)))) % 256) == 0x82):
+          			for twentyone in range(32,127):
+          				if (((twentyone - ((one &gt;&gt; 5) * ((1 &lt;&lt; 2) | (1 &lt;&lt; 4)))) % 256) == 0x37):
+          					for twentytwo in range(32,127):
+          						if (((twentytwo - ((three &gt;&gt; 5) * ((1 &lt;&lt; 1) | (1 &lt;&lt; 3)))) % 256) == 0x55):
+          							for twentythree in range(32,127):
+          								if (((twentythree - ((four &gt;&gt; 5) * ((1 | (1 &lt;&lt; 3)) | (1 &lt;&lt; 5)))) % 256) == 0xFC):
+          									for twentyfour in range(32,127):
+          										if (((twentyfour - ((one &gt;&gt; 5) * (((1 | (1 &lt;&lt; 4)) | (1 &lt;&lt; 6)) | (1 &lt;&lt; 7)))) % 256) == 0xBD):
+          											for twentyfive in range(32,127):
+          												if (((twentyfive - ((three &gt;&gt; 5) * (((1 &lt;&lt; 1) | (1 &lt;&lt; 3)) | (1 &lt;&lt; 5)))) % 256) == 0xF4):
+          													for twentysix in range(32,127):
+          														if (((twentysix - ((four &gt;&gt; 5) * (1 &lt;&lt; 4))) % 256) == 0x14):
+          															for twentyseven in range(32,127):
+          																if (((twentyseven + ((one &gt;&gt; 5) * ((1 | (1 &lt;&lt; 1)) | (1 &lt;&lt; 4)))) % 256) == 0x98):
+          																	_solve_28_to_33(one, two, three, four, five, six, seven, eight, nine, ten, eleven, twelve, thirteen, fourteen, fifteen, sixteen, seventeen, eighteen, nineteen, twenty, twentyone, twentytwo, twentythree, twentyfour, twentyfive, twentysix, twentyseven, thirtyfour)
+          
+          def _solve_12_to_19(one, two, three, four, five, six, seven, eight, nine, ten, eleven, thirtyfour):
+          	for twelve in range(32,127):
+          		if (((twelve + ((one &gt;&gt; 5) * ((((1 &lt;&lt; 1) | (1 &lt;&lt; 3)) | (1 &lt;&lt; 4)) | (1 &lt;&lt; 5)))) % 256) == 0xE3):
+          			for thirteen in range(32,127):
+          				if ((thirteen ^ (((three &gt;&gt; 5) * (1 | (1 &lt;&lt; 6))) % 256)) == 0xF0):
+          					for fourteen in range(32,127):
+          						if (((fourteen - ((four &gt;&gt; 5) * (1 &lt;&lt; 2))) % 256) == 0x57):
+          							for fifteen in range(32,127):
+          								if (((fifteen + ((one &gt;&gt; 5) * ((1 | (1 &lt;&lt; 1)) | (1 &lt;&lt; 4)))) % 256) == 0x8E):
+          									for sixteen in range(32,127):
+          										if (((sixteen - ((three &gt;&gt; 5) * (1 | (1 &lt;&lt; 6)))) % 256) == 0xAF):
+          											for seventeen in range(32,127):
+          												if (((seventeen + ((four &gt;&gt; 5) * ((1 | (1 &lt;&lt; 4)) | (1 &lt;&lt; 5)))) % 256) == 0xC6):
+          													for eighteen in range(32,127):
+          														if (((eighteen + ((one &gt;&gt; 5) * (1 | (1 &lt;&lt; 2)))) % 256) == 0x6E):
+          															for nineteen in range(32,127):
+          																if (((nineteen + ((three &gt;&gt; 5) * (((1 | (1 &lt;&lt; 1)) | (1 &lt;&lt; 6)) | (1 &lt;&lt; 7)))) % 256) == 0xB9):
+          																	_solve_20_to_27(one, two, three, four, five, six, seven, eight, nine, ten, eleven, twelve, thirteen, fourteen, fifteen, sixteen, seventeen, eighteen, nineteen, thirtyfour)
+          
+          def _solve_5_to_11(one, two, three, four):
+          	for thirtyfour in range(32,127):
+          		if (((thirtyfour - (one ^ three)) % 256) == 0x70):
+          			for five in range(32,127):
+          				if ((five ^ thirtyfour) == 0x06):
+          					for six in range(32,127):
+          						if (((six - ((one &gt;&gt; 5) * (1 | (1 &lt;&lt; 4)))) % 256) == 0x20):
+          							for seven in range(32,127):
+          								if (((seven - ((three &gt;&gt; 5) * (1 | (1 &lt;&lt; 6)))) % 256) == 0xB2):
+          									for eight in range(32,127):
+          										if (((eight - ((four &gt;&gt; 5) * ((1 | (1 &lt;&lt; 2)) | (1 &lt;&lt; 3)))) % 256) == 0x49):
+          											for nine in range(32,127):
+          												if (((nine + ((one &gt;&gt; 5) * (((1 &lt;&lt; 3) | (1 &lt;&lt; 4)) | (1 &lt;&lt; 5)))) % 256) == 0xDB):
+          													for ten in range(32,127):
+          														if (((ten - ((three &gt;&gt; 5) * (((1 &lt;&lt; 1) | (1 &lt;&lt; 2)) | (1 &lt;&lt; 3)))) % 256) == 0x48):
+          															for eleven in range(32,127):
+          																if (((eleven + ((four &gt;&gt; 5) * (((1 | (1 &lt;&lt; 4)) | (1 &lt;&lt; 6)) | (1 &lt;&lt; 7)))) % 256) == 0xD2):
+          																	_solve_12_to_19(one, two, three, four, five, six, seven, eight, nine, ten, eleven, thirtyfour)
+          
+          def solve(format):
+          	format = format.encode()
+          	one = format[0]
+          	two = format[1]
+          	three = format[2]
+          	four = format[3]
+          	_solve_5_to_11(one, two, three, four)
+          
+          solve(&quot;l3ak&quot;)
+          solve(&quot;L3AK&quot;)
+          </code></pre>
+          <p>From running the code, we find out that there are <em>two</em> passwords that can authenticate via this device.</p>
+          <pre><code>l3ak{Sup3r_53cUr3_p4ssw0rD_r1gH7?}
+          L3AK{B4ckd0or_h1dd3N_iN_H4rDw4Re!}
+          </code></pre>
+          <p>The challenge description mentioned the intended password is <code>l3ak{...}</code> and the flag format is <code>L3AK{...}</code> so the final flag would be the hidden password: <code>L3AK{B4ckd0or_h1dd3N_iN_H4rDw4Re!}</code>.</p>
+          
+        `,
+            },
+        ]);
 
-      const pres = body.querySelectorAll("pre");
-      if (!pres || !pres.length) return;
-
-      pres.forEach((pre) => {
-        if (!pre || pre.dataset?.codeToggle === "1") return;
-
-        const codeEl = pre.querySelector("code");
-        const raw = (codeEl ? codeEl.textContent : pre.textContent || "").replace(
-          /\n$/,
-          ""
+        const l3akOrder = new Map([
+            ["drippy_adventures", 0],
+            ["you_scanned_what_and_how", 1],
+            ["software_and_hardware_are_a_scam", 2],
+        ]);
+        writeups.value.sort(
+            (a, b) => (l3akOrder.get(a.id) ?? 3) - (l3akOrder.get(b.id) ?? 3)
         );
-        const lineCount = raw ? raw.split("\n").length : 0;
 
-        try {
-          pre.dataset.codeToggle = "1";
-        } catch (e) {}
+        // Keep collapsed writeups lightweight. Images are decoded asynchronously,
+        // and a writeup body is only mounted after that card is opened once.
+        const keepOriginalImage = new Set([
+            "/images/writeups/Drippy_Adventures/dnSpyfiles.png",
+            "/images/writeups/Emoji_CAPTCHA/exampleOutput.png",
+            "/images/writeups/Emoji_CAPTCHA/header.png",
+            "/images/writeups/Software_+_Hardware_is_a_scam/auth2.png",
+            "/images/writeups/You_Scanned_WHAT_and_HOW/sinogram_example.png",
+        ]);
 
-        // Don't add a toggle for short code blocks (10 lines or less)
-        if (lineCount <= 10) return;
+        writeups.value.forEach((writeup) => {
+            writeup.body = writeup.body
+                .replace(
+                    /<img(?![^>]*\bloading=)/g,
+                    '<img loading="lazy" decoding="async"'
+                )
+                // These two source files are byte-for-byte identical; reuse one URL so
+                // the browser can share a single download and decoded image.
+                .replace(
+                    /\/images\/writeups\/Eye_on_the_Sky\/chall2\.jpg/g,
+                    "/images/writeups/Eye_on_the_Sky/chall1.jpg"
+                )
+                .replace(
+                    /\/images\/writeups\/[^"']+\.(?:png|jpe?g)/gi,
+                    (url) =>
+                    keepOriginalImage.has(url) ?
+                    url :
+                    url.replace(/\.(?:png|jpe?g)$/i, ".webp")
+                );
+        });
 
-        // Wrap so the button can be anchored outside the scrollable <pre>
-        const wrap = document.createElement("div");
-        wrap.className = "code-wrap";
-        pre.parentNode.insertBefore(wrap, pre);
-        wrap.appendChild(pre);
+        const loadedWriteups = new Set();
 
-        // Default collapsed
-        pre.classList.add("code-toggle");
-        pre.classList.add("code-collapsed");
-        pre.classList.remove("code-open");
+        const openId = S(null);
 
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "code-toggle-btn";
-        btn.title = "Expand code";
-        btn.setAttribute("aria-label", "Expand code");
+        // ---------------------------------------------------------
+        // CODE TOGGLES (CSS-only chevron) FOR LONG <pre> BLOCKS
+        // - only adds toggle if code has > 10 lines
+        // - collapsed: 10 lines (scrollable)
+        // - expanded: 25 lines (scrollable)
+        // - button is OUTSIDE the <pre> so scrolling doesn't move it
+        // ---------------------------------------------------------
+        const setupCodeToggles = (id) => {
+            const body = document.querySelector(`#writeup-${id} .writeup-body`);
+            if (!body) return;
 
-        btn.addEventListener("click", (e) => {
-          e.stopPropagation();
+            const pres = body.querySelectorAll("pre");
+            if (!pres || !pres.length) return;
 
-          const isOpen = pre.classList.contains("code-open");
+            pres.forEach((pre) => {
+                if (!pre || pre.dataset?.codeToggle === "1") return;
 
-          if (isOpen) {
-            pre.classList.remove("code-open");
-            pre.classList.add("code-collapsed");
-            btn.classList.remove("is-open");
-            btn.title = "Expand code";
-            btn.setAttribute("aria-label", "Expand code");
-          } else {
-            pre.classList.add("code-open");
-            pre.classList.remove("code-collapsed");
-            btn.classList.add("is-open");
-            btn.title = "Collapse code";
-            btn.setAttribute("aria-label", "Collapse code");
-          }
+                const codeEl = pre.querySelector("code");
+                const raw = (codeEl ? codeEl.textContent : pre.textContent || "").replace(
+                    /\n$/,
+                    ""
+                );
+                const lineCount = raw ? raw.split("\n").length : 0;
 
-          // keep measured-height accurate
-          if (openId.value === id) {
-            requestAnimationFrame(() => {
-              setBodyHeight(id);
+                try {
+                    pre.dataset.codeToggle = "1";
+                } catch (e) {}
+
+                // Don't add a toggle for short code blocks (10 lines or less)
+                if (lineCount <= 10) return;
+
+                // Wrap so the button can be anchored outside the scrollable <pre>
+                const wrap = document.createElement("div");
+                wrap.className = "code-wrap";
+                pre.parentNode.insertBefore(wrap, pre);
+                wrap.appendChild(pre);
+
+                // Default collapsed
+                pre.classList.add("code-toggle");
+                pre.classList.add("code-collapsed");
+                pre.classList.remove("code-open");
+
+                const btn = document.createElement("button");
+                btn.type = "button";
+                btn.className = "code-toggle-btn";
+                btn.title = "Expand code";
+                btn.setAttribute("aria-label", "Expand code");
+
+                btn.addEventListener("click", (e) => {
+                    e.stopPropagation();
+
+                    const isOpen = pre.classList.contains("code-open");
+
+                    if (isOpen) {
+                        pre.classList.remove("code-open");
+                        pre.classList.add("code-collapsed");
+                        btn.classList.remove("is-open");
+                        btn.title = "Expand code";
+                        btn.setAttribute("aria-label", "Expand code");
+                    } else {
+                        pre.classList.add("code-open");
+                        pre.classList.remove("code-collapsed");
+                        btn.classList.add("is-open");
+                        btn.title = "Collapse code";
+                        btn.setAttribute("aria-label", "Collapse code");
+                    }
+
+                    // keep measured-height accurate
+                    if (openId.value === id) {
+                        requestAnimationFrame(() => {
+                            setBodyHeight(id);
+                        });
+                    }
+                });
+
+                wrap.appendChild(btn);
             });
-          }
+        };
+
+        // ---------------------------------------------------------
+        // MEASURED HEIGHT SUPPORT (fixes "slow then snap" max-height)
+        // Sets CSS var --body-h to the body's scrollHeight while open.
+        // Keeps it updated if images load / content reflows.
+        // ---------------------------------------------------------
+        let bodyRO = null;
+
+        const setBodyHeight = (id) => {
+            // ensure code blocks are processed BEFORE measuring
+            setupCodeToggles(id);
+
+            const body = document.querySelector(`#writeup-${id} .writeup-body`);
+            if (!body) return;
+
+            const apply = () => {
+                // scrollHeight includes padding; ensure we measure when open padding is applied
+                body.style.setProperty("--body-h", body.scrollHeight + "px");
+            };
+
+            // Apply now + after layout settles a bit
+            requestAnimationFrame(() => {
+                apply();
+                requestAnimationFrame(apply);
+            });
+
+            // Keep it correct while open (images, fonts, etc.)
+            try {
+                bodyRO?.disconnect();
+                bodyRO = new ResizeObserver(() => {
+                    if (openId.value === id) apply();
+                });
+                bodyRO.observe(body);
+            } catch (e) {
+                // Fallback if ResizeObserver isn't available
+                setTimeout(apply, 350);
+            }
+        };
+
+        const clearBodyObserver = () => {
+            try {
+                bodyRO?.disconnect();
+            } catch (e) {}
+            bodyRO = null;
+        };
+
+        // robust, deterministic offset scroll (beats scroll restoration + late layout shifts)
+        const scrollToWriteup = (id, smooth, tries = 0, rescrolls = 0) => {
+            const el = document.getElementById(`writeup-${id}`);
+
+            // retry a few frames on initial load / view transitions
+            if (!el) {
+                if (tries < 48)
+                    requestAnimationFrame(() =>
+                        scrollToWriteup(id, smooth, tries + 1, rescrolls)
+                    );
+                return;
+            }
+
+            const findScrollParent = (node) => {
+                let p = node && node.parentElement;
+                while (p) {
+                    const st = window.getComputedStyle(p);
+                    const oy = st.overflowY;
+                    if (
+                        (oy === "auto" ||
+                            oy === "scroll" ||
+                            oy === "overlay") &&
+                        p.scrollHeight > p.clientHeight + 2
+                    ) {
+                        return p;
+                    }
+                    p = p.parentElement;
+                }
+                return document.scrollingElement || document.documentElement;
+            };
+
+            const offset = 90; // matches scroll-margin-top / desired header offset
+
+            const scrollOnce = (useSmooth) => {
+                const scroller = findScrollParent(el);
+
+                // window/document scroller
+                if (
+                    scroller === document.scrollingElement ||
+                    scroller === document.documentElement ||
+                    scroller === document.body
+                ) {
+                    const y = el.getBoundingClientRect().top + (window.pageYOffset || 0);
+                    const top = Math.max(0, y - offset);
+                    window.scrollTo({ top, behavior: useSmooth ? "smooth" : "auto" });
+                    return;
+                }
+
+                // nested scroller
+                const scRect = scroller.getBoundingClientRect();
+                const elRect = el.getBoundingClientRect();
+                const y = elRect.top - scRect.top + scroller.scrollTop;
+                const top = Math.max(0, y - offset);
+
+                if (typeof scroller.scrollTo === "function") {
+                    scroller.scrollTo({ top, behavior: useSmooth ? "smooth" : "auto" });
+                } else {
+                    scroller.scrollTop = top;
+                }
+            };
+
+            const verifyAndRescroll = () => {
+                // if late layout shifts push it away, re-apply a couple times
+                const delta = el.getBoundingClientRect().top - offset;
+                if (Math.abs(delta) > 26 && rescrolls < 3) {
+                    scrollOnce(false);
+                    setTimeout(
+                        () => scrollToWriteup(id, false, tries, rescrolls + 1),
+                        260
+                    );
+                }
+            };
+
+            // wait 2 frames so layout (and .open max-height var) is applied before measuring
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    scrollOnce(!!smooth);
+                    // longer settle because your open animation is now slower
+                    setTimeout(verifyAndRescroll, smooth ? 700 : 220);
+                });
+            });
+        };
+
+        const updateUrl = (idOrNull) => {
+            const url = new URL(window.location.href);
+            // Only manage the writeup id here. index.js owns the "view" param.
+            if (idOrNull) url.searchParams.set("w", idOrNull);
+            else url.searchParams.delete("w");
+
+            history.replaceState({}, "", url);
+        };
+
+        const closeAll = () => {
+            clearBodyObserver();
+            openId.value = null;
+            updateUrl(null);
+        };
+
+        const toggle = (id) => {
+            const next = openId.value === id ? null : id;
+
+            // switching cards: stop observing the old one first
+            clearBodyObserver();
+
+            if (next) loadedWriteups.add(next);
+            openId.value = next;
+            updateUrl(openId.value);
+
+            if (openId.value) {
+                // let DOM apply .open first, then measure height and scroll
+                requestAnimationFrame(() => {
+                    setBodyHeight(openId.value);
+                    scrollToWriteup(openId.value, true);
+                });
+            }
+        };
+
+        const openFromUrl = (smooth) => {
+            const sp = new URLSearchParams(window.location.search);
+            const id = sp.get("w") || sp.get("writeup");
+            if (!id) return;
+
+            const exists = writeups.value.find((w) => w.id === id);
+            if (!exists) return;
+
+            // prevent browser scroll restoration from overriding our direct-link scroll
+            try {
+                if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+            } catch (e) {}
+
+            clearBodyObserver();
+            loadedWriteups.add(id);
+            openId.value = id;
+
+            requestAnimationFrame(() => {
+                setBodyHeight(id);
+                scrollToWriteup(id, !!smooth);
+            });
+
+            // one extra settle pass for late-loading assets / dvh changes
+            setTimeout(() => {
+                setBodyHeight(id);
+                scrollToWriteup(id, false);
+            }, 650);
+        };
+
+        D(() => {
+            // direct-link support
+            openFromUrl(false);
+
+            // cross-view event support (index -> writeups)
+            window.addEventListener("writeups:open", (e) => {
+                const id = e?.detail?.id;
+                if (!id) return;
+
+                const exists = writeups.value.find((w) => w.id === id);
+                if (!exists) return;
+
+                clearBodyObserver();
+                loadedWriteups.add(id);
+                openId.value = id;
+
+                requestAnimationFrame(() => {
+                    setBodyHeight(id);
+                    scrollToWriteup(id, true);
+                });
+            });
+
+            // close any open card when index switches back to "about me"
+            window.addEventListener("writeups:close", () => {
+                closeAll();
+            });
+
+            // if page is restored from bfcache, re-apply direct-link scroll
+            window.addEventListener("pageshow", (e) => {
+                if (e.persisted) openFromUrl(false);
+            });
         });
 
-        wrap.appendChild(btn);
-      });
-    };
+        return (i, a) => (
+            m(),
+            g("div", Root, [
+                l("div", Main, [
+                    l("div", Text, [
+                        l("h2", null, "CTF Writeups"),
+                        l(
+                            "p",
+                            null,
+                            "Here are a couple of ctf writeups I've written. I plan to post more of these here as time goes on. I won't post AI slop here, all of it is written by me."
+                        ),
+                    ]),
+                ]),
 
-    // ---------------------------------------------------------
-    // MEASURED HEIGHT SUPPORT (fixes "slow then snap" max-height)
-    // Sets CSS var --body-h to the body's scrollHeight while open.
-    // Keeps it updated if images load / content reflows.
-    // ---------------------------------------------------------
-    let bodyRO = null;
+                l("div", List, [
+                    (m(!0),
+                        g(
+                            W,
+                            null,
+                            A(T(writeups), (w) => (
+                                m(),
+                                g(
+                                    "article", {
+                                        key: w.id,
+                                        id: `writeup-${w.id}`,
+                                        class: "writeup-card" + (openId.value === w.id ? " open" : ""),
+                                    }, [
+                                        /* left tiles */
+                                        l("div", { class: "writeup-badges-left" }, [
+                                            l(
+                                                "div", {
+                                                    class: "writeup-badge writeup-diff" +
+                                                        (w.difficulty === "brutal" ? " writeup-brutal" : ""),
+                                                    style: { "--diff-color": diffColorOf(w.difficulty) },
+                                                },
+                                                I(w.difficulty),
+                                                5
+                                            ),
+                                            l(
+                                                "div", {
+                                                    class: "writeup-badge writeup-cat" +
+                                                        (w.category === "forensics" ?
+                                                            " writeup-cat-forensics" :
+                                                            ""),
+                                                    style: { "--badge-color": w.catColor },
+                                                },
+                                                I(w.category),
+                                                5
+                                            ),
+                                        ]),
 
-    const setBodyHeight = (id) => {
-      // ensure code blocks are processed BEFORE measuring
-      setupCodeToggles(id);
+                                        /* right tiles: challenge distinctions */
+                                        l(
+                                            "div", {
+                                                class: "writeup-badges-right",
+                                                style: {
+                                                    display: w.firstBlood || w.author ? "" : "none",
+                                                },
+                                            },
+                                            w.firstBlood ?
+                                            [
+                                                l(
+                                                    "div", { class: "writeup-badge writeup-firstblood" },
+                                                    "🩸First Blood🩸"
+                                                ),
+                                            ] :
+                                            w.author ?
+                                            [
+                                                l(
+                                                    "div", { class: "writeup-badge writeup-author" },
+                                                    "✏️Author✏️"
+                                                ),
+                                            ] :
+                                            []
+                                        ),
 
-      const body = document.querySelector(`#writeup-${id} .writeup-body`);
-      if (!body) return;
+                                        l(
+                                            "header", { class: "writeup-head", onClick: () => toggle(w.id) }, [
+                                                l("h3", { class: "writeup-title" }, I(w.title), 1),
+                                                l("p", { class: "writeup-subtitle" }, I(w.subtitle), 1),
+                                            ]
+                                        ),
 
-      const apply = () => {
-        // scrollHeight includes padding; ensure we measure when open padding is applied
-        body.style.setProperty("--body-h", body.scrollHeight + "px");
-      };
+                                        l(
+                                            "div", {
+                                                class: "writeup-body",
+                                                innerHTML: loadedWriteups.has(w.id) ? w.body : "",
+                                            },
+                                            null,
+                                            8, ["innerHTML"]
+                                        ),
 
-      // Apply now + after layout settles a bit
-      requestAnimationFrame(() => {
-        apply();
-        requestAnimationFrame(apply);
-      });
-
-      // Keep it correct while open (images, fonts, etc.)
-      try {
-        bodyRO?.disconnect();
-        bodyRO = new ResizeObserver(() => {
-          if (openId.value === id) apply();
-        });
-        bodyRO.observe(body);
-      } catch (e) {
-        // Fallback if ResizeObserver isn't available
-        setTimeout(apply, 350);
-      }
-    };
-
-    const clearBodyObserver = () => {
-      try {
-        bodyRO?.disconnect();
-      } catch (e) {}
-      bodyRO = null;
-    };
-
-    // robust, deterministic offset scroll (beats scroll restoration + late layout shifts)
-    const scrollToWriteup = (id, smooth, tries = 0, rescrolls = 0) => {
-      const el = document.getElementById(`writeup-${id}`);
-
-      // retry a few frames on initial load / view transitions
-      if (!el) {
-        if (tries < 48)
-          requestAnimationFrame(() =>
-            scrollToWriteup(id, smooth, tries + 1, rescrolls)
-          );
-        return;
-      }
-
-      const findScrollParent = (node) => {
-        let p = node && node.parentElement;
-        while (p) {
-          const st = window.getComputedStyle(p);
-          const oy = st.overflowY;
-          if (
-            (oy === "auto" ||
-              oy === "scroll" ||
-              oy === "overlay") &&
-            p.scrollHeight > p.clientHeight + 2
-          ) {
-            return p;
-          }
-          p = p.parentElement;
-        }
-        return document.scrollingElement || document.documentElement;
-      };
-
-      const offset = 90; // matches scroll-margin-top / desired header offset
-
-      const scrollOnce = (useSmooth) => {
-        const scroller = findScrollParent(el);
-
-        // window/document scroller
-        if (
-          scroller === document.scrollingElement ||
-          scroller === document.documentElement ||
-          scroller === document.body
-        ) {
-          const y = el.getBoundingClientRect().top + (window.pageYOffset || 0);
-          const top = Math.max(0, y - offset);
-          window.scrollTo({ top, behavior: useSmooth ? "smooth" : "auto" });
-          return;
-        }
-
-        // nested scroller
-        const scRect = scroller.getBoundingClientRect();
-        const elRect = el.getBoundingClientRect();
-        const y = elRect.top - scRect.top + scroller.scrollTop;
-        const top = Math.max(0, y - offset);
-
-        if (typeof scroller.scrollTo === "function") {
-          scroller.scrollTo({ top, behavior: useSmooth ? "smooth" : "auto" });
-        } else {
-          scroller.scrollTop = top;
-        }
-      };
-
-      const verifyAndRescroll = () => {
-        // if late layout shifts push it away, re-apply a couple times
-        const delta = el.getBoundingClientRect().top - offset;
-        if (Math.abs(delta) > 26 && rescrolls < 3) {
-          scrollOnce(false);
-          setTimeout(
-            () => scrollToWriteup(id, false, tries, rescrolls + 1),
-            260
-          );
-        }
-      };
-
-      // wait 2 frames so layout (and .open max-height var) is applied before measuring
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          scrollOnce(!!smooth);
-          // longer settle because your open animation is now slower
-          setTimeout(verifyAndRescroll, smooth ? 700 : 220);
-        });
-      });
-    };
-
-    const updateUrl = (idOrNull) => {
-      const url = new URL(window.location.href);
-      // Only manage the writeup id here. index.js owns the "view" param.
-      if (idOrNull) url.searchParams.set("w", idOrNull);
-      else url.searchParams.delete("w");
-
-      history.replaceState({}, "", url);
-    };
-
-    const closeAll = () => {
-      clearBodyObserver();
-      openId.value = null;
-      updateUrl(null);
-    };
-
-    const toggle = (id) => {
-      const next = openId.value === id ? null : id;
-
-      // switching cards: stop observing the old one first
-      clearBodyObserver();
-
-      openId.value = next;
-      updateUrl(openId.value);
-
-      if (openId.value) {
-        // let DOM apply .open first, then measure height and scroll
-        requestAnimationFrame(() => {
-          setBodyHeight(openId.value);
-          scrollToWriteup(openId.value, true);
-        });
-      }
-    };
-
-    const openFromUrl = (smooth) => {
-      const sp = new URLSearchParams(window.location.search);
-      const id = sp.get("w") || sp.get("writeup");
-      if (!id) return;
-
-      const exists = writeups.value.find((w) => w.id === id);
-      if (!exists) return;
-
-      // prevent browser scroll restoration from overriding our direct-link scroll
-      try {
-        if ("scrollRestoration" in history) history.scrollRestoration = "manual";
-      } catch (e) {}
-
-      clearBodyObserver();
-      openId.value = id;
-
-      requestAnimationFrame(() => {
-        setBodyHeight(id);
-        scrollToWriteup(id, !!smooth);
-      });
-
-      // one extra settle pass for late-loading assets / dvh changes
-      setTimeout(() => {
-        setBodyHeight(id);
-        scrollToWriteup(id, false);
-      }, 650);
-    };
-
-    D(() => {
-      // direct-link support
-      openFromUrl(false);
-
-      // cross-view event support (index -> writeups)
-      window.addEventListener("writeups:open", (e) => {
-        const id = e?.detail?.id;
-        if (!id) return;
-
-        const exists = writeups.value.find((w) => w.id === id);
-        if (!exists) return;
-
-        clearBodyObserver();
-        openId.value = id;
-
-        requestAnimationFrame(() => {
-          setBodyHeight(id);
-          scrollToWriteup(id, true);
-        });
-      });
-
-      // close any open card when index switches back to "about me"
-      window.addEventListener("writeups:close", () => {
-        closeAll();
-      });
-
-      // if page is restored from bfcache, re-apply direct-link scroll
-      window.addEventListener("pageshow", (e) => {
-        if (e.persisted) openFromUrl(false);
-      });
-    });
-
-    return (i, a) => (
-      m(),
-      g("div", Root, [
-        l("div", Main, [
-          l("div", Text, [
-            l("h2", null, "CTF Writeups"),
-            l(
-              "p",
-              null,
-              "Here are a couple of ctf writeups I've written. I plan to post more of these here as time goes on. I won't post AI slop here, all of it is written by me."
-            ),
-          ]),
-        ]),
-
-        l("div", List, [
-          (m(!0),
-          g(
-            W,
-            null,
-            A(T(writeups), (w) => (
-              m(),
-              g(
-                "article",
-                {
-                  key: w.id,
-                  id: `writeup-${w.id}`,
-                  class:
-                    "writeup-card" + (openId.value === w.id ? " open" : ""),
-                },
-                [
-                  /* left tiles */
-                  l("div", { class: "writeup-badges-left" }, [
-                    l(
-                      "div",
-                      {
-                        class: "writeup-badge writeup-diff",
-                        style: { "--diff-color": diffColorOf(w.difficulty) },
-                      },
-                      I(w.difficulty),
-                      5
-                    ),
-                    l(
-                      "div",
-                      {
-                        class: "writeup-badge writeup-cat",
-                        style: { "--badge-color": w.catColor },
-                      },
-                      I(w.category),
-                      5
-                    ),
-                  ]),
-
-                  /* right tile (only for Emoji CAPTCHA) */
-                  l(
-                    "div",
-                    {
-                      class: "writeup-badges-right",
-                      style: {
-                        display: w.id === "emoji_captcha" ? "" : "none",
-                      },
-                    },
-                    [
-                      l(
-                        "div",
-                        { class: "writeup-badge writeup-firstblood" },
-                        "🩸First Blood🩸"
-                      ),
-                    ]
-                  ),
-
-                  l(
-                    "header",
-                    { class: "writeup-head", onClick: () => toggle(w.id) },
-                    [
-                      l("h3", { class: "writeup-title" }, I(w.title), 1),
-                      l("p", { class: "writeup-subtitle" }, I(w.subtitle), 1),
-                    ]
-                  ),
-
-                  l(
-                    "div",
-                    {
-                      class: "writeup-body",
-                      innerHTML: w.body,
-                    },
-                    null,
-                    8,
-                    ["innerHTML"]
-                  ),
-
-                  // bottom-right close button (only visible when .open)
-                  l(
-                    "button",
-                    {
-                      type: "button",
-                      class: "writeup-close-btn",
-                      title: "Close",
-                      "aria-label": "Close writeup",
-                      onClick: (e) => {
-                        e.stopPropagation();
-                        closeAll();
-                      },
-                    },
-                    "×"
-                  ),
-                ],
-                2
-              )
-            )),
-            128
-          )),
-        ]),
-      ])
-    );
-  },
+                                        // bottom-right close button (only visible when .open)
+                                        l(
+                                            "button", {
+                                                type: "button",
+                                                class: "writeup-close-btn",
+                                                title: "Close",
+                                                "aria-label": "Close writeup",
+                                                onClick: (e) => {
+                                                    e.stopPropagation();
+                                                    closeAll();
+                                                },
+                                            },
+                                            "×"
+                                        ),
+                                    ],
+                                    2
+                                )
+                            )),
+                            128
+                        )),
+                ]),
+            ])
+        );
+    },
 });
 
 export { Writeups as default };

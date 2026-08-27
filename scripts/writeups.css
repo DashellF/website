@@ -488,12 +488,12 @@
    ========================================================= */
 .writeup-badges-left {
   position: absolute;
-  left: 28px;
+  left: clamp(6px, 0.8vw, 10px);
   top: 37px;
   transform: translate3d(0, -50%, 0);
 
   display: flex;
-  gap: 25px;
+  gap: clamp(6px, 0.7vw, 10px);
   align-items: center;
 
   pointer-events: none;
@@ -542,8 +542,36 @@
   color: var(--badge-color, currentColor);
 }
 
+.writeup-badge.writeup-cat-forensics {
+  transform: translateX(-6px);
+}
+
+/* Brutal difficulty badge (Emoji CAPTCHA) */
+.writeup-badge.writeup-diff.writeup-brutal {
+  border-color: #7e22ce;
+  color: #7e22ce;
+}
+
 /* First Blood badge */
 .writeup-badge.writeup-firstblood {
   border-color: #ef4444;
   color: #ef4444;
+}
+
+/* Author badge (L3AK CTF 2026 writeups) */
+.writeup-badge.writeup-author {
+  border-color: #facc15;
+  color: #facc15;
+}
+
+/* On narrow panels, reserve a separate row for badges so long titles never overlap. */
+@media (max-width: 800px) {
+  .writeup-head {
+    padding-top: 3.7rem;
+  }
+
+  .writeup-badges-left,
+  .writeup-badges-right {
+    top: 25px;
+  }
 }
